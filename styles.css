@@ -460,6 +460,19 @@ body {
     background: var(--gold-primary);
 }
 
+/* Seal Breaking Animation */
+.seal-breaking {
+    animation: sealBreak 0.5s ease;
+}
+
+@keyframes sealBreak {
+    0% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.1) rotate(-5deg); }
+    50% { transform: scale(1.05) rotate(5deg); }
+    75% { transform: scale(1.1) rotate(-3deg); }
+    100% { transform: scale(0.95) rotate(0deg); opacity: 0.7; }
+}
+
 /* Responsive adjustments */
 @media (max-width: 480px) {
     .nav-btn {

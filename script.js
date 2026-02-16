@@ -56,7 +56,7 @@ async function initCamera() {
             text-align: center;
             padding: 20px;
         `;
-        placeholder.textContent = 'Camera access not available.\nThis is a demonstration of The Lens interface.';
+        placeholder.innerHTML = 'Camera access not available.<br>This is a demonstration of The Lens interface.';
         document.querySelector('.viewfinder-frame').appendChild(placeholder);
     }
 }
@@ -89,12 +89,12 @@ dispatchItems.forEach(item => {
     item.addEventListener('click', function() {
         // Add seal breaking animation
         const seal = this.querySelector('.wax-seal');
-        seal.style.animation = 'sealBreak 0.5s ease';
+        seal.classList.add('seal-breaking');
         
         // Show dispatch viewer after seal breaks
         setTimeout(() => {
             dispatchViewer.classList.add('active');
-            seal.style.animation = '';
+            seal.classList.remove('seal-breaking');
         }, 500);
     });
 });
@@ -110,19 +110,6 @@ dispatchViewer.addEventListener('click', (e) => {
         dispatchViewer.classList.remove('active');
     }
 });
-
-// Add seal breaking animation
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes sealBreak {
-        0% { transform: scale(1) rotate(0deg); }
-        25% { transform: scale(1.1) rotate(-5deg); }
-        50% { transform: scale(1.05) rotate(5deg); }
-        75% { transform: scale(1.1) rotate(-3deg); }
-        100% { transform: scale(0.95) rotate(0deg); opacity: 0.7; }
-    }
-`;
-document.head.appendChild(style);
 
 // Cleanup camera on page unload
 window.addEventListener('beforeunload', () => {
