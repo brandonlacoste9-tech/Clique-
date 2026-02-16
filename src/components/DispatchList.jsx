@@ -5,12 +5,12 @@ function DispatchList({ dispatches, onOpenDispatch }) {
   const [breakingSeals, setBreakingSeals] = useState({});
 
   const handleBreakSeal = (dispatchId) => {
-    setBreakingSeals({ ...breakingSeals, [dispatchId]: true });
+    setBreakingSeals(prev => ({ ...prev, [dispatchId]: true }));
     
     // Animate seal breaking, then open dispatch
     setTimeout(() => {
       onOpenDispatch(dispatchId);
-      setBreakingSeals({ ...breakingSeals, [dispatchId]: false });
+      setBreakingSeals(prev => ({ ...prev, [dispatchId]: false }));
     }, 800);
   };
 
