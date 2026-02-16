@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clique - The Sovereign Social Reality</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation -->
+        <nav class="nav-bar">
+            <button class="nav-btn" data-view="friends">La Clique</button>
+            <button class="nav-btn active" data-view="camera">The Lens</button>
+            <button class="nav-btn" data-view="dispatches">Dispatches</button>
+        </nav>
+
+        <!-- La Clique (Friends List) -->
+        <div class="view friends-view" id="friends-view">
+            <h2 class="view-title">La Clique</h2>
+            <div class="friends-list">
+                <div class="friend-item">
+                    <div class="friend-avatar">👤</div>
+                    <div class="friend-info">
+                        <div class="friend-name">Marie Dubois</div>
+                        <div class="friend-status">Active now</div>
+                    </div>
+                </div>
+                <div class="friend-item">
+                    <div class="friend-avatar">👤</div>
+                    <div class="friend-info">
+                        <div class="friend-name">Jean Laurent</div>
+                        <div class="friend-status">2h ago</div>
+                    </div>
+                </div>
+                <div class="friend-item">
+                    <div class="friend-avatar">👤</div>
+                    <div class="friend-info">
+                        <div class="friend-name">Sophie Martin</div>
+                        <div class="friend-status">1d ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- The Lens (Camera) -->
+        <div class="view camera-view active" id="camera-view">
+            <div class="camera-container">
+                <div class="viewfinder">
+                    <div class="viewfinder-frame">
+                        <video id="camera-feed" autoplay playsinline></video>
+                        <div class="flash-overlay"></div>
+                    </div>
+                </div>
+                <div class="camera-controls">
+                    <button class="capture-btn" id="capture-btn">
+                        <span class="capture-ring"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dispatches (Messages/Snaps) -->
+        <div class="view dispatches-view" id="dispatches-view">
+            <h2 class="view-title">Dispatches</h2>
+            <div class="dispatches-list">
+                <div class="dispatch-item" data-dispatch="1">
+                    <div class="dispatch-seal">
+                        <div class="wax-seal">
+                            <span class="seal-letter">C</span>
+                        </div>
+                    </div>
+                    <div class="dispatch-info">
+                        <div class="dispatch-from">From: Marie Dubois</div>
+                        <div class="dispatch-time">2 minutes ago</div>
+                    </div>
+                </div>
+                <div class="dispatch-item" data-dispatch="2">
+                    <div class="dispatch-seal">
+                        <div class="wax-seal">
+                            <span class="seal-letter">C</span>
+                        </div>
+                    </div>
+                    <div class="dispatch-info">
+                        <div class="dispatch-from">From: Jean Laurent</div>
+                        <div class="dispatch-time">1 hour ago</div>
+                    </div>
+                </div>
+                <div class="dispatch-item" data-dispatch="3">
+                    <div class="dispatch-seal">
+                        <div class="wax-seal">
+                            <span class="seal-letter">C</span>
+                        </div>
+                    </div>
+                    <div class="dispatch-info">
+                        <div class="dispatch-from">From: Sophie Martin</div>
+                        <div class="dispatch-time">3 hours ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dispatch Viewer Modal -->
+        <div class="dispatch-viewer" id="dispatch-viewer">
+            <div class="dispatch-content">
+                <button class="close-dispatch" id="close-dispatch">✕</button>
+                <div class="dispatch-media">
+                    <p>Dispatch content would appear here</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,484 @@
+/* Color Palette - Imperial Gold */
+:root {
+    --gold-primary: #D4AF37;
+    --gold-dark: #B8941F;
+    --gold-light: #F4E5B8;
+    --burnished-gold: #C5A028;
+    --leather-dark: #2C1810;
+    --leather-medium: #4A3728;
+    --background-dark: #1A1410;
+    --text-light: #F5F5DC;
+    --text-gold: #D4AF37;
+}
+
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Garamond', 'Georgia', serif;
+    background: linear-gradient(135deg, var(--leather-dark) 0%, var(--background-dark) 100%);
+    color: var(--text-light);
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.app-container {
+    max-width: 480px;
+    margin: 0 auto;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--leather-dark);
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+}
+
+/* Navigation Bar */
+.nav-bar {
+    display: flex;
+    justify-content: space-around;
+    padding: 15px;
+    background: var(--leather-medium);
+    border-bottom: 2px solid var(--gold-primary);
+}
+
+.nav-btn {
+    background: transparent;
+    border: 2px solid transparent;
+    color: var(--text-light);
+    padding: 10px 20px;
+    font-size: 14px;
+    font-family: 'Garamond', serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    letter-spacing: 1px;
+}
+
+.nav-btn:hover {
+    border-color: var(--gold-primary);
+    color: var(--gold-primary);
+}
+
+.nav-btn.active {
+    background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold-primary) 100%);
+    color: var(--leather-dark);
+    border-color: var(--gold-primary);
+    font-weight: bold;
+}
+
+/* Views */
+.view {
+    display: none;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.view.active {
+    display: block;
+}
+
+.view-title {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--gold-primary);
+    font-size: 32px;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* The Lens (Camera View) */
+.camera-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.camera-view.active {
+    display: flex;
+}
+
+.camera-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.viewfinder {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 3/4;
+}
+
+.viewfinder-frame {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border: 4px solid var(--gold-primary);
+    border-radius: 8px;
+    box-shadow: 
+        0 0 20px rgba(212, 175, 55, 0.4),
+        inset 0 0 20px rgba(212, 175, 55, 0.1),
+        0 4px 10px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    background: var(--background-dark);
+}
+
+.viewfinder-frame::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 2px solid var(--gold-dark);
+    border-radius: 8px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+#camera-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Flash Overlay */
+.flash-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, var(--gold-light) 0%, var(--burnished-gold) 50%, transparent 100%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 10;
+    transition: opacity 0.1s ease;
+}
+
+.flash-overlay.flash {
+    animation: flashEffect 0.5s ease;
+}
+
+@keyframes flashEffect {
+    0% { opacity: 0; }
+    20% { opacity: 0.9; }
+    100% { opacity: 0; }
+}
+
+/* Camera Controls */
+.camera-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.capture-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dark) 100%);
+    border: 4px solid var(--text-light);
+    cursor: pointer;
+    position: relative;
+    box-shadow: 
+        0 0 20px rgba(212, 175, 55, 0.6),
+        0 4px 10px rgba(0, 0, 0, 0.5);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.capture-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 
+        0 0 30px rgba(212, 175, 55, 0.8),
+        0 6px 15px rgba(0, 0, 0, 0.6);
+}
+
+.capture-btn:active {
+    transform: scale(0.95);
+}
+
+.capture-ring {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--text-light);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* La Clique (Friends View) */
+.friends-view {
+    padding: 0;
+}
+
+.friends-list {
+    padding: 20px;
+}
+
+.friend-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: var(--leather-medium);
+    border: 1px solid var(--gold-dark);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.friend-item:hover {
+    background: var(--leather-dark);
+    border-color: var(--gold-primary);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+}
+
+.friend-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--gold-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-right: 15px;
+    border: 2px solid var(--gold-dark);
+}
+
+.friend-info {
+    flex: 1;
+}
+
+.friend-name {
+    font-size: 18px;
+    color: var(--text-light);
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.friend-status {
+    font-size: 14px;
+    color: var(--gold-light);
+}
+
+/* Dispatches View */
+.dispatches-view {
+    padding: 0;
+}
+
+.dispatches-list {
+    padding: 20px;
+}
+
+.dispatch-item {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    margin-bottom: 15px;
+    background: linear-gradient(135deg, var(--leather-medium) 0%, var(--leather-dark) 100%);
+    border: 2px solid var(--gold-dark);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.dispatch-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, transparent 0%, rgba(212, 175, 55, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.dispatch-item:hover::before {
+    opacity: 1;
+}
+
+.dispatch-item:hover {
+    border-color: var(--gold-primary);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+    transform: translateY(-2px);
+}
+
+.dispatch-seal {
+    margin-right: 20px;
+}
+
+.wax-seal {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, var(--gold-light) 0%, var(--gold-primary) 50%, var(--gold-dark) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        0 4px 10px rgba(0, 0, 0, 0.5),
+        inset 0 2px 5px rgba(255, 255, 255, 0.3),
+        inset 0 -2px 5px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.wax-seal::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    border: 2px solid rgba(139, 69, 19, 0.3);
+}
+
+.seal-letter {
+    font-size: 36px;
+    font-weight: bold;
+    color: var(--leather-dark);
+    font-family: 'Garamond', serif;
+    text-shadow: 
+        1px 1px 2px rgba(255, 255, 255, 0.3),
+        -1px -1px 2px rgba(0, 0, 0, 0.3);
+    z-index: 1;
+}
+
+.dispatch-info {
+    flex: 1;
+}
+
+.dispatch-from {
+    font-size: 18px;
+    color: var(--text-light);
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.dispatch-time {
+    font-size: 14px;
+    color: var(--gold-light);
+}
+
+/* Dispatch Viewer Modal */
+.dispatch-viewer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.dispatch-viewer.active {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.dispatch-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    background: var(--leather-dark);
+    border: 3px solid var(--gold-primary);
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.5);
+}
+
+.close-dispatch {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gold-primary);
+    color: var(--leather-dark);
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.close-dispatch:hover {
+    background: var(--gold-light);
+    transform: rotate(90deg);
+}
+
+.dispatch-media {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-light);
+    font-size: 18px;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--leather-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--gold-dark);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gold-primary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .nav-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .view-title {
+        font-size: 24px;
+        padding: 20px;
+    }
+
+    .capture-btn {
+        width: 70px;
+        height: 70px;
+    }
+
+    .capture-ring {
+        width: 50px;
+        height: 50px;
+    }
+}
