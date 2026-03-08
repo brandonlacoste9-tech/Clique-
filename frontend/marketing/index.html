@@ -12,17 +12,23 @@
       :root {
         --obsidian: #050505;
         --gold: #d4af37;
-        --gold-bright: #f9d71c;
-        --gold-dark: #a67c00;
+        --gold-bright: #ffefaf;
+        --gold-dark: #8c6d1f;
         --suede-text: #e8e8e1;
-        --gold-glow: 0 10px 30px rgba(212, 175, 55, 0.3);
-        --btn-grad: linear-gradient(
-          180deg,
-          #f9d71c 0%,
-          #d4af37 50%,
-          #a67c00 100%
+        --gold-glow: 0 15px 40px rgba(212, 175, 55, 0.4);
+        --bullion-grad: linear-gradient(
+          to bottom right,
+          #d4af37 0%,
+          #ffefaf 20%,
+          #d4af37 40%,
+          #8c6d1f 60%,
+          #d4af37 80%,
+          #ffefaf 100%
         );
-        --card-shadow: 20px 20px 60px #030303, -20px -20px 60px #070707;
+        --bullion-shadow:
+          0 10px 30px rgba(0, 0, 0, 0.8),
+          inset 1px 1px 0 rgba(255, 255, 255, 0.4),
+          inset -1px -1px 0 rgba(0, 0, 0, 0.3);
         --inner-shadow:
           inset 8px 8px 16px #030303, inset -8px -8px 16px #070707;
       }
@@ -63,13 +69,18 @@
       }
 
       .logo {
-        font-size: 5rem;
+        font-size: 6rem;
         font-weight: 900;
-        color: var(--gold);
-        letter-spacing: 1.5rem;
-        text-shadow: var(--gold-glow);
-        margin-bottom: 1rem;
+        background: var(--bullion-grad);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: 2.2rem;
+        filter: drop-shadow(0 15px 20px rgba(0, 0, 0, 0.8));
+        margin-bottom: 1.5rem;
         animation: fadeInScale 1.5s ease-out;
+        position: relative;
+        text-transform: uppercase;
       }
 
       .tagline {
@@ -148,24 +159,32 @@
         justify-content: center;
       }
 
-      /* Buttons - Skeuomorphic Gold */
+      /* Gold Bullion Button */
       .cta-button {
-        background: var(--btn-grad);
-        color: var(--obsidian);
-        padding: 1.2rem 3rem;
-        font-size: 1rem;
+        background: var(--bullion-grad);
+        color: rgba(0, 0, 0, 0.8);
+        padding: 1.5rem 4rem;
+        font-size: 1.1rem;
         font-weight: 900;
         text-transform: uppercase;
-        letter-spacing: 0.2rem;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 12px;
+        letter-spacing: 0.3rem;
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        border-radius: 4px; /* Hard corners for bullion look */
         cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow:
-          0 15px 35px rgba(212, 175, 55, 0.3),
-          inset 0 2px 2px rgba(255, 255, 255, 0.5),
-          inset 0 -2px 2px rgba(0, 0, 0, 0.3);
-        text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+        transition: all 0.3s ease;
+        box-shadow: var(--bullion-shadow);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .cta-button::after {
+        content: "999.9 FINE GOLD";
+        position: absolute;
+        bottom: 4px;
+        right: 8px;
+        font-size: 0.5rem;
+        opacity: 0.3;
+        font-weight: 900;
       }
 
       .cta-button:hover {
