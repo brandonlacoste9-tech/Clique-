@@ -12,6 +12,13 @@ import {
 } from "react-native";
 import * as SnapLogin from "react-native-snap-kit-login";
 import * as Haptics from "expo-haptics";
+import Svg, {
+  Defs,
+  LinearGradient,
+  Stop,
+  Rect,
+  Text as SvgText,
+} from "react-native-svg";
 
 import { useAuthStore } from "../store/cliqueStore";
 import { authAPI } from "../api/cliqueApi";
@@ -147,12 +154,47 @@ export default function AuthScreen() {
       >
         <View style={styles.overlay}>
           <View style={styles.content}>
-            {/* Logo */}
+            {/* Gold Bullion Logo Block */}
             <View style={styles.logoContainer}>
-              <View style={styles.logoRing}>
-                <View style={styles.logoInner}>
-                  <Text style={styles.logoText}>C</Text>
-                </View>
+              <View style={styles.bullionBlock}>
+                <Svg height="100%" width="100%" style={StyleSheet.absoluteFill}>
+                  <Defs>
+                    <LinearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+                      <Stop offset="0" stopColor="#ffefaf" stopOpacity="1" />
+                      <Stop offset="0.5" stopColor="#d4af37" stopOpacity="1" />
+                      <Stop offset="1" stopColor="#8c6d1f" stopOpacity="1" />
+                    </LinearGradient>
+                  </Defs>
+                  <Rect
+                    x="0"
+                    y="0"
+                    width="100%"
+                    height="100%"
+                    fill="url(#goldGrad)"
+                    rx="8"
+                  />
+                  <SvgText
+                    x="50%"
+                    y="60%"
+                    fontSize="42"
+                    fontWeight="900"
+                    fill="rgba(0,0,0,0.6)"
+                    textAnchor="middle"
+                    letterSpacing="4"
+                  >
+                    C
+                  </SvgText>
+                  <SvgText
+                    x="85%"
+                    y="15%"
+                    fontSize="8"
+                    fontWeight="900"
+                    fill="rgba(0,0,0,0.3)"
+                    textAnchor="middle"
+                  >
+                    999.9
+                  </SvgText>
+                </Svg>
               </View>
               <Text style={styles.title}>CLIQUE</Text>
               <Text style={styles.tagline}>L'Élite de l'Instant</Text>
@@ -286,24 +328,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: spacing["2xl"],
   },
-  logoRing: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 2,
-    borderColor: colors.gold.DEFAULT,
+  bullionBlock: {
+    width: 140,
+    height: 80,
+    borderRadius: 8,
+    overflow: "hidden",
+    borderWidth: 1.5,
+    borderColor: "rgba(255,255,255,0.3)",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: spacing.md,
-    ...shadows.gold,
-  },
-  logoInner: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
     backgroundColor: colors.gold.DEFAULT,
-    justifyContent: "center",
-    alignItems: "center",
+    ...shadows.gold,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.8,
+    shadowRadius: 15,
+    elevation: 20,
   },
   logoText: {
     fontSize: typography.sizes["3xl"],
