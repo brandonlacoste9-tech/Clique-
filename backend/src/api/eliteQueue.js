@@ -4,6 +4,7 @@
  */
 
 const MAX_SOVEREIGNS = 100;
+import { sendEliteInvitation } from "../services/eliteNotificationService.js";
 
 export default async function eliteQueueRoutes(fastify, options) {
   const { redis, db } = fastify;
@@ -49,6 +50,13 @@ export default async function eliteQueueRoutes(fastify, options) {
         }),
       );
       await redis.ltrim("zyeute:hall_of_sovereigns", 0, 9); // Keep last 10 for the ticker
+
+      // Dispatch Elite Invitation Email
+      try {
+        await sendEliteInvitation(email, sovereignKey, count + 1);
+      } catch (err) {
+        console.error(`[ZYEYTÉ-AUTH-FAIL] ${email} - Error: ${err.message}`);
+      }
 
       return {
         status: "GRANTED",
