@@ -68,10 +68,21 @@
       }
 
       .gold-key {
-        font-size: 5rem;
+        font-size: 6rem;
         margin-bottom: 2rem;
         display: block;
-        text-shadow: var(--gold-glow);
+        filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.6));
+        animation: keyFloat 3s ease-in-out infinite;
+      }
+
+      @keyframes keyFloat {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
       }
 
       h1 {
@@ -88,8 +99,9 @@
       p {
         font-size: 1.2rem;
         line-height: 1.6;
-        color: #bbb;
-        max-width: 400px;
+        color: rgba(0, 0, 0, 0.7); /* Dark text on gold bar */
+        font-weight: 600;
+        max-width: 450px;
         margin: 0 auto 2rem;
       }
 
