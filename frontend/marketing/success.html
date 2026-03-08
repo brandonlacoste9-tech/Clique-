@@ -10,10 +10,13 @@
     />
     <style>
       :root {
-        --obsidian: #0a0a0a;
+        --obsidian: #050505;
         --gold: #d4af37;
-        --suede-text: #e5e5e5;
-        --gold-glow: 0 0 30px rgba(212, 175, 55, 0.4);
+        --gold-bright: #f9d71c;
+        --gold-dark: #a67c00;
+        --suede-text: #e8e8e1;
+        --gold-glow: 0 10px 40px rgba(212, 175, 55, 0.4);
+        --card-grad: linear-gradient(145deg, #0e0e0e, #030303);
       }
 
       body {
@@ -29,12 +32,42 @@
       }
 
       .success-card {
-        padding: 4rem;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid var(--gold);
-        border-radius: 20px;
-        backdrop-filter: blur(20px);
-        animation: cardEntrance 1s ease-out;
+        padding: 5rem;
+        background: var(--card-grad);
+        border: 2px solid var(--gold);
+        border-radius: 30px;
+        box-shadow:
+          30px 30px 80px #010101,
+          -10px -10px 60px rgba(212, 175, 55, 0.05),
+          inset 0 0 20px rgba(212, 175, 55, 0.1);
+        position: relative;
+        overflow: hidden;
+        animation: cardEntrance 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+
+      .success-card::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          45deg,
+          transparent 45%,
+          rgba(212, 175, 55, 0.1) 50%,
+          transparent 55%
+        );
+        animation: sheen 4s infinite;
+      }
+
+      @keyframes sheen {
+        0% {
+          transform: translateX(-30%) translateY(-30%);
+        }
+        100% {
+          transform: translateX(30%) translateY(30%);
+        }
       }
 
       .gold-key {
