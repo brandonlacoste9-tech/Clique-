@@ -68,19 +68,54 @@
         position: relative;
       }
 
-      .logo {
-        font-size: 6rem;
-        font-weight: 900;
+      .logo-bullion {
         background: var(--bullion-grad);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        letter-spacing: 2.2rem;
-        filter: drop-shadow(0 15px 20px rgba(0, 0, 0, 0.8));
-        margin-bottom: 1.5rem;
-        animation: fadeInScale 1.5s ease-out;
+        padding: 3rem 6rem;
+        border-radius: 6px;
+        box-shadow:
+          0 40px 100px rgba(0, 0, 0, 1),
+          inset 2px 2px 0 rgba(255, 255, 255, 0.4),
+          inset -2px -2px 0 rgba(0, 0, 0, 0.5);
+        margin-bottom: 3rem;
         position: relative;
-        text-transform: uppercase;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transform: perspective(1000px) rotateX(10deg);
+        animation: logoEntrance 2s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+
+      .logo-bullion::after {
+        content: "CLIQUE";
+        font-size: 5rem;
+        font-weight: 900;
+        letter-spacing: 2rem;
+        color: rgba(0, 0, 0, 0.7);
+        text-shadow: 0 2px 4px rgba(255, 255, 255, 0.3);
+      }
+
+      .logo-bullion::before {
+        content: "CLIQUE • AU 999.9 FINE GOLD";
+        position: absolute;
+        top: 15px;
+        left: 0;
+        width: 100%;
+        font-size: 0.6rem;
+        font-weight: 900;
+        opacity: 0.2;
+        letter-spacing: 0.4rem;
+        text-align: center;
+      }
+
+      @keyframes logoEntrance {
+        0% {
+          opacity: 0;
+          transform: perspective(1000px) rotateX(20deg) translateY(50px);
+        }
+        100% {
+          opacity: 1;
+          transform: perspective(1000px) rotateX(10deg) translateY(0);
+        }
       }
 
       .tagline {
@@ -378,7 +413,7 @@
   <body>
     <div class="container">
       <header>
-        <h1 class="logo">CLIQUE</h1>
+        <div class="logo-bullion"></div>
         <p class="tagline">L'Élite de l'Instant</p>
 
         <!-- First 100 Free Promo -->
