@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZYEYTÉ | L'Élite de l'Instant</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --obsidian: #0a0a0a;
+        --gold: #d4af37;
+        --gold-bright: #ffdf00;
+        --suede-text: #e5e5e5;
+        --glass: rgba(255, 255, 255, 0.05);
+        --gold-glow: 0 0 20px rgba(212, 175, 55, 0.4);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: var(--obsidian);
+        color: var(--suede-text);
+        font-family: "Outfit", sans-serif;
+        overflow-x: hidden;
+        background-image: radial-gradient(
+          circle at top,
+          #1a1a1a 0%,
+          var(--obsidian) 70%
+        );
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      /* Hero Section */
+      header {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        position: relative;
+      }
+
+      .logo {
+        font-size: 5rem;
+        font-weight: 900;
+        color: var(--gold);
+        letter-spacing: 1.5rem;
+        text-shadow: var(--gold-glow);
+        margin-bottom: 1rem;
+        animation: fadeInScale 1.5s ease-out;
+      }
+
+      .tagline {
+        font-size: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8rem;
+        color: var(--gold);
+        opacity: 0.8;
+        margin-bottom: 2rem;
+      }
+
+      .hero-desc {
+        max-width: 700px;
+        font-size: 1.2rem;
+        line-height: 1.8;
+        color: #bbb;
+        margin-bottom: 3rem;
+      }
+
+      /* Promo Banner Stylings */
+      .promo-banner {
+        margin: 2rem 0;
+        padding: 1.5rem 3rem;
+        background: linear-gradient(
+          135deg,
+          rgba(212, 175, 55, 0.1) 0%,
+          rgba(212, 175, 55, 0.05) 100%
+        );
+        border: 1px solid var(--gold);
+        border-radius: 10px;
+        display: inline-block;
+        backdrop-filter: blur(5px);
+        animation: glowPulse 3s infinite;
+      }
+
+      .promo-badge {
+        background-color: var(--gold);
+        color: var(--obsidian);
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
+        display: inline-block;
+      }
+
+      .counter-container {
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--gold);
+        font-weight: 700;
+      }
+
+      #remaining-count {
+        font-size: 1.2rem;
+        padding: 0 0.5rem;
+      }
+
+      @keyframes glowPulse {
+        0% {
+          box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+        50% {
+          box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
+        }
+        100% {
+          box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+      }
+
+      .elite-form {
+        display: flex;
+        gap: 1rem;
+        width: 100%;
+        max-width: 500px;
+        justify-content: center;
+      }
+
+      .elite-input {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        color: var(--suede-text);
+        padding: 1rem 1.5rem;
+        border-radius: 5px;
+        font-family: inherit;
+        letter-spacing: 0.1rem;
+        outline: none;
+        transition: border-color 0.3s ease;
+      }
+
+      .elite-input:focus {
+        border-color: var(--gold);
+      }
+
+      /* Buttons */
+      .cta-button {
+        background-color: var(--gold);
+        color: var(--obsidian);
+        padding: 1.2rem 3rem;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.2rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: var(--gold-glow);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .cta-button:hover {
+        background-color: var(--gold-bright);
+        transform: translateY(-5px);
+        box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+      }
+
+      /* Feature Grid */
+      .features {
+        padding: 10rem 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2.5rem;
+      }
+
+      .feature-card {
+        background: var(--glass);
+        padding: 3rem;
+        border-radius: 15px;
+        border: 1px solid rgba(212, 175, 55, 0.1);
+        transition: all 0.4s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      .feature-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--gold);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        display: block;
+      }
+
+      .feature-title {
+        font-size: 1.25rem;
+        color: var(--gold);
+        margin-bottom: 1rem;
+        letter-spacing: 0.1rem;
+        text-transform: uppercase;
+      }
+
+      .feature-desc {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #999;
+      }
+
+      /* Footer */
+      footer {
+        padding: 5rem 0;
+        text-align: center;
+        border-top: 1px solid rgba(212, 175, 55, 0.1);
+      }
+
+      .footer-text {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3rem;
+        color: #555;
+      }
+
+      @keyframes fadeInScale {
+        0% {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* Hall of Sovereigns Ticker */
+      .hall-of-sovereigns {
+        padding: 5rem 0;
+        text-align: center;
+      }
+
+      .hall-title {
+        font-size: 0.9rem;
+        color: var(--gold);
+        letter-spacing: 0.4rem;
+        margin-bottom: 2.5rem;
+        opacity: 0.6;
+      }
+
+      .ticker-wrapper {
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.02);
+        padding: 1.5rem 0;
+        border-top: 1px solid rgba(212, 175, 55, 0.05);
+        border-bottom: 1px solid rgba(212, 175, 55, 0.05);
+        transform: skewY(-1deg);
+      }
+
+      .ticker {
+        display: flex;
+        white-space: nowrap;
+        animation: tickerMove 30s linear infinite;
+      }
+
+      .ticker-item {
+        display: inline-block;
+        padding: 0 4rem;
+        font-size: 1.1rem;
+        font-weight: 300;
+        color: var(--suede-text);
+        letter-spacing: 0.2rem;
+        text-transform: uppercase;
+      }
+
+      .item-spot {
+        color: var(--gold);
+        font-weight: 700;
+        margin-right: 1rem;
+      }
+
+      @keyframes tickerMove {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .logo {
+          font-size: 3rem;
+          letter-spacing: 0.8rem;
+        }
+        .tagline {
+          font-size: 1rem;
+          letter-spacing: 0.4rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1 class="logo">ZYEYTÉ</h1>
+        <p class="tagline">L'Élite de l'Instant</p>
+
+        <!-- First 100 Free Promo -->
+        <div class="promo-banner">
+          <span class="promo-badge">100 PREMIERS GRATUITS</span>
+          <p>Accès à vie pour les 100 premiers Souverains</p>
+          <div class="counter-container">
+            <span id="remaining-count">100</span> places restantes
+          </div>
+        </div>
+
+        <p class="hero-desc">
+          Rétablir la souveraineté de votre présence numérique. Pas de bruit.
+          Que de l'éclat. L'expérience sociale la plus exclusive du Québec,
+          conçue pour ceux qui exigent l'excellence.
+        </p>
+
+        <!-- Elite Access Form -->
+        <form action="success.html" method="get" class="elite-form">
+          <input
+            type="email"
+            placeholder="COURRIEL ÉLITE"
+            required
+            class="elite-input"
+          />
+          <button type="submit" class="cta-button">
+            DEMANDER L'ACCÈS ÉLITE
+          </button>
+        </form>
+      </header>
+
+      <section class="features">
+        <div class="feature-card">
+          <span class="feature-icon">📍</span>
+          <h3 class="feature-title">Territoire</h3>
+          <p class="feature-desc">
+            Une cartographie tactique aux teintes Obsidian & Gold. Visualisez
+            votre influence et votre domaine en temps réel.
+          </p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">👑</span>
+          <h3 class="feature-title">L'Élite</h3>
+          <p class="feature-desc">
+            Chaque capture est sublimée par l'objectif exclusif. Transformez
+            l'instant en une oeuvre d'art souveraine.
+          </p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🔔</span>
+          <h3 class="feature-title">Empire Chime</h3>
+          <p class="feature-desc">
+            Chaque interaction résonne avec la clarté du cristal. Une signature
+            sonore organique pour une attention pure.
+          </p>
+        </div>
+      </section>
+
+      <section class="hall-of-sovereigns">
+        <h2 class="hall-title">LE CERCLE DES 100</h2>
+        <div class="ticker-wrapper">
+          <div class="ticker" id="hall-ticker">
+            <!-- JavaScript will populate this -->
+            <span class="ticker-item">Chargement de l'élite...</span>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <p class="footer-text">Bilingue. Sécurisé. Québécois. © 2026 ZYEYTÉ.</p>
+      </footer>
+    </div>
+
+    <script>
+      const countEl = document.getElementById("remaining-count");
+      const tickerEl = document.getElementById("hall-ticker");
+      const eliteForm = document.querySelector(".elite-form");
+
+      let currentCount = 100;
+
+      // 1. Handle Real-Time Hall of Sovereigns
+      const updateHall = async () => {
+        try {
+          // In production, this would hit /elite/hall
+          // const res = await fetch('/elite/hall');
+          // const data = await res.json();
+
+          // Mocking some data for the premiere
+          const mocks = [
+            { name: "J. Ber...", spot: 1 },
+            { name: "M. Lav...", spot: 2 },
+            { name: "S. Roy...", spot: 3 },
+            { name: "A. Gab...", spot: 4 },
+            { name: "P. Mor...", spot: 5 },
+          ];
+
+          tickerEl.innerHTML =
+            mocks
+              .map(
+                (m) => `
+                    <span class="ticker-item"><span class="item-spot">#${String(m.spot).padStart(3, "0")}</span> ${m.name}</span>
+                `,
+              )
+              .join("") + tickerEl.innerHTML;
+        } catch (e) {
+          console.error(e);
+        }
+      };
+
+      // 2. Initial Hall Load
+      updateHall();
+
+      // 3. Form Submission to Backend
+      eliteForm.addEventListener("submit", async (e) => {
+        // e.preventDefault();
+        const email = eliteForm.querySelector("input").value;
+
+        // Logic to send to API:
+        // await fetch('/elite/register', {
+        //    method: 'POST',
+        //    headers: { 'Content-Type': 'application/json' },
+        //    body: JSON.stringify({ email })
+        // });
+
+        // For YOLO Demo: redirect to success page
+        // window.location.href = `success.html?email=${email}`;
+      });
+
+      // 4. Scramble Simulation
+      const scramble = () => {
+        const delay = Math.random() * 10000 + 5000;
+        setTimeout(() => {
+          if (currentCount > 91) {
+            // Slowing it down for the 100 first
+            currentCount -= 1;
+            countEl.innerText = currentCount;
+            scramble();
+            updateHall();
+          }
+        }, delay);
+      };
+
+      scramble();
+    </script>
+  </body>
+</html>
