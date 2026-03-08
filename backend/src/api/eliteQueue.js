@@ -26,17 +26,13 @@ export default async function eliteQueueRoutes(fastify, options) {
 
       const sovereignKey = `CQ-ELITE-${Math.random().toString(36).toUpperCase().substring(2, 10)}`;
 
-      // Save to DB (Postgres via knex/db decorator)
-      // Assuming 'candidates' table exists or creating it
-      await db("candidates")
-        .insert({
-          email,
-          status: "SOVEREIGN_INITIAL",
-          sovereign_key: sovereignKey,
-          created_at: new Date(),
-        })
-        .onConflict("email")
-        .ignore();
+      // Save to DB (Postgres via pg Pool)
+      await db.query(
+        `INSERT INTO candidates (email, status, sovereign_key, created_at) 
+         VALUES ($1, $2, $3, $4) 
+         ON CONFLICT (email) DO NOTHING`,
+        [email, "SOVEREIGN_INITIAL", sovereignKey, new Date()],
+      );
 
       // Store in Redis for the "Hall of Sovereigns" live feed
       const nameFromEmail = email.split("@")[0];
@@ -66,14 +62,12 @@ export default async function eliteQueueRoutes(fastify, options) {
       };
     } else {
       // Pivot to Waitlist
-      await db("candidates")
-        .insert({
-          email,
-          status: "WAITLISTED",
-          created_at: new Date(),
-        })
-        .onConflict("email")
-        .ignore();
+      await db.query(
+        `INSERT INTO candidates (email, status, created_at) 
+         VALUES ($1, $2, $3) 
+         ON CONFLICT (email) DO NOTHING`,
+        [email, "WAITLISTED", new Date()],
+      );
 
       return {
         status: "WAITLISTED",
