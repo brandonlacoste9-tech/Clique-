@@ -3,7 +3,7 @@
 
 export const SNAP_CONFIG = {
   clientId: "0f2f7902-6045-420a-9d62-720464646464", // Placeholder: User must update from Dev Portal
-  redirectUrl: "zyeute://snap-kit/auth", // Using zyeute:// scheme per latest spec
+  redirectUrl: "clique://snap-kit/auth", // Using clique:// scheme per rebranding
   scopes: [
     "https://auth.snapchat.com/oauth2/api/user.display_name",
     "https://auth.snapchat.com/oauth2/api/user.bitmoji.avatar",

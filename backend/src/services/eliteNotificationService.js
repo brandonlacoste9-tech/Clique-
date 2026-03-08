@@ -1,15 +1,15 @@
 /**
- * ZYEYTÉ Elite Notification Service
+ * CLIQUE Elite Notification Service
  * Orchestrates the "Invitation Élite" email and Digital Card delivery.
  */
 
 // Placeholder for an actual email provider like Resend or SendGrid
 export const sendEliteInvitation = async (email, sovereignKey, spot) => {
-  console.log(`[ZYEYTÉ] Preparing Imperial Welcome for: ${email}`);
+  console.log(`[CLIQUE] Preparing Imperial Welcome for: ${email}`);
 
   const emailBody = `
         <div style="background-color: #0A0A0A; color: #E5E5E5; padding: 50px; font-family: 'Outfit', sans-serif; text-align: center; border: 1px solid #D4AF37;">
-            <h1 style="color: #D4AF37; letter-spacing: 12px; font-size: 32px;">ZYEYTÉ</h1>
+            <h1 style="color: #D4AF37; letter-spacing: 12px; font-size: 32px;">CLIQUE</h1>
             <p style="text-transform: uppercase; letter-spacing: 4px; opacity: 0.6; margin-bottom: 40px;">L'Élite de l'Instant</p>
             
             <p style="font-size: 18px; line-height: 1.6;">
@@ -29,7 +29,7 @@ export const sendEliteInvitation = async (email, sovereignKey, spot) => {
             </p>
             
             <p style="font-size: 12px; color: #555; margin-top: 60px;">
-                Bilingue. Sécurisé. Québécois. © 2026 ZYEYTÉ.
+                Bilingue. Sécurisé. Québécois. © 2026 CLIQUE.
             </p>
         </div>
     `;
@@ -41,6 +41,6 @@ export const sendEliteInvitation = async (email, sovereignKey, spot) => {
   return {
     sent: true,
     timestamp: new Date().toISOString(),
-    receipt: `receipt-zy-${spot}`,
+    receipt: `receipt-cq-${spot}`,
   };
 };
