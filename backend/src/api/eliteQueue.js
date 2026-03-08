@@ -1,5 +1,5 @@
 /**
- * ZYEYTÉ Elite Queue Scarcity Engine
+ * CLIQUE Elite Queue Scarcity Engine
  * Handles the "L'Offrande Initiale" (First 100 Free) logic.
  */
 
@@ -17,14 +17,14 @@ export default async function eliteQueueRoutes(fastify, options) {
     }
 
     // Use Redis for atomic counter to prevent overflow during peak hype
-    const currentCount = (await redis.get("zyeute:sovereign_count")) || 0;
+    const currentCount = (await redis.get("clique:sovereign_count")) || 0;
     const count = parseInt(currentCount, 10);
 
     if (count < MAX_SOVEREIGNS) {
       // Atomic increment
-      await redis.incr("zyeute:sovereign_count");
+      await redis.incr("clique:sovereign_count");
 
-      const sovereignKey = `ZY-ELITE-${Math.random().toString(36).toUpperCase().substring(2, 10)}`;
+      const sovereignKey = `CQ-ELITE-${Math.random().toString(36).toUpperCase().substring(2, 10)}`;
 
       // Save to DB (Postgres via knex/db decorator)
       // Assuming 'candidates' table exists or creating it
@@ -42,20 +42,20 @@ export default async function eliteQueueRoutes(fastify, options) {
       const nameFromEmail = email.split("@")[0];
       const maskedName = `${nameFromEmail.charAt(0).toUpperCase()}. ${nameFromEmail.slice(1, 3)}...`;
       await redis.lpush(
-        "zyeute:hall_of_sovereigns",
+        "clique:hall_of_sovereigns",
         JSON.stringify({
           name: maskedName,
           spot: count + 1,
           timestamp: new Date().toISOString(),
         }),
       );
-      await redis.ltrim("zyeute:hall_of_sovereigns", 0, 9); // Keep last 10 for the ticker
+      await redis.ltrim("clique:hall_of_sovereigns", 0, 9); // Keep last 10 for the ticker
 
       // Dispatch Elite Invitation Email
       try {
         await sendEliteInvitation(email, sovereignKey, count + 1);
       } catch (err) {
-        console.error(`[ZYEYTÉ-AUTH-FAIL] ${email} - Error: ${err.message}`);
+        console.error(`[CLIQUE-AUTH-FAIL] ${email} - Error: ${err.message}`);
       }
 
       return {
@@ -84,7 +84,7 @@ export default async function eliteQueueRoutes(fastify, options) {
 
   // Endpoint for the "Hall of Sovereigns" ticker
   fastify.get("/hall", async () => {
-    const hall = await redis.lrange("zyeute:hall_of_sovereigns", 0, 9);
+    const hall = await redis.lrange("clique:hall_of_sovereigns", 0, 9);
     return hall.map((s) => JSON.parse(s));
   });
 }

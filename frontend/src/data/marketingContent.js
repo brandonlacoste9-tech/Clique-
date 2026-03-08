@@ -1,5 +1,5 @@
 export const marketingContent = {
-  brand: "ZYEYTÉ",
+  brand: "CLIQUE",
   tagline: "L'Élite de l'Instant",
   mission:
     "Rétablir la souveraineté de votre présence numérique. Pas de bruit. Que de l'éclat.",
@@ -43,5 +43,5 @@ export const marketingContent = {
     remaining: 100, // This will be dynamic in production
     badge: "100 PREMIERS GRATUITS",
   },
-  legal: "Bilingue. Sécurisé. Québécois. © 2026 ZYEYTÉ.",
+  legal: "Bilingue. Sécurisé. Québécois. © 2026 CLIQUE.",
 };

@@ -151,10 +151,10 @@ export default function AuthScreen() {
             <View style={styles.logoContainer}>
               <View style={styles.logoRing}>
                 <View style={styles.logoInner}>
-                  <Text style={styles.logoText}>Z</Text>
+                  <Text style={styles.logoText}>C</Text>
                 </View>
               </View>
-              <Text style={styles.title}>ZYEYTÉ</Text>
+              <Text style={styles.title}>CLIQUE</Text>
               <Text style={styles.tagline}>L'Élite de l'Instant</Text>
             </View>
 
