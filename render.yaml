@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: clique-web
+    env: node
+    buildCommand: cd frontend && npm install && npm run build:web
+    startCommand: npx serve dist
+    outputDirectory: dist
+    envVars:
+      - key: REACT_APP_API_URL
+        sync: false
