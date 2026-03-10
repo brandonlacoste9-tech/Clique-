@@ -17,6 +17,7 @@ import ChatScreen from "./screens/ChatScreen";
 import MapScreen from "./screens/MapScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import ChatDetailScreen from "./screens/ChatDetailScreen";
+import PremiumUpgrade from "./src/components/ImperialPremiumUpgrade";
 
 // Auth
 import AuthScreen from "./screens/AuthScreen";
@@ -68,6 +69,7 @@ export default function App() {
           <>
             <Stack.Screen name="Main" component={MainTabs} />
             <Stack.Screen name="ChatDetail" component={ChatDetailScreen} />
+            <Stack.Screen name="PremiumUpgrade" component={PremiumUpgrade} />
           </>
         )}
       </Stack.Navigator>

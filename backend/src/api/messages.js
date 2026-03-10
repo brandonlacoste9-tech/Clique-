@@ -133,7 +133,7 @@ export default async function messageRoutes(fastify, opts) {
     };
   });
   
-  // Send message
+  // Send message (with ephemeral limit for free tier)
   fastify.post('/:userId', async (request, reply) => {
     const senderId = request.user.userId;
     const { userId: recipientId } = request.params;
@@ -159,6 +159,27 @@ export default async function messageRoutes(fastify, opts) {
     
     if (friendCheck.rows.length === 0) {
       return reply.code(403).send({ error: 'Not friends with this user' });
+    }
+    
+    // Check ephemeral message limit for free tier (5 per day)
+    if (ephemeral) {
+      const freeTierLimit = 5;
+      const dailyEphemeralResult = await query(
+        `SELECT COUNT(*) as count FROM messages 
+         WHERE sender_id = $1 AND ephemeral_mode = true AND sent_at >= CURRENT_DATE`,
+        [senderId]
+      );
+      
+      const dailyEphemeralCount = parseInt(dailyEphemeralResult.rows[0].count);
+      
+      if (dailyEphemeralCount >= freeTierLimit) {
+        return reply.code(402).send({ 
+          error: 'Daily ephemeral message limit reached',
+          limit: freeTierLimit,
+          dailyEphemeral: dailyEphemeralCount,
+          upgradeRequired: true
+        });
+      }
     }
     
     // Calculate expiry for ephemeral

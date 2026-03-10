@@ -1,5 +1,5 @@
 export const marketingContent = {
-  brand: "ZYEYTÉ",
+  brand: "Clique",
   tagline: "L'Élite de l'Instant",
   mission:
     "Rétablir la souveraineté de votre présence numérique. Pas de bruit. Que de l'éclat.",
@@ -43,5 +43,18 @@ export const marketingContent = {
     remaining: 100, // This will be dynamic in production
     badge: "100 PREMIERS GRATUITS",
   },
-  legal: "Bilingue. Sécurisé. Québécois. © 2026 ZYEYTÉ.",
+  legal: "Bilingue. Sécurisé. Québécois. © 2026 Clique.",
+};
+
+export const cliquePhrases = {
+  upgradeSuccess: "Accès Élite confirmé",
+  checkoutRedirect: "Redirection vers le paiement sécurisé...",
+  upgradeNow: "DÉBLOQUER L'ÉLITE",
+  currentPlan: "PLAN ACTUEL",
+  unlockElite: "DÉBLOQUEZ L'ÉLITE",
+  eliteDescription: "Stories illimités, messages éphémères, cartes avancées",
+  cancelAnytime: "Annulez à tout moment. Pas de engagement.",
+  popular: "POPULAIRE",
+  error: "Erreur",
+  genericError: "Une erreur est survenue. Veuillez réessayer.",
 };

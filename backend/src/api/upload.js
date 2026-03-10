@@ -79,7 +79,7 @@ export default async function uploadRoutes(fastify, opts) {
     }
   });
   
-  // Confirm upload and create story record
+  // Confirm upload and create story record (with usage tracking)
   fastify.post('/story', async (request, reply) => {
     const userId = request.user.userId;
     const { 
@@ -100,6 +100,25 @@ export default async function uploadRoutes(fastify, opts) {
     // Validate media type
     if (!['image', 'video'].includes(mediaType)) {
       return reply.code(400).send({ error: 'Invalid media type' });
+    }
+    
+    // Check free tier limits (3 stories per day)
+    const freeTierLimit = 3;
+    const dailyStoriesResult = await request.server.db.query(
+      `SELECT COUNT(*) as count FROM stories 
+       WHERE user_id = $1 AND created_at >= CURRENT_DATE`,
+      [userId]
+    );
+    
+    const dailyStoriesCount = parseInt(dailyStoriesResult.rows[0].count);
+    
+    if (dailyStoriesCount >= freeTierLimit) {
+      return reply.code(402).send({ 
+        error: 'Daily story limit reached',
+        limit: freeTierLimit,
+        dailyStories: dailyStoriesCount,
+        upgradeRequired: true
+      });
     }
     
     try {

@@ -116,6 +116,16 @@ export const blockingAPI = {
   getUserStatus: (userId) => api.get(`/blocking/status/${userId}`)
 };
 
+// Subscription API
+export const subscriptionAPI = {
+  getSubscription: () => api.get('/subscriptions/me'),
+  getPlans: () => api.get('/subscriptions/plans'),
+  createCheckout: (planId) => api.post('/subscriptions/checkout', { planId }),
+  cancelSubscription: () => api.delete('/subscriptions/me'),
+  upgrade: (planId) => api.post('/subscriptions/upgrade', { planId }),
+  checkFeature: (feature) => api.get(`/subscriptions/feature/${feature}`)
+};
+
 // Messages API
 export const messagesAPI = {
   getConversations: () => api.get('/messages/conversations'),

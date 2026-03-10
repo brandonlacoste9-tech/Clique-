@@ -20,6 +20,7 @@ import notificationRoutes from "./api/notifications.js";
 import reactionRoutes from "./api/reactions.js";
 import schedulingRoutes from "./api/scheduling.js";
 import blockingRoutes from "./api/blocking.js";
+import subscriptionRoutes from "./api/subscriptions.js";
 
 // WebSocket handlers
 import { storySocketHandler } from "./services/websocket.js";
@@ -85,6 +86,7 @@ await app.register(notificationRoutes, { prefix: "/notifications" });
 await app.register(reactionRoutes, { prefix: "/reactions" });
 await app.register(schedulingRoutes, { prefix: "/scheduling" });
 await app.register(blockingRoutes, { prefix: "/blocking" });
+await app.register(subscriptionRoutes, { prefix: "/subscriptions" });
 
 // WebSocket routes
 app.register(async function (fastify) {

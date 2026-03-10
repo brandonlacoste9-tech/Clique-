@@ -256,3 +256,45 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS dark_mode BOOLEAN DEFAULT true;
 -- Index for scheduled stories
 CREATE INDEX idx_stories_scheduled ON stories(user_id, schedule_at) WHERE is_scheduled = true;
 CREATE INDEX idx_stories_draft ON stories(user_id) WHERE is_draft = true;
+
+-- Subscription plans table
+CREATE TABLE IF NOT EXISTS subscription_plans (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(50) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL,
+    currency VARCHAR(3) DEFAULT 'USD',
+    features TEXT[], -- Array of feature names
+    popular BOOLEAN DEFAULT false,
+    active BOOLEAN DEFAULT true,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- User subscriptions
+CREATE TABLE IF NOT EXISTS subscriptions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    plan_id UUID NOT NULL REFERENCES subscription_plans(id) ON DELETE RESTRICT,
+    status VARCHAR(20) NOT NULL DEFAULT 'trialing', -- trialing, active, past_due, cancelled, incomplete
+    current_period_start TIMESTAMPTZ,
+    current_period_end TIMESTAMPTZ,
+    cancelled_at TIMESTAMPTZ,
+    stripe_subscription_id TEXT,
+    stripe_customer_id TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id)
+);
+
+-- Indexes for subscriptions
+CREATE INDEX idx_subscriptions_user ON subscriptions(user_id);
+CREATE INDEX idx_subscriptions_status ON subscriptions(status);
+
+-- Insert default subscription plans
+INSERT INTO subscription_plans (name, description, price, currency, features, popular)
+VALUES 
+    ('Free', 'Basic access with limited features', 0.00, 'USD', ARRAY['stories:3_daily', 'messages:5_ephemeral', 'cliques:1', 'map:basic'], false),
+    ('Elite', 'Unlimited stories and chat, ad-free', 4.99, 'USD', ARRAY['stories:unlimited', 'messages:unlimited', 'cliques:unlimited', 'map:advanced', 'analytics:basic', 'ad_free'], true),
+    ('Imperial', 'Everything in Elite + premium features', 7.99, 'USD', ARRAY['stories:unlimited', 'messages:unlimited', 'cliques:unlimited', 'map:advanced', 'analytics:pro', 'ad_free', 'priority_support', 'verified_badge'], false)
+ON CONFLICT DO NOTHING;
