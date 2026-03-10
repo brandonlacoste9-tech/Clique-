@@ -17,9 +17,27 @@ import {
   borderRadius,
   shadows,
 } from "../theme/cliqueTheme";
+import ThemeToggle from "../components/ThemeToggle";
+import ProfileStats from "../components/ProfileStats";
+import MuteBlockList from "../components/MuteBlock";
+import { userAPI } from "../api/cliqueApi";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
+  const [stats, setStats] = React.useState(null);
+
+  React.useEffect(() => {
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    try {
+      const response = await userAPI.getStats();
+      setStats(response.data);
+    } catch (err) {
+      console.error('Failed to load stats:', err);
+    }
+  };
 
   const menuItems = [
     { icon: "👥", label: "Mes amis", value: "24" },
@@ -85,6 +103,16 @@ export default function ProfileScreen() {
           <Text style={styles.statLabel}>SOUVERAINETÉ</Text>
         </View>
       </View>
+
+      {/* Theme Toggle */}
+      <ThemeToggle />
+
+      {/* Profile Stats */}
+      {stats && <ProfileStats stats={stats} />}
+
+      {/* Mute/Block Lists */}
+      <MuteBlockList type="muted" users={[]} onAction={(id) => console.log('Unmute', id)} />
+      <MuteBlockList type="blocked" users={[]} onAction={(id) => console.log('Unblock', id)} />
 
       <View style={styles.menu}>
         {menuItems.map((item, index) => (

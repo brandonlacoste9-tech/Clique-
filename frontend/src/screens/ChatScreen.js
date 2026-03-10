@@ -101,13 +101,20 @@ export default function ChatScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Messages</Text>
+      {/* Header with LV gold trim */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.header}>MESSAGES</Text>
+        <TouchableOpacity style={styles.newMessageButton}>
+          <Text style={styles.newMessageButtonText}>✏️</Text>
+        </TouchableOpacity>
+      </View>
 
       <FlatList
         data={conversations}
         renderItem={renderConversation}
         keyExtractor={(item) => item.conversationId}
         contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
       />
 
       {conversations.length === 0 && (
@@ -128,14 +135,32 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     paddingTop: spacing.xl,
   },
-  header: {
-    fontSize: typography.sizes["2xl"],
-    fontWeight: "bold",
-    color: colors.gold.DEFAULT,
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: spacing.lg,
     marginBottom: spacing.md,
-    letterSpacing: 4,
+  },
+  header: {
+    fontSize: typography.sizes["2xl"],
+    fontWeight: "900",
+    color: colors.text.primary,
+    letterSpacing: 3,
     textTransform: "uppercase",
+  },
+  newMessageButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.surface,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.gold.DEFAULT,
+  },
+  newMessageButtonText: {
+    fontSize: 18,
   },
   list: {
     paddingHorizontal: spacing.lg,
@@ -145,7 +170,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(212, 175, 55, 0.2)", // Soft gold divider
+    borderBottomColor: "rgba(197, 160, 89, 0.2)",
   },
   avatarContainer: {
     position: "relative",
@@ -155,10 +180,11 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     borderWidth: 1,
-    borderColor: colors.surfaceHighlight,
+    borderColor: colors.gold.DEFAULT,
+    backgroundColor: colors.leather.black,
   },
   avatarOnline: {
-    borderColor: colors.gold.DEFAULT,
+    borderColor: colors.accent.green,
     ...shadows.gold,
     shadowOpacity: 0.3,
     shadowRadius: 5,
@@ -218,6 +244,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 6,
+    ...shadows.gold,
   },
   unreadText: {
     color: colors.leather.black,

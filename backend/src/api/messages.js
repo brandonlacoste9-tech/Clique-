@@ -233,4 +233,46 @@ export default async function messageRoutes(fastify, opts) {
     
     return { message: 'Message deleted' };
   });
+  
+  // Typing indicator - start
+  fastify.post('/typing/:userId', async (request, reply) => {
+    const myId = request.user.userId;
+    const { userId } = request.params;
+    const { isTyping = true } = request.body;
+    
+    // Use Redis to track typing status (expires after 5 seconds)
+    const key = `typing:${myId}:${userId}`;
+    if (isTyping) {
+      await redis.setex(key, 5, JSON.stringify({
+        userId: myId,
+        startedAt: Date.now()
+      }));
+    } else {
+      await redis.del(key);
+    }
+    
+    return { message: isTyping ? 'Typing started' : 'Typing stopped' };
+  });
+  
+  // Typing indicator - get status
+  fastify.get('/typing/:userId', async (request, reply) => {
+    const myId = request.user.userId;
+    const { userId } = request.params;
+    
+    const key = `typing:${userId}:${myId}`;
+    const typingData = await redis.get(key);
+    
+    return {
+      isTyping: !!typingData,
+      typingUserId: typingData ? JSON.parse(typingData).userId : null
+    };
+  });
+  
+  // Online status
+  fastify.get('/online/:userId', async (request, reply) => {
+    const { userId } = request.params;
+    const isOnline = await presence.isOnline(userId);
+    
+    return { isOnline };
+  });
 }

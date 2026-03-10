@@ -229,3 +229,30 @@ CREATE TRIGGER trigger_user_active
     BEFORE UPDATE ON users
     FOR EACH ROW
     EXECUTE FUNCTION update_last_active();
+
+-- Story reactions table
+CREATE TABLE story_reactions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    story_id UUID NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    emoji VARCHAR(10) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(story_id, user_id, emoji)
+);
+
+CREATE INDEX idx_story_reactions_story ON story_reactions(story_id);
+CREATE INDEX idx_story_reactions_user ON story_reactions(user_id);
+
+-- Add columns to stories table
+ALTER TABLE stories ADD COLUMN IF NOT EXISTS is_scheduled BOOLEAN DEFAULT false;
+ALTER TABLE stories ADD COLUMN IF NOT EXISTS schedule_at TIMESTAMPTZ;
+ALTER TABLE stories ADD COLUMN IF NOT EXISTS is_draft BOOLEAN DEFAULT false;
+ALTER TABLE stories ADD COLUMN IF NOT EXISTS reaction_count INTEGER DEFAULT 0;
+ALTER TABLE stories ADD COLUMN IF NOT EXISTS dark_mode BOOLEAN DEFAULT true;
+
+-- Add column to users table for dark mode preference
+ALTER TABLE users ADD COLUMN IF NOT EXISTS dark_mode BOOLEAN DEFAULT true;
+
+-- Index for scheduled stories
+CREATE INDEX idx_stories_scheduled ON stories(user_id, schedule_at) WHERE is_scheduled = true;
+CREATE INDEX idx_stories_draft ON stories(user_id) WHERE is_draft = true;

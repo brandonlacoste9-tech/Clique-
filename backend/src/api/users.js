@@ -281,4 +281,88 @@ export default async function userRoutes(fastify, opts) {
       return { message: 'Friend removed' };
     }
   });
+  
+  // Get profile stats
+  fastify.get('/me/stats', async (request, reply) => {
+    const userId = request.user.userId;
+    
+    // Total stories
+    const totalStories = await query(
+      'SELECT COUNT(*) as count FROM stories WHERE user_id = $1',
+      [userId]
+    );
+    
+    // Total views (all-time)
+    const totalViews = await query(
+      'SELECT COALESCE(SUM(view_count), 0) as count FROM stories WHERE user_id = $1',
+      [userId]
+    );
+    
+    // Top 5 most viewed stories
+    const topStories = await query(
+      `SELECT id, media_key, media_type, view_count, created_at
+       FROM stories 
+       WHERE user_id = $1
+       ORDER BY view_count DESC
+       LIMIT 5`,
+      [userId]
+    );
+    
+    // Recent activity (last 7 days)
+    const recentActivity = await query(
+      `SELECT 
+        DATE(created_at) as date,
+        COUNT(*) as story_count,
+        COALESCE(SUM(view_count), 0) as view_count
+       FROM stories 
+       WHERE user_id = $1 AND created_at >= NOW() - INTERVAL '7 days'
+       GROUP BY DATE(created_at)
+       ORDER BY date DESC`,
+      [userId]
+    );
+    
+    return {
+      totalStories: parseInt(totalStories.rows[0].count),
+      totalViews: parseInt(totalViews.rows[0].count),
+      topStories: topStories.rows.map(s => ({
+        id: s.id,
+        mediaKey: s.media_key,
+        mediaType: s.media_type,
+        viewCount: s.view_count,
+        createdAt: s.created_at
+      })),
+      recentActivity: recentActivity.rows
+    };
+  });
+  
+  // Update dark mode preference
+  fastify.patch('/me/theme', async (request, reply) => {
+    const userId = request.user.userId;
+    const { darkMode } = request.body;
+    
+    if (darkMode === undefined) {
+      return reply.code(400).send({ error: 'darkMode required' });
+    }
+    
+    const result = await query(
+      'UPDATE users SET dark_mode = $1 WHERE id = $2 RETURNING dark_mode',
+      [darkMode, userId]
+    );
+    
+    return { darkMode: result.rows[0].dark_mode };
+  });
+  
+  // Get dark mode preference
+  fastify.get('/me/theme', async (request, reply) => {
+    const userId = request.user.userId;
+    
+    const result = await query(
+      'SELECT dark_mode FROM users WHERE id = $1',
+      [userId]
+    );
+    
+    return {
+      darkMode: result.rows[0]?.dark_mode ?? true // Default to dark mode
+    };
+  });
 }

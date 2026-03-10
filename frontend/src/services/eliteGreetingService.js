@@ -11,11 +11,15 @@ export const triggerEliteWelcome = async (userName) => {
   // 1. Wait for the UI to settle after Suede Slide transition
   setTimeout(async () => {
     try {
-      // 2. Play the Empire Chime
-      const { sound } = await Audio.Sound.createAsync(
-        require("../../assets/sounds/empire_chime.wav"),
-      );
-      await sound.playAsync();
+      // 2. Play the Empire Chime (placeholder for now)
+      try {
+        const { sound } = await Audio.Sound.createAsync(
+          require("../../assets/sounds/empire_chime.js"),
+        );
+        await sound.playAsync();
+      } catch (soundErr) {
+        console.log("Sound file not found, using haptic only");
+      }
 
       // 3. Heartbeat Haptic Pulse
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);

@@ -2,6 +2,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { connectWebSocket, disconnectWebSocket } from '../services/websocketClient';
+import { initializePushNotifications } from '../services/pushNotificationService';
 
 export const useAuthStore = create(
   persist(
@@ -13,15 +15,26 @@ export const useAuthStore = create(
       isLoading: false,
       
       // Actions
-      setToken: (token) => set({ token, isAuthenticated: !!token }),
+      setToken: (token) => {
+        set({ token, isAuthenticated: !!token });
+        if (token) {
+          connectWebSocket();
+          initializePushNotifications();
+        } else {
+          disconnectWebSocket();
+        }
+      },
       setUser: (user) => set({ user }),
       setLoading: (isLoading) => set({ isLoading }),
       
-      logout: () => set({
-        token: null,
-        user: null,
-        isAuthenticated: false
-      }),
+      logout: () => {
+        disconnectWebSocket();
+        set({
+          token: null,
+          user: null,
+          isAuthenticated: false
+        });
+      },
       
       // Getters
       getAuthHeader: () => {

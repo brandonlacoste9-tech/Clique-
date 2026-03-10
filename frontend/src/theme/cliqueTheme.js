@@ -1,43 +1,55 @@
 // Clique Theme - Imperial Gold & Leather
-// 15-25 year old aesthetic: raw, premium, Quebecois
+// Louis Vuitton meets Roots Canada: Luxury with Canadian heritage
 
 export const colors = {
-  // Imperial Gold palette
+  // Imperial Gold - LV Hardware
   gold: {
-    DEFAULT: '#D4AF37',
-    light: '#F4D03F',
-    dark: '#B8860B',
-    shimmer: '#FFE5A0'
+    DEFAULT: '#C5A059',      // Rich gold (not too bright)
+    light: '#E8D58C',         // Highlight
+    dark: '#9A7A3D',          // Shadow
+    shimmer: '#F2E6B8',       // Gloss
+    metallic: '#D4AF37',      // Metallic gold
   },
-  
-  // Leather textures
+
+  // Leather - Premium Canadian Leather
   leather: {
-    black: '#0D0D0D',
-    dark: '#1A1A1A',
-    brown: '#3D2817',
-    tan: '#C4A77D',
-    cream: '#F5F0E8'
+    black: '#0F0F0F',         // Obsidian black
+    dark: '#1A1612',          // Dark leather
+    brown: '#5C4033',         // Saddle leather
+    tan: '#C4A484',           // Natural tan
+    cream: '#F5E6D3',         // Cream leather
+    texture: 'leather-texture', // Texture overlay
   },
-  
+
+  // Canadian Elements
+  canadian: {
+    maple: '#D62828',         // Maple leaf red
+    white: '#FFFFFF',         // Maple leaf white
+    navy: '#00205B',          // Canadian navy
+    gold: '#FFD700',          // Canadian gold
+  },
+
   // Functional
   background: '#0A0A0A',
-  surface: '#141414',
-  surfaceHighlight: '#1E1E1E',
-  
+  surface: '#141210',         // Dark leather surface
+  surfaceHighlight: '#1E1A16',
+  card: '#1A1612',
+
   // Accents
   accent: {
-    red: '#FF3B30',      // notifications, alerts
-    green: '#34C759',    // online, success
-    orange: '#FF9500',   // streaks, warnings
-    purple: '#AF52DE',   // premium features
-    blue: '#007AFF'      // links, actions
+    red: '#D62828',           // Maple red
+    green: '#008000',         // Canadian forest
+    orange: '#FF8C00',        // Streaks
+    purple: '#6B46C1',        // Premium features
+    blue: '#007AFF',          // Links
   },
-  
+
   // Text
   text: {
     primary: '#FFFFFF',
-    secondary: '#8E8E93',
-    muted: '#636366'
+    secondary: '#A0A0A0',
+    muted: '#707070',
+    gold: '#C5A059',
   }
 };
 

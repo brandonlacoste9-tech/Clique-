@@ -16,6 +16,10 @@ import messageRoutes from "./api/messages.js";
 import cliqueRoutes from "./api/cliques.js";
 import uploadRoutes from "./api/upload.js";
 import eliteQueueRoutes from "./api/eliteQueue.js";
+import notificationRoutes from "./api/notifications.js";
+import reactionRoutes from "./api/reactions.js";
+import schedulingRoutes from "./api/scheduling.js";
+import blockingRoutes from "./api/blocking.js";
 
 // WebSocket handlers
 import { storySocketHandler } from "./services/websocket.js";
@@ -23,8 +27,7 @@ import { storySocketHandler } from "./services/websocket.js";
 const app = Fastify({
   logger: {
     level: config.NODE_ENV === "production" ? "info" : "debug",
-    transport:
-      config.NODE_ENV === "development" ? { target: "pino-pretty" } : undefined,
+    // transport: config.NODE_ENV === "development" ? { target: "pino-pretty" } : undefined,
   },
 });
 
@@ -78,6 +81,10 @@ await app.register(messageRoutes, { prefix: "/messages" });
 await app.register(cliqueRoutes, { prefix: "/cliques" });
 await app.register(uploadRoutes, { prefix: "/upload" });
 await app.register(eliteQueueRoutes, { prefix: "/elite" });
+await app.register(notificationRoutes, { prefix: "/notifications" });
+await app.register(reactionRoutes, { prefix: "/reactions" });
+await app.register(schedulingRoutes, { prefix: "/scheduling" });
+await app.register(blockingRoutes, { prefix: "/blocking" });
 
 // WebSocket routes
 app.register(async function (fastify) {

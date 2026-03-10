@@ -40,7 +40,7 @@ const mockFriends = [
     name: "Sam",
     isOnline: false,
     username: "@sam_sovereign",
-    bio: "Vivre pour l’instant. 🥂",
+    bio: "Vivre pour l'instant. 🥂",
     avatar: "https://i.pravatar.cc/150?u=2",
   },
   {
@@ -64,7 +64,13 @@ export default function MapScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>TERRITOIRE</Text>
+      {/* Header with LV gold trim */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.header}>TERRITOIRE</Text>
+        <TouchableOpacity style={styles.locationButton}>
+          <Text style={styles.locationButtonText}>📍</Text>
+        </TouchableOpacity>
+      </View>
 
       <MapView
         style={styles.map}
@@ -136,7 +142,7 @@ export default function MapScreen() {
               <Text style={styles.cardBio}>{selectedUser.bio}</Text>
 
               <TouchableOpacity style={styles.actionButton}>
-                <Text style={styles.actionButtonText}>REJOINDRE L’ÉLITE</Text>
+                <Text style={styles.actionButtonText}>REJOINDRE L'ÉLITE</Text>
               </TouchableOpacity>
             </View>
           </ImageBackground>
@@ -198,18 +204,43 @@ const obsidianMapStyle = [
 ];
 
 const styles = StyleSheet.create({
-  header: {
-    fontSize: typography.sizes["2xl"],
-    fontWeight: "bold",
-    color: colors.gold.DEFAULT,
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: spacing.lg,
     paddingTop: 60,
     paddingBottom: spacing.md,
-    letterSpacing: 4,
     backgroundColor: "transparent",
     position: "absolute",
     top: 0,
+    left: 0,
+    right: 0,
     zIndex: 10,
+  },
+  header: {
+    fontSize: typography.sizes["2xl"],
+    fontWeight: "900",
+    color: colors.text.primary,
+    letterSpacing: 3,
+    textTransform: "uppercase",
+  },
+  locationButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.surface,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.gold.DEFAULT,
+  },
+  locationButtonText: {
+    fontSize: 18,
   },
   map: {
     ...StyleSheet.absoluteFillObject,
@@ -312,10 +343,11 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     alignItems: "center",
     marginTop: spacing.sm,
+    ...shadows.gold,
   },
   actionButtonText: {
     color: colors.leather.black,
-    fontWeight: "bold",
+    fontWeight: "900",
     letterSpacing: 2,
     fontSize: 12,
   },
@@ -328,7 +360,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(13, 13, 13, 0.8)",
     padding: spacing.sm,
     borderRadius: borderRadius.md,
-    borderWidth: 0.5,
+    borderWidth: 1,
     borderColor: colors.gold.DEFAULT,
   },
   legendItem: {

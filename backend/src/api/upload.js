@@ -4,18 +4,25 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
 import { config } from '../config/index.js';
 
-// Configure S3 client (MinIO or AWS)
-const s3Client = new S3Client({
-  endpoint: config.MINIO_USE_SSL 
-    ? `https://${config.MINIO_ENDPOINT}` 
-    : `http://${config.MINIO_ENDPOINT}`,
-  region: 'us-east-1', // MinIO doesn't care about region
-  credentials: {
-    accessKeyId: config.MINIO_ACCESS_KEY,
-    secretAccessKey: config.MINIO_SECRET_KEY
-  },
-  forcePathStyle: true // Required for MinIO
-});
+// Configure S3 client (MinIO or AWS) - lazy loaded to avoid issues with config
+let s3Client = null;
+
+function getS3Client() {
+  if (!s3Client) {
+    s3Client = new S3Client({
+      endpoint: config.MINIO_USE_SSL 
+        ? `https://${config.MINIO_ENDPOINT}` 
+        : `http://${config.MINIO_ENDPOINT}`,
+      region: 'us-east-1',
+      credentials: {
+        accessKeyId: config.MINIO_ACCESS_KEY,
+        secretAccessKey: config.MINIO_SECRET_KEY
+      },
+      forcePathStyle: true
+    });
+  }
+  return s3Client;
+}
 
 export default async function uploadRoutes(fastify, opts) {
   
@@ -44,6 +51,7 @@ export default async function uploadRoutes(fastify, opts) {
     const key = `uploads/${userId}/${timestamp}-${randomId}.${fileExtension}`;
     
     try {
+      const s3 = getS3Client();
       const command = new PutObjectCommand({
         Bucket: config.MINIO_BUCKET,
         Key: key,
@@ -51,7 +59,7 @@ export default async function uploadRoutes(fastify, opts) {
       });
       
       // Generate presigned URL (valid for 5 minutes)
-      const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 300 });
+      const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 300 });
       
       // Public URL for viewing
       const publicUrl = config.MINIO_USE_SSL
@@ -142,8 +150,8 @@ export default async function uploadRoutes(fastify, opts) {
   });
   
   // Get media URL (with optional transformation)
-  fastify.get('/media/:key(*)', async (request, reply) => {
-    const { key } = request.params;
+  fastify.get('/media/*', async (request, reply) => {
+    const key = request.params['*'];
     const { thumbnail = false } = request.query;
     
     try {
