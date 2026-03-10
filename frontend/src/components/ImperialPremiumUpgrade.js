@@ -10,7 +10,7 @@ import ImperialCard from './ImperialCard';
 import ImperialHeader from './ImperialHeader';
 import ImperialLoading from './ImperialLoading';
 
-const { colors, spacing, typography, cliquePhrases: phrases } = cliqueTheme;
+const { colors, spacing, typography } = cliqueTheme;
 
 const PremiumUpgrade = () => {
   const navigation = useNavigation();
