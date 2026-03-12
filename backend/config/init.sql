@@ -186,6 +186,25 @@ CREATE TABLE clique_members (
     UNIQUE(clique_id, user_id)
 );
 
+-- Clique Messages (Group Chat)
+CREATE TABLE clique_messages (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    clique_id UUID NOT NULL REFERENCES cliques(id) ON DELETE CASCADE,
+    sender_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    
+    content_type VARCHAR(20) NOT NULL DEFAULT 'text', -- text, image, video
+    text_content TEXT,
+    content_key TEXT, -- S3/MinIO key for media
+    
+    sent_at TIMESTAMPTZ DEFAULT NOW(),
+    
+    -- Ephemeral settings
+    expires_at TIMESTAMPTZ -- Optional: group messages can also expire
+);
+
+CREATE INDEX idx_clique_messages_clique ON clique_messages(clique_id, sent_at DESC);
+CREATE INDEX idx_clique_messages_expires ON clique_messages(expires_at) WHERE expires_at IS NOT NULL;
+
 -- Devices (for push notifications)
 CREATE TABLE devices (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

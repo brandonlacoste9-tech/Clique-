@@ -1,40 +1,41 @@
 {
-    "expo": {
-        "name": "Clique",
-        "slug": "clique-app",
-        "scheme": "clique",
-        "version": "2026.1.0",
-        "orientation": "portrait",
-        "icon": "./assets/icon.png",
-        "userInterfaceStyle": "dark",
-        "splash": {
-            "image": "./assets/splash.png",
-            "resizeMode": "contain",
-            "backgroundColor": "#0A0A0A"
-        },
-        "assetBundlePatterns": [
-            "**/*"
-        ],
-        "ios": {
-            "supportsTablet": true,
-            "bundleIdentifier": "com.clique.app"
-        },
-        "android": {
-            "adaptiveIcon": {
-                "foregroundImage": "./assets/adaptive-icon.png",
-                "backgroundColor": "#0A0A0A"
-            },
-            "package": "com.clique.app"
-        },
-        "plugins": [
-            [
-                "expo-notifications",
-                {
-                    "sounds": [
-                        "./src/assets/sounds/empire_chime.wav"
-                    ]
-                }
-            ]
-        ]
-    }
+  "expo": {
+    "name": "Clique",
+    "slug": "clique-app",
+    "scheme": "clique",
+    "version": "2026.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0A0A"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.clique.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0A0A0A"
+      },
+      "package": "com.clique.app"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "sounds": [
+            "./src/assets/sounds/empire_chime.wav"
+          ]
+        }
+      ],
+      "expo-asset"
+    ]
+  }
 }

@@ -1,16 +1,15 @@
 // Story API - Upload, view, manage ephemeral stories
-import { v4 as uuidv4 } from 'uuid';
-import { query } from '../models/db.js';
-import { storyCache, presence } from '../services/redis.js';
-import { config } from '../config/index.js';
+import { v4 as uuidv4 } from "uuid";
+import { query } from "../models/db.js";
+import { storyCache, presence } from "../services/redis.js";
+import { config } from "../config/index.js";
 
 export default async function storyRoutes(fastify, opts) {
-  
   // Get stories feed (friends + public)
-  fastify.get('/feed', async (request, reply) => {
+  fastify.get("/feed", async (request, reply) => {
     const userId = request.user.userId;
     const { lat, lng, radius = 5000 } = request.query;
-    
+
     try {
       // Get friends list
       const friendsResult = await query(
@@ -21,11 +20,11 @@ export default async function storyRoutes(fastify, opts) {
           END as friend_id
          FROM friendships 
          WHERE (user_a = $1 OR user_b = $1) AND status = 'accepted'`,
-        [userId]
+        [userId],
       );
-      
-      const friendIds = friendsResult.rows.map(r => r.friend_id);
-      
+
+      const friendIds = friendsResult.rows.map((r) => r.friend_id);
+
       // Build query for active stories
       let storiesQuery = `
         SELECT 
@@ -50,9 +49,9 @@ export default async function storyRoutes(fastify, opts) {
         ORDER BY s.created_at DESC
         LIMIT 50
       `;
-      
+
       const result = await query(storiesQuery, [userId, friendIds]);
-      
+
       // Group by user for story ring UI
       const grouped = result.rows.reduce((acc, story) => {
         if (!acc[story.user_id]) {
@@ -61,13 +60,13 @@ export default async function storyRoutes(fastify, opts) {
               id: story.user_id,
               username: story.username,
               displayName: story.display_name,
-              avatarUrl: story.avatar_url
+              avatarUrl: story.avatar_url,
             },
             stories: [],
-            hasUnviewed: false
+            hasUnviewed: false,
           };
         }
-        
+
         acc[story.user_id].stories.push({
           id: story.id,
           mediaKey: story.media_key,
@@ -80,32 +79,32 @@ export default async function storyRoutes(fastify, opts) {
           viewCount: story.view_count,
           replyCount: story.reply_count,
           isPublic: story.is_public,
-          location: story.lat && story.lng ? { lat: story.lat, lng: story.lng } : null,
-          hasViewed: story.has_viewed
+          location:
+            story.lat && story.lng ? { lat: story.lat, lng: story.lng } : null,
+          hasViewed: story.has_viewed,
         });
-        
+
         if (!story.has_viewed) {
           acc[story.user_id].hasUnviewed = true;
         }
-        
+
         return acc;
       }, {});
-      
+
       return {
         stories: Object.values(grouped),
-        totalCount: result.rows.length
+        totalCount: result.rows.length,
       };
-      
     } catch (err) {
-      fastify.log.error('Feed error:', err);
-      return reply.code(500).send({ error: 'Failed to load stories' });
+      fastify.log.error("Feed error:", err);
+      return reply.code(500).send({ error: "Failed to load stories" });
     }
   });
-  
+
   // Get my stories
-  fastify.get('/me', async (request, reply) => {
+  fastify.get("/me", async (request, reply) => {
     const userId = request.user.userId;
-    
+
     const result = await query(
       `SELECT 
         s.*,
@@ -114,11 +113,11 @@ export default async function storyRoutes(fastify, opts) {
        FROM stories s
        WHERE s.user_id = $1 AND s.expires_at > NOW()
        ORDER BY s.created_at DESC`,
-      [userId]
+      [userId],
     );
-    
+
     return {
-      stories: result.rows.map(row => ({
+      stories: result.rows.map((row) => ({
         id: row.id,
         mediaKey: row.media_key,
         mediaType: row.media_type,
@@ -129,91 +128,91 @@ export default async function storyRoutes(fastify, opts) {
         screenshotCount: parseInt(row.screenshot_count),
         replyCount: row.reply_count,
         expiresAt: row.expires_at,
-        createdAt: row.created_at
-      }))
+        createdAt: row.created_at,
+      })),
     };
   });
-  
+
   // View a story
-  fastify.post('/:id/view', async (request, reply) => {
+  fastify.post("/:id/view", async (request, reply) => {
     const { id } = request.params;
     const viewerId = request.user.userId;
     const { screenshotDetected = false } = request.body || {};
-    
+
     try {
       // Check story exists and not expired
       const storyResult = await query(
-        'SELECT user_id, allow_replies FROM stories WHERE id = $1 AND expires_at > NOW()',
-        [id]
+        "SELECT user_id, allow_replies FROM stories WHERE id = $1 AND expires_at > NOW()",
+        [id],
       );
-      
+
       if (storyResult.rows.length === 0) {
-        return reply.code(404).send({ error: 'Story not found or expired' });
+        return reply.code(404).send({ error: "Story not found or expired" });
       }
-      
+
       const story = storyResult.rows[0];
-      
+
       // Don't count self-views
       if (story.user_id === viewerId) {
-        return { message: 'Self view ignored' };
+        return { message: "Self view ignored" };
       }
-      
+
       // Record view (upsert)
       await query(
         `INSERT INTO story_views (story_id, viewer_id, viewed_at, screenshot_detected)
          VALUES ($1, $2, NOW(), $3)
          ON CONFLICT (story_id, viewer_id) 
          DO UPDATE SET screenshot_detected = EXCLUDED.screenshot_detected OR story_views.screenshot_detected`,
-        [id, viewerId, screenshotDetected]
+        [id, viewerId, screenshotDetected],
       );
-      
+
       // Increment view count
       await query(
-        'UPDATE stories SET view_count = view_count + 1 WHERE id = $1',
-        [id]
+        "UPDATE stories SET view_count = view_count + 1 WHERE id = $1",
+        [id],
       );
-      
+
       // Notify story owner in real-time (if online)
-      const isOnline = await presence.isOnline(story.user_id);
+      // const isOnline = await presence.isOnline(story.user_id);
+      const isOnline = false;
       if (isOnline) {
         // WebSocket notification would go here
         fastify.log.info(`Notifying ${story.user_id} of new view`);
       }
-      
-      return { message: 'View recorded' };
-      
+
+      return { message: "View recorded" };
     } catch (err) {
-      fastify.log.error('View error:', err);
-      return reply.code(500).send({ error: 'Failed to record view' });
+      fastify.log.error("View error:", err);
+      return reply.code(500).send({ error: "Failed to record view" });
     }
   });
-  
+
   // Reply to a story (starts DM)
-  fastify.post('/:id/reply', async (request, reply) => {
+  fastify.post("/:id/reply", async (request, reply) => {
     const { id } = request.params;
     const senderId = request.user.userId;
     const { text, mediaKey } = request.body;
-    
+
     if (!text && !mediaKey) {
-      return reply.code(400).send({ error: 'Text or media required' });
+      return reply.code(400).send({ error: "Text or media required" });
     }
-    
+
     // Get story owner
     const storyResult = await query(
-      'SELECT user_id, allow_replies FROM stories WHERE id = $1 AND expires_at > NOW()',
-      [id]
+      "SELECT user_id, allow_replies FROM stories WHERE id = $1 AND expires_at > NOW()",
+      [id],
     );
-    
+
     if (storyResult.rows.length === 0) {
-      return reply.code(404).send({ error: 'Story not found or expired' });
+      return reply.code(404).send({ error: "Story not found or expired" });
     }
-    
+
     const story = storyResult.rows[0];
-    
+
     if (!story.allow_replies) {
-      return reply.code(403).send({ error: 'Replies disabled for this story' });
+      return reply.code(403).send({ error: "Replies disabled for this story" });
     }
-    
+
     // Create message
     const messageResult = await query(
       `INSERT INTO messages (sender_id, recipient_id, content_type, text_content, content_key, reply_to_story_id, sent_at)
@@ -222,47 +221,50 @@ export default async function storyRoutes(fastify, opts) {
       [
         senderId,
         story.user_id,
-        mediaKey ? 'image' : 'text',
+        mediaKey ? "image" : "text",
         text,
         mediaKey,
-        id
-      ]
+        id,
+      ],
     );
-    
+
     // Increment reply count on story
-    await query('UPDATE stories SET reply_count = reply_count + 1 WHERE id = $1', [id]);
-    
+    await query(
+      "UPDATE stories SET reply_count = reply_count + 1 WHERE id = $1",
+      [id],
+    );
+
     return {
-      message: 'Reply sent',
-      conversationId: messageResult.rows[0].id
+      message: "Reply sent",
+      conversationId: messageResult.rows[0].id,
     };
   });
-  
+
   // Delete my story
-  fastify.delete('/:id', async (request, reply) => {
+  fastify.delete("/:id", async (request, reply) => {
     const { id } = request.params;
     const userId = request.user.userId;
-    
+
     const result = await query(
-      'DELETE FROM stories WHERE id = $1 AND user_id = $2 RETURNING id',
-      [id, userId]
+      "DELETE FROM stories WHERE id = $1 AND user_id = $2 RETURNING id",
+      [id, userId],
     );
-    
+
     if (result.rowCount === 0) {
-      return reply.code(404).send({ error: 'Story not found or not yours' });
+      return reply.code(404).send({ error: "Story not found or not yours" });
     }
-    
+
     // Invalidate cache
-    await storyCache.invalidateUserStories(userId);
-    
-    return { message: 'Story deleted' };
+    // await storyCache.invalidateUserStories(userId);
+
+    return { message: "Story deleted" };
   });
-  
+
   // Get story viewers (my story only)
-  fastify.get('/:id/viewers', async (request, reply) => {
+  fastify.get("/:id/viewers", async (request, reply) => {
     const { id } = request.params;
     const userId = request.user.userId;
-    
+
     const result = await query(
       `SELECT 
         sv.viewer_id, sv.viewed_at, sv.screenshot_detected,
@@ -272,18 +274,18 @@ export default async function storyRoutes(fastify, opts) {
        JOIN stories s ON sv.story_id = s.id
        WHERE s.id = $1 AND s.user_id = $2
        ORDER BY sv.viewed_at DESC`,
-      [id, userId]
+      [id, userId],
     );
-    
+
     return {
-      viewers: result.rows.map(row => ({
+      viewers: result.rows.map((row) => ({
         userId: row.viewer_id,
         username: row.username,
         displayName: row.display_name,
         avatarUrl: row.avatar_url,
         viewedAt: row.viewed_at,
-        screenshotDetected: row.screenshot_detected
-      }))
+        screenshotDetected: row.screenshot_detected,
+      })),
     };
   });
 }

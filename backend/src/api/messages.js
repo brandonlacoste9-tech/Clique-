@@ -1,14 +1,15 @@
-// Messages API - DM with ephemeral support
-import { query, withTransaction } from '../models/db.js';
-import { ephemeralQueue, presence } from '../services/redis.js';
-import { config } from '../config/index.js';
+// Messages API - DM with ephemeral support + real-time
+import { query, withTransaction } from "../models/db.js";
+import { ephemeralQueue, presence } from "../services/redis.js";
+import { sendToUser, isUserConnected } from "../services/websocket.js";
+import { notifyNewMessage } from "../services/pushNotificationService.js";
+import { config } from "../config/index.js";
 
 export default async function messageRoutes(fastify, opts) {
-  
   // Get conversations list
-  fastify.get('/conversations', async (request, reply) => {
+  fastify.get("/conversations", async (request, reply) => {
     const userId = request.user.userId;
-    
+
     const result = await query(
       `SELECT 
         c.id as conversation_id,
@@ -23,10 +24,9 @@ export default async function messageRoutes(fastify, opts) {
        LEFT JOIN messages m ON c.last_message_id = m.id
        WHERE c.user_a = $1 OR c.user_b = $1
        ORDER BY c.last_message_at DESC NULLS LAST`,
-      [userId]
+      [userId],
     );
-    
-    // Check online status
+
     const conversations = await Promise.all(
       result.rows.map(async (row) => {
         const isOnline = await presence.isOnline(row.other_user_id);
@@ -37,43 +37,33 @@ export default async function messageRoutes(fastify, opts) {
             username: row.username,
             displayName: row.display_name,
             avatarUrl: row.avatar_url,
-            isOnline
+            isOnline,
           },
-          lastMessage: row.last_message_at ? {
-            type: row.content_type,
-            text: row.text_content,
-            sentAt: row.last_message_time
-          } : null,
+          lastMessage: row.last_message_at
+            ? {
+                type: row.content_type,
+                text: row.text_content,
+                sentAt: row.last_message_time,
+              }
+            : null,
           unreadCount: row.unread_count,
           streak: {
             count: row.streak_count,
-            expiresAt: row.streak_expires_at
-          }
+            expiresAt: row.streak_expires_at,
+          },
         };
-      })
+      }),
     );
-    
+
     return { conversations };
   });
-  
+
   // Get messages in conversation
-  fastify.get('/:userId', async (request, reply) => {
+  fastify.get("/:userId", async (request, reply) => {
     const myId = request.user.userId;
     const { userId } = request.params;
     const { before, limit = 50 } = request.query;
-    
-    // Verify friendship
-    const friendCheck = await query(
-      `SELECT status FROM friendships 
-       WHERE ((user_a = $1 AND user_b = $2) OR (user_a = $2 AND user_b = $1))
-       AND status = 'accepted'`,
-      [myId, userId]
-    );
-    
-    if (friendCheck.rows.length === 0) {
-      return reply.code(403).send({ error: 'Not friends with this user' });
-    }
-    
+
     // Build query
     let sql = `
       SELECT m.*, 
@@ -85,100 +75,109 @@ export default async function messageRoutes(fastify, opts) {
         AND (m.deleted_by_sender_at IS NULL OR m.sender_id != $1)
         AND (m.deleted_by_recipient_at IS NULL OR m.recipient_id != $1)
     `;
-    
+
     const params = [myId, userId];
-    
+
     if (before) {
       sql += ` AND m.sent_at < $3`;
       params.push(before);
     }
-    
+
     sql += ` ORDER BY m.sent_at DESC LIMIT $${params.length + 1}`;
     params.push(limit);
-    
+
     const result = await query(sql, params);
-    
+
     // Mark as read
     await query(
       `UPDATE messages SET read_at = NOW() 
        WHERE sender_id = $1 AND recipient_id = $2 AND read_at IS NULL`,
-      [userId, myId]
+      [userId, myId],
     );
-    
+
     // Reset unread count
     await query(
       `UPDATE conversations 
        SET unread_count_a = CASE WHEN user_a = $1 THEN 0 ELSE unread_count_a END,
            unread_count_b = CASE WHEN user_b = $1 THEN 0 ELSE unread_count_b END
        WHERE (user_a = $1 AND user_b = $2) OR (user_a = $2 AND user_b = $1)`,
-      [myId, userId]
+      [myId, userId],
     );
-    
+
+    // Send read receipts via WebSocket
+    sendToUser(userId, 'messages_read', {
+      readBy: myId,
+      readAt: new Date().toISOString()
+    });
+
     return {
-      messages: result.rows.map(m => ({
-        id: m.id,
-        senderId: m.sender_id,
-        contentType: m.content_type,
-        text: m.text_content,
-        contentKey: m.content_key,
-        ephemeral: m.ephemeral_mode,
-        expiresAt: m.expires_at,
-        sentAt: m.sent_at,
-        readAt: m.read_at,
-        replyToStory: m.reply_story_id ? {
-          id: m.reply_story_id,
-          mediaKey: m.reply_story_media
-        } : null
-      })).reverse() // Return oldest first
+      messages: result.rows
+        .map((m) => ({
+          id: m.id,
+          senderId: m.sender_id,
+          contentType: m.content_type,
+          text: m.text_content,
+          contentKey: m.content_key,
+          ephemeral: m.ephemeral_mode,
+          expiresAt: m.expires_at,
+          sentAt: m.sent_at,
+          readAt: m.read_at,
+          replyToStory: m.reply_story_id
+            ? {
+                id: m.reply_story_id,
+                mediaKey: m.reply_story_media,
+              }
+            : null,
+        }))
+        .reverse(),
     };
   });
-  
+
   // Send message
-  fastify.post('/:userId', async (request, reply) => {
+  fastify.post("/:userId", async (request, reply) => {
     const senderId = request.user.userId;
     const { userId: recipientId } = request.params;
-    const { 
-      text, 
-      contentType = 'text', 
+    const {
+      text,
+      contentType = "text",
       contentKey,
       ephemeral = false,
-      replyToStoryId 
+      replyToStoryId,
     } = request.body;
-    
+
     if (!text && !contentKey) {
-      return reply.code(400).send({ error: 'Message content required' });
+      return reply.code(400).send({ error: "Message content required" });
     }
-    
-    // Verify friendship
-    const friendCheck = await query(
-      `SELECT status FROM friendships 
-       WHERE ((user_a = $1 AND user_b = $2) OR (user_a = $2 AND user_b = $1))
-       AND status = 'accepted'`,
-      [senderId, recipientId]
-    );
-    
-    if (friendCheck.rows.length === 0) {
-      return reply.code(403).send({ error: 'Not friends with this user' });
-    }
-    
+
     // Calculate expiry for ephemeral
     let expiresAt = null;
     if (ephemeral) {
       expiresAt = new Date();
-      expiresAt.setSeconds(expiresAt.getSeconds() + config.EPHEMERAL_MESSAGE_TTL_SECONDS);
+      expiresAt.setSeconds(
+        expiresAt.getSeconds() + config.EPHEMERAL_MESSAGE_TTL_SECONDS,
+      );
     }
-    
+
     const result = await query(
       `INSERT INTO messages (
         sender_id, recipient_id, content_type, text_content, content_key,
         ephemeral_mode, expires_at, reply_to_story_id, sent_at
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
       RETURNING *`,
-      [senderId, recipientId, contentType, text, contentKey, ephemeral, expiresAt, replyToStoryId]
+      [
+        senderId,
+        recipientId,
+        contentType,
+        text,
+        contentKey,
+        ephemeral,
+        expiresAt,
+        replyToStoryId,
+      ],
     );
-    
+
     const message = result.rows[0];
-    
+
     // Update conversation
     await query(
       `INSERT INTO conversations (user_a, user_b, last_message_id, last_message_at, unread_count_a, unread_count_b)
@@ -193,17 +192,40 @@ export default async function messageRoutes(fastify, opts) {
          last_message_at = NOW(),
          unread_count_a = CASE WHEN $2 < $1 THEN conversations.unread_count_a + 1 ELSE conversations.unread_count_a END,
          unread_count_b = CASE WHEN $1 < $2 THEN conversations.unread_count_b + 1 ELSE conversations.unread_count_b END`,
-      [senderId, recipientId, message.id]
+      [senderId, recipientId, message.id],
     );
-    
+
     // Schedule ephemeral deletion
     if (ephemeral && expiresAt) {
       await ephemeralQueue.scheduleDeletion(message.id, expiresAt);
     }
-    
-    // Notify recipient if online
-    const isOnline = await presence.isOnline(recipientId);
-    
+
+    // Real-time delivery via WebSocket
+    const delivered = sendToUser(recipientId, 'new_message', {
+      id: message.id,
+      senderId: message.sender_id,
+      contentType: message.content_type,
+      text: message.text_content,
+      contentKey: message.content_key,
+      ephemeral: message.ephemeral_mode,
+      expiresAt: message.expires_at,
+      sentAt: message.sent_at,
+    });
+
+    // If not online via WebSocket, send push notification
+    if (!delivered) {
+      const senderResult = await query(
+        'SELECT username FROM users WHERE id = $1',
+        [senderId]
+      );
+      const senderUsername = senderResult.rows[0]?.username || 'Someone';
+      const preview = contentType === 'text' ? text : `📷 ${contentType}`;
+      
+      notifyNewMessage(recipientId, senderUsername, preview).catch(err => {
+        fastify.log.error('Push notification error:', err.message);
+      });
+    }
+
     return {
       message: {
         id: message.id,
@@ -213,24 +235,24 @@ export default async function messageRoutes(fastify, opts) {
         ephemeral: message.ephemeral_mode,
         expiresAt: message.expires_at,
         sentAt: message.sent_at,
-        recipientOnline: isOnline
-      }
+        delivered,
+      },
     };
   });
-  
+
   // Delete message (for me)
-  fastify.delete('/:messageId', async (request, reply) => {
+  fastify.delete("/:messageId", async (request, reply) => {
     const userId = request.user.userId;
     const { messageId } = request.params;
-    
+
     await query(
       `UPDATE messages 
        SET deleted_by_sender_at = CASE WHEN sender_id = $1 THEN NOW() ELSE deleted_by_sender_at END,
            deleted_by_recipient_at = CASE WHEN recipient_id = $1 THEN NOW() ELSE deleted_by_recipient_at END
        WHERE id = $2 AND (sender_id = $1 OR recipient_id = $1)`,
-      [userId, messageId]
+      [userId, messageId],
     );
-    
-    return { message: 'Message deleted' };
+
+    return { message: "Message deleted" };
   });
 }

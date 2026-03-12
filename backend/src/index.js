@@ -7,6 +7,7 @@ import websocket from "@fastify/websocket";
 import { config } from "./config/index.js";
 import { db } from "./models/db.js";
 import { redis } from "./services/redis.js";
+import { websocketRoutes } from "./services/websocket.js";
 
 // Routes
 import authRoutes from "./api/auth.js";
@@ -16,9 +17,7 @@ import messageRoutes from "./api/messages.js";
 import cliqueRoutes from "./api/cliques.js";
 import uploadRoutes from "./api/upload.js";
 import eliteQueueRoutes from "./api/eliteQueue.js";
-
-// WebSocket handlers
-import { storySocketHandler } from "./services/websocket.js";
+import notificationRoutes from "./api/notifications.js";
 
 const app = Fastify({
   logger: {
@@ -58,7 +57,7 @@ app.decorate("redis", redis);
 // Auth hook
 app.addHook("onRequest", async (request, reply) => {
   // Public routes that don't need auth
-  const publicRoutes = ["/auth/verify", "/auth/refresh", "/health", "/elite"];
+  const publicRoutes = ["/auth/verify", "/auth/otp", "/auth/refresh", "/health", "/elite", "/ws"];
   if (publicRoutes.some((route) => request.url.startsWith(route))) {
     return;
   }
@@ -78,10 +77,23 @@ await app.register(messageRoutes, { prefix: "/messages" });
 await app.register(cliqueRoutes, { prefix: "/cliques" });
 await app.register(uploadRoutes, { prefix: "/upload" });
 await app.register(eliteQueueRoutes, { prefix: "/elite" });
+await app.register(notificationRoutes, { prefix: "/notifications" });
 
-// WebSocket routes
+// WebSocket routes (with JWT auth via query param)
 app.register(async function (fastify) {
-  fastify.get("/ws/stories", { websocket: true }, storySocketHandler);
+  fastify.addHook("onRequest", async (request, reply) => {
+    // Allow WS auth via query parameter token
+    const token = request.query?.token;
+    if (token) {
+      request.headers.authorization = `Bearer ${token}`;
+    }
+    try {
+      await request.jwtVerify();
+    } catch (err) {
+      reply.code(401).send({ error: "Unauthorized" });
+    }
+  });
+  await fastify.register(websocketRoutes);
 });
 
 // Health check
@@ -97,7 +109,7 @@ app.get("/health", async () => {
 // Start server
 try {
   await app.listen({ port: config.PORT, host: "0.0.0.0" });
-  app.log.info(`Clique API running on port ${config.PORT}`);
+  app.log.info(`🏆 Clique API running on port ${config.PORT}`);
 } catch (err) {
   app.log.error(err);
   process.exit(1);

@@ -7,6 +7,7 @@ import {
   Image,
   TouchableOpacity,
   ImageBackground,
+  Animated,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
@@ -55,16 +56,67 @@ const mockFriends = [
   },
 ];
 
-export default function MapScreen() {
-  const [selectedUser, setSelectedUser] = React.useState(null);
+const mockCliques = [
+  {
+    id: "c1",
+    lat: 45.5122,
+    lng: -73.57,
+    name: "Plateau Élite",
+    memberCount: 156,
+    type: "clique",
+    avatar:
+      "https://images.unsplash.com/photo-1549490349-8643362247b5?w=100&h=100&fit=crop",
+  },
+  {
+    id: "c2",
+    lat: 45.4975,
+    lng: -73.575,
+    name: "Concordia Crew",
+    memberCount: 89,
+    type: "clique",
+    avatar:
+      "https://images.unsplash.com/photo-1570126150297-3e547af2901c?w=100&h=100&fit=crop",
+  },
+];
 
-  const handleMarkerPress = (user) => {
-    setSelectedUser(user);
+export default function MapScreen({ navigation }) {
+  const [selectedItem, setSelectedItem] = React.useState(null);
+  const radarAnim = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    Animated.loop(
+      Animated.timing(radarAnim, {
+        toValue: 1,
+        duration: 4000,
+        useNativeDriver: true,
+      }),
+    ).start();
+  }, [radarAnim]);
+
+  const handleMarkerPress = (item) => {
+    setSelectedItem(item);
+  };
+
+  const navigateToChat = () => {
+    if (!selectedItem) return;
+
+    if (selectedItem.type === "clique") {
+      navigation.navigate("CliqueChat", {
+        cliqueId: selectedItem.id,
+        cliqueName: selectedItem.name,
+      });
+    } else {
+      navigation.navigate("ChatDetail", {
+        userId: selectedItem.username,
+        userName: selectedItem.name,
+      });
+    }
+    setSelectedItem(null);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>TERRITOIRE</Text>
+      <Text style={styles.header}>TERRITOIRE / TERRITORY</Text>
 
       <MapView
         style={styles.map}
@@ -103,10 +155,52 @@ export default function MapScreen() {
             </View>
           </Marker>
         ))}
+
+        {mockCliques.map((clique) => (
+          <Marker
+            key={clique.id}
+            coordinate={{ latitude: clique.lat, longitude: clique.lng }}
+            onPress={() => handleMarkerPress(clique)}
+          >
+            <View style={styles.pinContainer}>
+              <View style={[styles.avatarBorder, styles.cliqueBorder]}>
+                <Image
+                  source={{ uri: clique.avatar }}
+                  style={styles.avatarImage}
+                />
+              </View>
+              <View style={[styles.pinTip, { borderBottomColor: colors.gold.DEFAULT }]} />
+            </View>
+          </Marker>
+        ))}
       </MapView>
 
+      {/* Center Radar Overlay */}
+      <View pointerEvents="none" style={styles.radarContainer}>
+        <Animated.View
+          style={[
+            styles.radarRing,
+            {
+              transform: [
+                {
+                  scale: radarAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 30],
+                  }),
+                },
+              ],
+              opacity: radarAnim.interpolate({
+                inputRange: [0, 0.8, 1],
+                outputRange: [1, 0, 0],
+              }),
+            },
+          ]}
+        />
+        <View style={styles.radarCenter} />
+      </View>
+
       {/* Suede Profile Card Overlay */}
-      {selectedUser && (
+      {selectedItem && (
         <View style={styles.cardOverlay}>
           <ImageBackground
             source={require("../../assets/suede_bg.png")}
@@ -116,27 +210,29 @@ export default function MapScreen() {
             <View style={styles.cardContent}>
               <View style={styles.cardHeader}>
                 <Image
-                  source={{ uri: selectedUser.avatar }}
+                  source={{ uri: selectedItem.avatar }}
                   style={styles.cardAvatar}
                 />
                 <View>
-                  <Text style={styles.cardName}>{selectedUser.name}</Text>
+                  <Text style={styles.cardName}>{selectedItem.name}</Text>
                   <Text style={styles.cardUsername}>
-                    {selectedUser.username}
+                    {selectedItem.type === 'clique' ? `${selectedItem.memberCount} Mbres / Mbrs` : selectedItem.username}
                   </Text>
                 </View>
                 <TouchableOpacity
                   style={styles.closeButton}
-                  onPress={() => setSelectedUser(null)}
+                  onPress={() => setSelectedItem(null)}
                 >
                   <Text style={styles.closeText}>×</Text>
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.cardBio}>{selectedUser.bio}</Text>
+              <Text style={styles.cardBio}>{selectedItem.bio || "Territoire de l'Élite / Elite Territory"}</Text>
 
-              <TouchableOpacity style={styles.actionButton}>
-                <Text style={styles.actionButtonText}>REJOINDRE L’ÉLITE</Text>
+              <TouchableOpacity style={styles.actionButton} onPress={navigateToChat}>
+                <Text style={styles.actionButtonText}>
+                    {selectedItem.type === 'clique' ? 'REJOINDRE LA CLIQUE / JOIN CLIQUE' : 'REJOINDRE L’ÉLITE / JOIN THE ELITE'}
+                </Text>
               </TouchableOpacity>
             </View>
           </ImageBackground>
@@ -146,11 +242,11 @@ export default function MapScreen() {
       <View style={styles.legend}>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, styles.legendOnline]} />
-          <Text style={styles.legendText}>ACTIF</Text>
+          <Text style={styles.legendText}>ACTIF / ACTIVE</Text>
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, styles.legendOffline]} />
-          <Text style={styles.legendText}>HORS LIGNE</Text>
+          <Text style={styles.legendText}>HORS LIGNE / OFFLINE</Text>
         </View>
       </View>
     </View>
@@ -355,5 +451,25 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "bold",
     letterSpacing: 1,
+  },
+  radarContainer: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  radarRing: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.gold.DEFAULT,
+    position: "absolute",
+  },
+  radarCenter: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.gold.DEFAULT,
+    ...shadows.gold,
   },
 });

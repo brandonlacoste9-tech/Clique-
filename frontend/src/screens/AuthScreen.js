@@ -10,7 +10,7 @@ import {
   ImageBackground,
   Alert,
 } from "react-native";
-import * as SnapLogin from "react-native-snap-kit-login";
+// import * as SnapLogin from "react-native-snap-kit-login"; // Using Demo Mock below
 import * as Haptics from "expo-haptics";
 import Svg, {
   Defs,
@@ -22,7 +22,7 @@ import Svg, {
 
 import { useAuthStore } from "../store/cliqueStore";
 import { authAPI } from "../api/cliqueApi";
-import { SNAP_CONFIG } from "../services/snapKitService";
+// import { SNAP_CONFIG } from "../services/snapKitService";
 import { triggerEliteWelcome } from "../services/eliteGreetingService";
 import {
   colors,
@@ -116,7 +116,21 @@ export default function AuthScreen() {
     setError("");
 
     try {
-      const result = await SnapLogin.login(SNAP_CONFIG);
+      // Simulation of a response as if react-native-snap-kit-login returned successfully
+      // To run on actual devices, you would configure devportal.snap.com and uncomment real imports
+      const result = await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            accessToken: "simulated_snap_token_12345",
+            user: {
+              id: "snapuser.999",
+              displayName: "SnapSouverain",
+              bitmojiAvatarUrl: "https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=150&h=150&fit=crop",
+            }
+          });
+        }, 1500);
+      });
+
       if (result.accessToken) {
         // SUCCESS: Trigger Imperial Haptic
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -197,14 +211,14 @@ export default function AuthScreen() {
                 </Svg>
               </View>
               <Text style={styles.title}>CLIQUE</Text>
-              <Text style={styles.tagline}>L'Élite de l'Instant</Text>
+              <Text style={styles.tagline}>L'Élite de l'Instant / The Instant Elite</Text>
             </View>
 
             {/* Form */}
             <View style={styles.form}>
               {step === "phone" && (
                 <>
-                  <Text style={styles.label}>Ton numéro</Text>
+                  <Text style={styles.label}>Ton numéro / Your number</Text>
                   <TextInput
                     style={styles.input}
                     placeholder="514 555 0123"
@@ -220,13 +234,13 @@ export default function AuthScreen() {
                     disabled={loading}
                   >
                     <Text style={styles.buttonText}>
-                      {loading ? "..." : "Continuer"}
+                      {loading ? "..." : "Continuer / Continue"}
                     </Text>
                   </TouchableOpacity>
 
                   <View style={styles.divider}>
                     <View style={styles.line} />
-                    <Text style={styles.dividerText}>OU</Text>
+                    <Text style={styles.dividerText}>OU / OR</Text>
                     <View style={styles.line} />
                   </View>
 
@@ -239,7 +253,7 @@ export default function AuthScreen() {
                     disabled={loading}
                   >
                     <Text style={styles.snapButtonText}>
-                      {loading ? "Chargement..." : "Continuer avec Snapchat"}
+                      {loading ? "Chargement..." : "Snapchat Express"}
                     </Text>
                   </TouchableOpacity>
                 </>
@@ -247,7 +261,7 @@ export default function AuthScreen() {
 
               {step === "otp" && (
                 <>
-                  <Text style={styles.label}>Code reçu</Text>
+                   <Text style={styles.label}>Code reçu / Code received</Text>
                   <TextInput
                     style={[styles.input, styles.otpInput]}
                     placeholder="123456"
@@ -263,18 +277,18 @@ export default function AuthScreen() {
                     onPress={handleVerifyOTP}
                     disabled={loading}
                   >
-                    <Text style={styles.buttonText}>Vérifier</Text>
+                    <Text style={styles.buttonText}>Vérifier / Verify</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity onPress={() => setStep("phone")}>
-                    <Text style={styles.link}>Changer de numéro</Text>
+                    <Text style={styles.link}>Changer de numéro / Change number</Text>
                   </TouchableOpacity>
                 </>
               )}
 
               {step === "username" && (
                 <>
-                  <Text style={styles.label}>Choisis ton @</Text>
+                  <Text style={styles.label}>Choisis ton @ / Choose your @</Text>
                   <TextInput
                     style={styles.input}
                     placeholder="@username"
@@ -290,7 +304,7 @@ export default function AuthScreen() {
                     onPress={handleSetUsername}
                     disabled={loading}
                   >
-                    <Text style={styles.buttonText}>C'est parti</Text>
+                    <Text style={styles.buttonText}>C'est parti / Let's go</Text>
                   </TouchableOpacity>
                 </>
               )}
@@ -299,7 +313,7 @@ export default function AuthScreen() {
             </View>
           </View>
 
-          <Text style={styles.footer}>Bilingue. Sécurisé. Québécois.</Text>
+          <Text style={styles.footer}>Bilingue. Sécurisé. Québécois. / Bilingual. Secure. Local.</Text>
         </View>
       </ImageBackground>
     </KeyboardAvoidingView>

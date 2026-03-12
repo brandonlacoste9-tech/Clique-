@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
 
 import { useMessagesStore } from "../store/cliqueStore";
 import { messagesAPI } from "../api/cliqueApi";
+import { getAvatarUrl } from "../services/bitmojiService";
 import {
   colors,
   typography,
@@ -18,13 +19,23 @@ import {
   shadows,
   cliquePhrases,
 } from "../theme/cliqueTheme";
+import ChatOptionsSheet from "../components/ChatOptionsSheet";
+import CallOverlay from "../components/CallOverlay";
+import { callService, CALL_TYPES } from "../services/callService";
 
 export default function ChatScreen({ navigation }) {
   const { conversations, setConversations } = useMessagesStore();
+  const [selectedConvo, setSelectedConvo] = useState(null);
+  const [activeCall, setActiveCall] = useState(null);
 
   useEffect(() => {
     loadConversations();
   }, []);
+
+  const startCallFromOverlay = async (userId, type) => {
+    const call = await callService.startCall(userId, type);
+    setActiveCall(call);
+  };
 
   const loadConversations = async () => {
     try {
@@ -49,11 +60,18 @@ export default function ChatScreen({ navigation }) {
             userName: item.user.displayName || item.user.username,
           })
         }
+        onLongPress={() => {
+          setSelectedConvo({
+            id: item.user.username,
+            name: item.user.displayName || item.user.username,
+          });
+        }}
+        delayLongPress={500}
       >
         <View style={styles.avatarContainer}>
           <Image
             source={{
-              uri: item.user.avatarUrl || "https://via.placeholder.com/100",
+              uri: getAvatarUrl(item.user) || "https://via.placeholder.com/100",
             }}
             style={[styles.avatar, item.user.isOnline && styles.avatarOnline]}
           />
@@ -101,7 +119,15 @@ export default function ChatScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Messages</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.header}>Messages</Text>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => navigation.navigate("AddFriends")}
+        >
+          <Text style={styles.addButtonText}>+</Text>
+        </TouchableOpacity>
+      </View>
 
       <FlatList
         data={conversations}
@@ -112,12 +138,35 @@ export default function ChatScreen({ navigation }) {
 
       {conversations.length === 0 && (
         <View style={styles.empty}>
-          <Text style={styles.emptyTitle}>{cliquePhrases.error[2]}</Text>
+          <Text style={styles.emptyTitle}>L'Élite t'attend / The Elite Awaits</Text>
           <Text style={styles.emptyText}>
-            Ajoute tes amis à l'Élite pour commencer à jaser!
+            Ajoute tes amis pour commencer à jaser! / Add friends to start chatting!
           </Text>
         </View>
       )}
+
+      {/* Call Overlay */}
+      <CallOverlay 
+        visible={!!activeCall} 
+        call={activeCall} 
+        onClose={() => setActiveCall(null)} 
+      />
+
+      {/* Chat Options Bottom Sheet */}
+      <ChatOptionsSheet
+        visible={!!selectedConvo}
+        conversationId={selectedConvo?.id}
+        conversationName={selectedConvo?.name}
+        onClose={() => setSelectedConvo(null)}
+        onDelete={(id) => {
+          const updated = conversations.filter(
+            (c) => c.user.username !== id
+          );
+          setConversations(updated);
+        }}
+        onStartVoiceCall={(id) => startCallFromOverlay(id, CALL_TYPES.VOICE)}
+        onStartVideoCall={(id) => startCallFromOverlay(id, CALL_TYPES.VIDEO)}
+      />
     </View>
   );
 }
@@ -128,14 +177,35 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     paddingTop: spacing.xl,
   },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+  },
   header: {
     fontSize: typography.sizes["2xl"],
     fontWeight: "bold",
     color: colors.gold.DEFAULT,
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.md,
     letterSpacing: 4,
     textTransform: "uppercase",
+  },
+  addButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.surface,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.gold.DEFAULT,
+  },
+  addButtonText: {
+    color: colors.gold.DEFAULT,
+    fontSize: 24,
+    lineHeight: 26,
+    fontWeight: "300",
   },
   list: {
     paddingHorizontal: spacing.lg,
@@ -143,19 +213,25 @@ const styles = StyleSheet.create({
   conversation: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
+    marginBottom: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "rgba(212, 175, 55, 0.1)",
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(212, 175, 55, 0.2)", // Soft gold divider
+    borderBottomColor: "rgba(212, 175, 55, 0.05)",
   },
   avatarContainer: {
     position: "relative",
   },
   avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    borderWidth: 1,
-    borderColor: colors.surfaceHighlight,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 1.5,
+    borderColor: "rgba(255, 255, 255, 0.1)",
   },
   avatarOnline: {
     borderColor: colors.gold.DEFAULT,
@@ -191,7 +267,8 @@ const styles = StyleSheet.create({
   },
   nameUnread: {
     color: colors.gold.DEFAULT,
-    fontWeight: "bold",
+    fontWeight: "900",
+    letterSpacing: 0.8,
   },
   streak: {
     flexDirection: "row",
@@ -212,12 +289,14 @@ const styles = StyleSheet.create({
   },
   unreadBadge: {
     backgroundColor: colors.gold.DEFAULT,
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 6,
+    paddingHorizontal: 8,
+    ...shadows.gold,
+    shadowOpacity: 0.6,
   },
   unreadText: {
     color: colors.leather.black,

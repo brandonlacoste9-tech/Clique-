@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Platform } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import { Platform, AppState } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as Haptics from "expo-haptics";
 import { View, Image, StyleSheet, StatusBar, Text } from "react-native";
@@ -7,19 +7,39 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 
-import { useAuthStore } from "./store/cliqueStore";
+import { useAuthStore } from "./src/store/cliqueStore";
 import { colors, shadows, spacing } from "./src/theme/cliqueTheme";
+import {
+  connectWebSocket,
+  disconnectWebSocket,
+} from "./src/services/websocketService";
+import { triggerDailyGreeting } from "./src/services/eliteGreetingService";
+import {
+  registerForPushNotifications,
+  setupNotificationListeners,
+  scheduleDailyReminder,
+  clearAllNotifications,
+} from "./src/services/pushNotificationService";
+import {
+  initializeEncryption,
+  clearAllEncryptionData,
+} from "./src/services/encryptionService";
 
 // Screens
-import CameraScreen from "./screens/CameraScreen";
-import StoriesScreen from "./screens/StoriesScreen";
-import ChatScreen from "./screens/ChatScreen";
-import MapScreen from "./screens/MapScreen";
-import ProfileScreen from "./screens/ProfileScreen";
-import ChatDetailScreen from "./screens/ChatDetailScreen";
+import CameraScreen from "./src/screens/CameraScreen";
+import StoriesScreen from "./src/screens/StoriesScreen";
+import ChatScreen from "./src/screens/ChatScreen";
+import MapScreen from "./src/screens/MapScreen";
+import ProfileScreen from "./src/screens/ProfileScreen";
+import ChatDetailScreen from "./src/screens/ChatDetailScreen";
+import AddFriendsScreen from "./src/screens/AddFriendsScreen";
+import SettingsScreen from "./src/screens/SettingsScreen";
+import CliqueChatScreen from "./src/screens/CliqueChatScreen";
+import SearchCliquesScreen from "./src/screens/SearchCliquesScreen";
+import ProfileCustomizeScreen from "./src/screens/ProfileCustomizeScreen";
 
 // Auth
-import AuthScreen from "./screens/AuthScreen";
+import AuthScreen from "./src/screens/AuthScreen";
 import StoryViewer from "./src/components/StoryViewer";
 
 const Tab = createBottomTabNavigator();
@@ -40,21 +60,75 @@ async function setupEmpireChannel() {
 // Main app with auth check
 export default function App() {
   const { isAuthenticated, isLoading } = useAuthStore();
+  const navigationRef = useRef(null);
 
   useEffect(() => {
     setupEmpireChannel();
   }, []);
 
+  // Push notification listeners (deep-link on tap)
+  useEffect(() => {
+    const unsubscribe = setupNotificationListeners(navigationRef);
+    return unsubscribe;
+  }, []);
+
+  // Clear badge when app comes to foreground
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        clearAllNotifications();
+      }
+    });
+    return () => sub?.remove();
+  }, []);
+
+  // Connect/disconnect WebSocket based on auth
+  useEffect(() => {
+    if (isAuthenticated) {
+      connectWebSocket();
+
+      // Register push token + schedule reminders
+      registerForPushNotifications().then((token) => {
+        if (token) {
+          console.log("Push token registered:", token);
+          // TODO: Send token to backend via userAPI.updatePushToken(token)
+        }
+      });
+      scheduleDailyReminder();
+
+      // Initialize E2E encryption keys
+      initializeEncryption().then(({ publicKey, isNew }) => {
+        if (isNew) {
+          console.log("[App] New E2E identity created:", publicKey.substring(0, 16));
+          // TODO: Upload publicKey to backend for key exchange
+        }
+      });
+
+      // Fire daily greeting on session start
+      const user = useAuthStore.getState().user;
+      if (user) {
+        triggerDailyGreeting(user.displayName || user.username);
+      }
+    } else {
+      disconnectWebSocket();
+    }
+
+    return () => disconnectWebSocket();
+  }, [isAuthenticated]);
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
         <StatusBar barStyle="light-content" />
+        <Text style={styles.loadingLogo}>CLIQUE</Text>
+        <Text style={styles.loadingTagline}>L'Élite de l'Instant / The Instant Elite</Text>
       </View>
     );
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isAuthenticated ? (
           <Stack.Screen
@@ -67,7 +141,36 @@ export default function App() {
         ) : (
           <>
             <Stack.Screen name="Main" component={MainTabs} />
-            <Stack.Screen name="ChatDetail" component={ChatDetailScreen} />
+            <Stack.Screen
+              name="ChatDetail"
+              component={ChatDetailScreen}
+              options={{ gestureEnabled: true }}
+            />
+            <Stack.Screen
+              name="AddFriends"
+              component={AddFriendsScreen}
+              options={{ gestureEnabled: true }}
+            />
+            <Stack.Screen
+              name="Settings"
+              component={SettingsScreen}
+              options={{ gestureEnabled: true }}
+            />
+            <Stack.Screen
+              name="CliqueChat"
+              component={CliqueChatScreen}
+              options={{ gestureEnabled: true }}
+            />
+            <Stack.Screen
+              name="SearchCliques"
+              component={SearchCliquesScreen}
+              options={{ gestureEnabled: true }}
+            />
+            <Stack.Screen
+              name="ProfileCustomize"
+              component={ProfileCustomizeScreen}
+              options={{ gestureEnabled: true }}
+            />
           </>
         )}
       </Stack.Navigator>
@@ -200,30 +303,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  tabBar: {
-    backgroundColor: colors.surface,
-    borderTopWidth: 0,
-    height: 80,
-    paddingBottom: 20,
+  loadingLogo: {
+    fontSize: 36,
+    fontWeight: "900",
+    color: colors.gold.DEFAULT,
+    letterSpacing: 8,
+    ...shadows.gold,
   },
-  icon: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-  },
-  cameraButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    borderWidth: 3,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: -20,
-  },
-  cameraInner: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  loadingTagline: {
+    fontSize: 12,
+    color: colors.gold.DEFAULT,
+    letterSpacing: 3,
+    textTransform: "uppercase",
+    marginTop: spacing.sm,
+    opacity: 0.6,
   },
   iconContainer: {
     width: 44,
@@ -254,7 +347,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#FFBF00", // Amber spark
+    backgroundColor: "#FFBF00",
     borderWidth: 1,
     borderColor: colors.leather.black,
   },

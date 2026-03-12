@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,9 @@ import {
   ScrollView,
   Image,
   ImageBackground,
+  Switch,
 } from "react-native";
+import * as Haptics from "expo-haptics";
 
 import { useAuthStore } from "../store/cliqueStore";
 import {
@@ -16,18 +18,46 @@ import {
   spacing,
   borderRadius,
   shadows,
+  cliquePhrases,
 } from "../theme/cliqueTheme";
+import { getAvatarUrl } from "../services/bitmojiService";
+import StoryHighlightsRow from "../components/StoryHighlightsRow";
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ navigation }) {
   const { user, logout } = useAuthStore();
+  const [ghostMode, setGhostMode] = useState(user?.ghostMode || false);
+
+  const toggleGhostMode = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setGhostMode(!ghostMode);
+    // Note: an API call to cliqueApi.settingsAPI.updatePrivacy should go here
+  };
 
   const menuItems = [
-    { icon: "👥", label: "Mes amis", value: "24" },
-    { icon: "🔥", label: "Streaks actifs", value: "7" },
-    { icon: "🏆", label: "Score", value: user?.snapScore?.toString() || "0" },
-    { icon: "⚙️", label: "Paramètres" },
-    { icon: "🔒", label: "Confidentialité" },
-    { icon: "❓", label: "Aide" },
+    {
+      icon: "👥",
+      label: "Mes amis / My Friends",
+      value: "24",
+      onPress: () => navigation.navigate("AddFriends"),
+    },
+    { icon: "🔥", label: "Streaks actifs / Active Streaks / Rachas activas", value: "7" },
+    { icon: "🏆", label: "Score Élite / Elite Score", value: user?.snapScore?.toString() || "0" },
+    {
+      icon: "🎨",
+      label: "Personnaliser / Customize / Personalizar",
+      onPress: () => navigation.navigate("ProfileCustomize"),
+    },
+    {
+      icon: "⚙️",
+      label: "Paramètres / Settings / Ajustes",
+      onPress: () => navigation.navigate("Settings"),
+    },
+    {
+      icon: "🔒",
+      label: "Confidentialité / Privacy / Privacidad",
+      onPress: () => navigation.navigate("Settings"),
+    },
+    { icon: "❓", label: "Aide / Help / Ayuda" },
   ];
 
   return (
@@ -41,7 +71,7 @@ export default function ProfileScreen() {
             <View style={styles.avatarContainer}>
               <Image
                 source={{
-                  uri: user?.avatarUrl || "https://via.placeholder.com/150",
+                  uri: getAvatarUrl(user) || "https://via.placeholder.com/150",
                 }}
                 style={styles.avatar}
               />
@@ -64,9 +94,12 @@ export default function ProfileScreen() {
         </View>
       </ImageBackground>
 
+      {/* Story Highlights */}
+      <StoryHighlightsRow />
+
       <View style={styles.eliteStatusBanner}>
-        <Text style={styles.eliteStatusTitle}>STATUT DE L'ÉLITE</Text>
-        <Text style={styles.eliteStatusValue}>SOUVERAIN D'OR</Text>
+        <Text style={styles.eliteStatusTitle}>STATUT DE L'ÉLITE / ELITE STATUS</Text>
+        <Text style={styles.eliteStatusValue}>SOUVERAIN D'OR / GOLD SOVEREIGN</Text>
       </View>
 
       <View style={styles.stats}>
@@ -77,18 +110,42 @@ export default function ProfileScreen() {
         <View style={styles.statDivider} />
         <View style={styles.stat}>
           <Text style={styles.statValue}>{user?.snapScore || "124k"}</Text>
-          <Text style={styles.statLabel}>SCORE ÉLITE</Text>
+          <Text style={styles.statLabel}>SCORE ÉLITE / ELITE</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.stat}>
           <Text style={styles.statValue}>{user?.streaks || "7"}</Text>
-          <Text style={styles.statLabel}>SOUVERAINETÉ</Text>
+          <Text style={styles.statLabel}>SOUVERAINETÉ / SOVEREIGNTY</Text>
         </View>
+      </View>
+
+      <View
+        style={[styles.ghostModeBanner, ghostMode && styles.ghostModeActive]}
+      >
+        <View style={styles.ghostModeInfo}>
+          <Text style={styles.ghostModeTitle}>👻 Mode Fantôme / Ghost Mode</Text>
+          <Text style={styles.ghostModeDesc}>
+            {ghostMode
+              ? "Invisible sur la carte. / Invisible on the map."
+              : "Visible pour tes amis. / Visible to friends."}
+          </Text>
+        </View>
+        <Switch
+          trackColor={{ false: colors.border, true: colors.gold.DEFAULT }}
+          thumbColor={ghostMode ? colors.leather.black : colors.text.muted}
+          onValueChange={toggleGhostMode}
+          value={ghostMode}
+        />
       </View>
 
       <View style={styles.menu}>
         {menuItems.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.menuItem}>
+          <TouchableOpacity
+            key={index}
+            style={styles.menuItem}
+            onPress={item.onPress}
+            activeOpacity={item.onPress ? 0.7 : 1}
+          >
             <Text style={styles.menuIcon}>{item.icon}</Text>
             <Text style={styles.menuLabel}>{item.label}</Text>
             {item.value && <Text style={styles.menuValue}>{item.value}</Text>}
@@ -98,10 +155,10 @@ export default function ProfileScreen() {
       </View>
 
       <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-        <Text style={styles.logoutText}>Déconnexion</Text>
+        <Text style={styles.logoutText}>Déconnexion / Logout</Text>
       </TouchableOpacity>
 
-      <Text style={styles.version}>Clique 2026.1.0</Text>
+      <Text style={styles.version}>Clique 2026.1.0{"\n"}Bilingue. Sécurisé. Québécois. / Bilingual. Secure. Local.</Text>
     </ScrollView>
   );
 }
@@ -112,15 +169,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   eliteStatusBanner: {
-    backgroundColor: "rgba(212, 175, 55, 0.15)",
+    backgroundColor: "rgba(30, 30, 30, 0.8)",
     marginHorizontal: spacing.lg,
     marginTop: spacing.lg,
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
+    padding: spacing.lg,
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: colors.gold.DEFAULT,
+    borderColor: "rgba(212, 175, 55, 0.4)",
     alignItems: "center",
-    ...shadows.gold,
+    ...shadows.premium,
   },
   eliteStatusTitle: {
     color: colors.gold.DEFAULT,
@@ -198,10 +255,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: spacing.lg,
+    paddingVertical: 24,
     marginHorizontal: spacing.lg,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.05)",
+    marginTop: spacing.lg,
   },
   stat: {
     flex: 1,
@@ -231,9 +291,13 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.surface,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
+    backgroundColor: "rgba(255, 255, 255, 0.02)",
+    borderRadius: 20,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.04)",
   },
   menuIcon: {
     fontSize: 20,
@@ -273,5 +337,35 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.xs,
     marginTop: spacing.xl,
     marginBottom: spacing["2xl"],
+  },
+  ghostModeBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginHorizontal: spacing.lg,
+    padding: spacing.lg,
+    backgroundColor: colors.surfaceHighlight,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: "transparent",
+  },
+  ghostModeActive: {
+    borderColor: colors.gold.DEFAULT,
+    backgroundColor: "rgba(212, 175, 55, 0.1)",
+    ...shadows.gold,
+  },
+  ghostModeInfo: {
+    flex: 1,
+    marginRight: spacing.md,
+  },
+  ghostModeTitle: {
+    color: colors.text.primary,
+    fontSize: typography.sizes.base,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  ghostModeDesc: {
+    color: colors.text.secondary,
+    fontSize: typography.sizes.xs,
   },
 });

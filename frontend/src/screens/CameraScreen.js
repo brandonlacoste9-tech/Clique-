@@ -25,13 +25,14 @@ export default function CameraScreen() {
   const [recordingDuration, setRecordingDuration] = useState(0);
   const cameraRef = useRef(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const scannerAnim = useRef(new Animated.Value(0)).current; // YOLO scanner
 
   const [showLenses, setShowLenses] = useState(false);
   const [selectedLens, setSelectedLens] = useState(null);
   const [lenses, setLenses] = useState([
     { id: "elite-gold", name: "L'Élite", icon: "👑" },
     { id: "suede-warmth", name: "Suede Warmth", icon: "🤎" },
-    { id: "gold-hour", name: "Gold Hour", icon: "✨" },
+    { id: "yolo-scan", name: "Vue YOLO", icon: "👁️" },
     { id: "montreal-noir", name: "MTL Noir", icon: "🏙️" },
   ]);
 
@@ -41,6 +42,7 @@ export default function CameraScreen() {
   const addStory = useStoriesStore((state) => state.addStory);
 
   useEffect(() => {
+    // Shutter pulse
     if (isRecording) {
       Animated.loop(
         Animated.sequence([
@@ -61,15 +63,33 @@ export default function CameraScreen() {
     }
   }, [isRecording]);
 
+  useEffect(() => {
+    // YOLO Scanner sweeps up and down
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(scannerAnim, {
+          toValue: 1,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scannerAnim, {
+          toValue: 0,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, []);
+
   if (!permission?.granted) {
     return (
       <View style={styles.permissionContainer}>
-        <Text style={styles.permissionText}>Clique a besoin de ta caméra</Text>
+        <Text style={styles.permissionText}>Clique a besoin de ta caméra / Clique needs your camera</Text>
         <TouchableOpacity
           style={styles.permissionButton}
           onPress={requestPermission}
         >
-          <Text style={styles.permissionButtonText}>Autoriser</Text>
+          <Text style={styles.permissionButtonText}>Autoriser / Allow</Text>
         </TouchableOpacity>
       </View>
     );
@@ -182,6 +202,32 @@ export default function CameraScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* YOLO Scanner Overlay */}
+        {selectedLens?.id === "yolo-scan" && !previewUri && (
+          <View style={styles.yoloContainer}>
+            <View style={styles.yoloCornerTopLeft} />
+            <View style={styles.yoloCornerTopRight} />
+            <View style={styles.yoloCornerBottomLeft} />
+            <View style={styles.yoloCornerBottomRight} />
+            <Animated.View
+              style={[
+                styles.yoloScannerLine,
+                {
+                  transform: [
+                    {
+                      translateY: scannerAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, height - 300],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            />
+            <Text style={styles.yoloText}>ANALYSE YOLOv8n EN COURS... / SCANNING...</Text>
+          </View>
+        )}
+
         {/* Bottom controls */}
         <View style={styles.bottomControls}>
           {/* Gallery button */}
@@ -257,8 +303,8 @@ export default function CameraScreen() {
         {/* Hint */}
         <Text style={styles.hint}>
           {isRecording
-            ? "Relâche pour arrêter"
-            : "Appuie pour photo, maintiens pour vidéo"}
+            ? "Relâche pour arrêter / Release to stop"
+            : "Appuie pour photo, maintiens pour vidéo / Tap for photo, hold for video"}
         </Text>
 
         {previewUri && (
@@ -285,7 +331,7 @@ export default function CameraScreen() {
                 style={styles.cancelButton}
                 onPress={() => setPreviewUri(null)}
               >
-                <Text style={styles.cancelText}>Annuler</Text>
+                <Text style={styles.cancelText}>Annuler / Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -518,5 +564,78 @@ const styles = StyleSheet.create({
   imperialOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(212, 175, 55, 0.15)", // Subtle gold warm
+  },
+  yoloContainer: {
+    ...StyleSheet.absoluteFillObject,
+    top: 100,
+    bottom: 200,
+    marginHorizontal: spacing.xl,
+    padding: spacing.md,
+    justifyContent: "center",
+  },
+  yoloCornerTopLeft: {
+    position: "absolute",
+    top: 50,
+    left: 0,
+    width: 30,
+    height: 30,
+    borderTopWidth: 2,
+    borderLeftWidth: 2,
+    borderColor: colors.accent.green,
+  },
+  yoloCornerTopRight: {
+    position: "absolute",
+    top: 50,
+    right: 0,
+    width: 30,
+    height: 30,
+    borderTopWidth: 2,
+    borderRightWidth: 2,
+    borderColor: colors.accent.green,
+  },
+  yoloCornerBottomLeft: {
+    position: "absolute",
+    bottom: 50,
+    left: 0,
+    width: 30,
+    height: 30,
+    borderBottomWidth: 2,
+    borderLeftWidth: 2,
+    borderColor: colors.accent.green,
+  },
+  yoloCornerBottomRight: {
+    position: "absolute",
+    bottom: 50,
+    right: 0,
+    width: 30,
+    height: 30,
+    borderBottomWidth: 2,
+    borderRightWidth: 2,
+    borderColor: colors.accent.green,
+  },
+  yoloScannerLine: {
+    position: "absolute",
+    top: 50,
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: colors.accent.green,
+    shadowColor: colors.accent.green,
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 10,
+  },
+  yoloText: {
+    position: "absolute",
+    top: 20,
+    alignSelf: "center",
+    color: colors.accent.green,
+    fontSize: 10,
+    fontWeight: "bold",
+    letterSpacing: 2,
+    textShadowColor: "rgba(0,0,0,0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
 });

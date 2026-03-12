@@ -8,8 +8,12 @@ import {
   Image,
 } from "react-native";
 
-import { useStoriesStore, useUIStore } from "../store/cliqueStore";
-import { storiesAPI } from "../api/cliqueApi";
+import {
+  useStoriesStore,
+  useUIStore,
+  useCliquesStore,
+} from "../store/cliqueStore";
+import { storiesAPI, cliquesAPI } from "../api/cliqueApi";
 import {
   colors,
   typography,
@@ -17,8 +21,9 @@ import {
   borderRadius,
 } from "../theme/cliqueTheme";
 
-export default function StoriesScreen() {
+export default function StoriesScreen({ navigation }) {
   const { stories, myStories, setStories, setMyStories } = useStoriesStore();
+  const { nearbyCliques, setNearbyCliques } = useCliquesStore();
   const { openStoryViewer } = useUIStore();
 
   useEffect(() => {
@@ -27,13 +32,15 @@ export default function StoriesScreen() {
 
   const loadStories = async () => {
     try {
-      const [feedRes, myRes] = await Promise.all([
+      const [feedRes, myRes, cliqueRes] = await Promise.all([
         storiesAPI.getFeed(),
         storiesAPI.getMyStories(),
+        cliquesAPI.getNearby(45.5122, -73.57, 5000),
       ]);
 
       setStories(feedRes.data.stories);
       setMyStories(myRes.data.stories);
+      setNearbyCliques(cliqueRes.data.cliques);
     } catch (err) {
       console.error("Failed to load stories:", err);
     }
@@ -92,7 +99,10 @@ export default function StoriesScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Stories</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.header}>L'ÉLITE / THE ELITE</Text>
+        <Text style={styles.subHeader}>STORIES EXCLUSIVES / EXCLUSIVE MOMENTS</Text>
+      </View>
 
       <FlatList
         data={stories}
@@ -104,12 +114,47 @@ export default function StoriesScreen() {
         contentContainerStyle={styles.listContent}
       />
 
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>COMMUNAUTÉS PROCHES / NEARBY CLIQUES</Text>
+        <TouchableOpacity onPress={() => navigation.navigate("SearchCliques")}>
+          <Text style={styles.seeAll}>VOIR TOUT / SEE ALL ›</Text>
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        data={nearbyCliques}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.cliqueCard}
+            onPress={() =>
+              navigation.navigate("CliqueChat", {
+                cliqueId: item.id,
+                cliqueName: item.name,
+              })
+            }
+          >
+            <View style={styles.cliqueIcon}>
+              <Text style={styles.cliqueIconText}>{item.name.charAt(0)}</Text>
+            </View>
+            <Text style={styles.cliqueName} numberOfLines={1}>
+              {item.name}
+            </Text>
+            <Text style={styles.cliqueMeta}>{item.memberCount} membres / members</Text>
+          </TouchableOpacity>
+        )}
+        keyExtractor={(item) => item.id}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
+      />
+
       {/* Empty state */}
-      {stories.length === 0 && (
+      {stories.length === 0 && nearbyCliques.length === 0 && (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>Pas de stories</Text>
+          <Text style={styles.emptyTitle}>L'Élite t'attend / The Elite Awaits</Text>
           <Text style={styles.emptyText}>
-            Ajoute des amis pour voir leurs stories!
+            Explore les cliques autour de toi pour commencer l'expérience. / 
+            Explore cliques around you to start the experience.
           </Text>
         </View>
       )}
@@ -123,14 +168,23 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     paddingTop: spacing.xl,
   },
-  header: {
-    fontSize: typography.sizes["xl"],
-    fontWeight: "900",
-    color: colors.text.primary,
+  headerContainer: {
     paddingHorizontal: spacing.lg,
-    marginBottom: spacing.md,
-    letterSpacing: 3,
+    marginBottom: spacing.xl,
+    marginTop: spacing.md,
+  },
+  header: {
+    fontSize: typography.sizes["2xl"],
+    fontWeight: "900",
+    color: colors.gold.DEFAULT,
+    letterSpacing: 4,
     textTransform: "uppercase",
+  },
+  subHeader: {
+    fontSize: typography.sizes.xs,
+    color: colors.text.muted,
+    letterSpacing: 2,
+    marginTop: spacing.xs,
   },
   listContent: {
     paddingHorizontal: spacing.md,
@@ -208,5 +262,61 @@ const styles = StyleSheet.create({
   emptyText: {
     color: colors.text.secondary,
     textAlign: "center",
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: spacing.lg,
+    marginTop: spacing.xl,
+    marginBottom: spacing.md,
+  },
+  sectionTitle: {
+    fontSize: 10,
+    fontWeight: "bold",
+    color: colors.gold.DEFAULT,
+    letterSpacing: 2,
+  },
+  seeAll: {
+    fontSize: 10,
+    color: colors.text.secondary,
+    fontWeight: "bold",
+  },
+  cliqueCard: {
+    width: 140,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.md,
+    marginRight: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.surfaceHighlight,
+    alignItems: "center",
+  },
+  cliqueIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 12,
+    backgroundColor: colors.leather.black,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.gold.DEFAULT,
+    marginBottom: spacing.sm,
+  },
+  cliqueIconText: {
+    color: colors.gold.DEFAULT,
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  cliqueName: {
+    color: colors.text.primary,
+    fontSize: typography.sizes.xs,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  cliqueMeta: {
+    color: colors.text.secondary,
+    fontSize: 10,
+    marginTop: 2,
   },
 });

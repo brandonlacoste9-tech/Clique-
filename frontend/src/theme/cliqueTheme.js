@@ -93,22 +93,46 @@ export const shadows = {
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5
+  },
+
+  glass: {
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderColor: 'rgba(212, 175, 55, 0.15)',
+    borderWidth: 1,
+  },
+
+  premium: {
+    shadowColor: colors.gold.DEFAULT,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.4,
+    shadowRadius: 24,
+    elevation: 20
   }
 };
 
-// Quebecois expressions for UI
+// Quebecois & English expressions for UI
 export const cliquePhrases = {
   // Greetings
-  hello: ['Yo', 'Wesh', 'Heille', 'Salut'],
-  goodbye: ['Ciao', 'A+', 'Plus tard'],
+  hello: ['Yo', 'Wesh', 'Heille', 'Salut', 'Greetings'],
+  goodbye: ['Ciao', 'A+', 'Plus tard', 'Peace'],
   
-  // Reactions
-  cool: ['C\'est tiguidou', 'C\'est malade', 'L\'fun', 'C\'est d\'la bombe'],
+  // States
+  typing: ['Écrit... / typing...', 'Tape...', 'Compose...'],
+  online: ['En ligne', 'Online', 'Connecté'],
+  cool: ['C\'est tiguidou', 'C\'est malade', 'L\'fun', 'C\'est d\'la bombe', 'Premium'],
   thanks: ['Merci ben', 'C\'est ça', 'Good'],
   
+  // Navigation / CTA
+  join: ['REJOINDRE', 'JOIN'],
+  leave: ['QUITTER', 'LEAVE'],
+  territory: ['TERRITOIRE', 'TERRITORY'],
+  elite: ['L\'ÉLITE', 'THE ELITE'],
+  messages: ['MESSAGES', 'MESSAGES'],
+  ghostMode: ['MODE FANTÔME', 'GHOST MODE'],
+  
   // Loading
-  loading: ['Un instant...', 'Ça charge...', 'Attends un peu...'],
+  loading: ['Un instant...', 'Ça charge...', 'Attends un peu...', 'Loading...'],
   
   // Errors
-  error: ['Oups!', 'C\'est cassé', 'Ça marche pas', 'Problème technique']
+  error: ['Oups!', 'C\'est cassé', 'Ça marche pas', 'Technical Issue']
 };

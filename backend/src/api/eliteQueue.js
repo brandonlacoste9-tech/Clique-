@@ -16,13 +16,15 @@ export default async function eliteQueueRoutes(fastify, options) {
       return reply.code(400).send({ error: "Courriel requis pour l'Élite." });
     }
 
-    // Use Redis for atomic counter to prevent overflow during peak hype
-    const currentCount = (await redis.get("clique:sovereign_count")) || 0;
-    const count = parseInt(currentCount, 10);
+    // Use Postgres for count instead of Redis for the premiere
+    const counterResult = await db.query(
+      "SELECT COUNT(*) FROM candidates WHERE status = 'SOVEREIGN_INITIAL'",
+    );
+    const count = parseInt(counterResult.rows[0].count, 10);
 
     if (count < MAX_SOVEREIGNS) {
-      // Atomic increment
-      await redis.incr("clique:sovereign_count");
+      // Atomic increment (Redis) disabled
+      // await redis.incr("clique:sovereign_count");
 
       const sovereignKey = `CQ-ELITE-${Math.random().toString(36).toUpperCase().substring(2, 10)}`;
 
@@ -34,18 +36,18 @@ export default async function eliteQueueRoutes(fastify, options) {
         [email, "SOVEREIGN_INITIAL", sovereignKey, new Date()],
       );
 
-      // Store in Redis for the "Hall of Sovereigns" live feed
-      const nameFromEmail = email.split("@")[0];
-      const maskedName = `${nameFromEmail.charAt(0).toUpperCase()}. ${nameFromEmail.slice(1, 3)}...`;
-      await redis.lpush(
-        "clique:hall_of_sovereigns",
-        JSON.stringify({
-          name: maskedName,
-          spot: count + 1,
-          timestamp: new Date().toISOString(),
-        }),
-      );
-      await redis.ltrim("clique:hall_of_sovereigns", 0, 9); // Keep last 10 for the ticker
+      // Store in Redis disabled for now
+      // const nameFromEmail = email.split("@")[0];
+      // const maskedName = `${nameFromEmail.charAt(0).toUpperCase()}. ${nameFromEmail.slice(1, 3)}...`;
+      // await redis.lpush(
+      //   "clique:hall_of_sovereigns",
+      //   JSON.stringify({
+      //     name: maskedName,
+      //     spot: count + 1,
+      //     timestamp: new Date().toISOString(),
+      //   }),
+      // );
+      // await redis.ltrim("clique:hall_of_sovereigns", 0, 9); // Keep last 10 for the ticker
 
       // Dispatch Elite Invitation Email
       try {
@@ -78,7 +80,8 @@ export default async function eliteQueueRoutes(fastify, options) {
 
   // Endpoint for the "Hall of Sovereigns" ticker
   fastify.get("/hall", async () => {
-    const hall = await redis.lrange("clique:hall_of_sovereigns", 0, 9);
-    return hall.map((s) => JSON.parse(s));
+    // const hall = await redis.lrange("clique:hall_of_sovereigns", 0, 9);
+    // return hall.map((s) => JSON.parse(s));
+    return [];
   });
 }

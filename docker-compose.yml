@@ -92,7 +92,18 @@ services:
       - postgres
       - redis
       - minio
-    command: npm run worker
+  # YOLO Object Detection Service
+  yolo-service:
+    build:
+      context: ./yolo-service
+      dockerfile: Dockerfile
+    container_name: clique-yolo
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./yolo-service:/app
+    environment:
+      PORT: 8000
 
 volumes:
   postgres_data:
