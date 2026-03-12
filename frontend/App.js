@@ -40,6 +40,7 @@ import ProfileCustomizeScreen from "./src/screens/ProfileCustomizeScreen";
 
 // Auth
 import AuthScreen from "./src/screens/AuthScreen";
+import LandingVIPScreen from "./src/screens/LandingVIPScreen";
 import StoryViewer from "./src/components/StoryViewer";
 
 const Tab = createBottomTabNavigator();
@@ -131,13 +132,20 @@ export default function App() {
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isAuthenticated ? (
-          <Stack.Screen
-            name="Auth"
-            component={AuthScreen}
-            options={{
-              animationTypeForReplace: !isAuthenticated ? "pop" : "push",
-            }}
-          />
+          <>
+            <Stack.Screen
+              name="LandingVIP"
+              component={LandingVIPScreen}
+              options={{ animationEnabled: true }}
+            />
+            <Stack.Screen
+              name="Auth"
+              component={AuthScreen}
+              options={{
+                animationTypeForReplace: !isAuthenticated ? "pop" : "push",
+              }}
+            />
+          </>
         ) : (
           <>
             <Stack.Screen name="Main" component={MainTabs} />

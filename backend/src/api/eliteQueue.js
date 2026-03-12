@@ -80,8 +80,14 @@ export default async function eliteQueueRoutes(fastify, options) {
 
   // Endpoint for the "Hall of Sovereigns" ticker
   fastify.get("/hall", async () => {
-    // const hall = await redis.lrange("clique:hall_of_sovereigns", 0, 9);
-    // return hall.map((s) => JSON.parse(s));
-    return [];
+    const counterResult = await db.query(
+      "SELECT COUNT(*) FROM candidates WHERE status = 'SOVEREIGN_INITIAL'",
+    );
+    const count = parseInt(counterResult.rows[0].count, 10);
+    
+    return {
+      placesLeft: Math.max(0, MAX_SOVEREIGNS - count),
+      totalSovereigns: count
+    };
   });
 }
