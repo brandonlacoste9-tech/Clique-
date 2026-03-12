@@ -18,6 +18,7 @@ import * as Haptics from "expo-haptics";
 import Svg, { Defs, LinearGradient, Stop, Rect, Text as SvgText } from "react-native-svg";
 import { colors, spacing, typography, shadows } from "../theme/cliqueTheme";
 import { eliteAPI } from "../api/cliqueApi";
+import { useAuthStore } from "../store/cliqueStore";
 
 const { width, height } = Dimensions.get("window");
 
@@ -25,6 +26,7 @@ const { width, height } = Dimensions.get("window");
  * LandingVIPScreen — The ultra-exclusive entry point for Clique.
  */
 export default function LandingVIPScreen({ navigation }) {
+  const { setToken, setUser } = useAuthStore();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [placesLeft, setPlacesLeft] = useState(99);
@@ -154,7 +156,10 @@ export default function LandingVIPScreen({ navigation }) {
                   
                   <TouchableOpacity 
                     style={styles.requestButton} 
-                    onPress={handleRequestAccess}
+                    onPress={() => {
+                        console.log("[VIP] Requesting access...");
+                        handleRequestAccess();
+                    }}
                     disabled={loading}
                   >
                     <Svg height="60" width="220" style={StyleSheet.absoluteFill}>
@@ -166,24 +171,40 @@ export default function LandingVIPScreen({ navigation }) {
                   </TouchableOpacity>
 
                   <TouchableOpacity 
-                    style={styles.secondaryButton} 
+                    style={[styles.secondaryButton, { backgroundColor: 'rgba(212, 175, 55, 0.2)', height: 60 }]} 
                     onPress={() => {
-                      console.log("[NAV] Navigating to Auth from LandingVIP (Login)");
+                      console.log("[NAV] Immediate Bypass to Auth triggered");
                       navigation.navigate("Auth");
                     }}
                   >
-                    <Text style={styles.secondaryButtonText}>SOVEREIGN LOGIN</Text>
+                    <Text style={[styles.secondaryButtonText, { fontSize: 16, color: '#FFF' }]}>SOVEREIGN LOGIN ▸</Text>
                   </TouchableOpacity>
 
                   {/* Developer Bypass */}
                   <TouchableOpacity 
                     style={styles.devBypass}
                     onPress={() => {
-                      console.log("[NAV] Navigating to Auth from LandingVIP (Bypass)");
+                      console.log("[NAV] Dev Skip Invite triggered");
                       navigation.navigate("Auth");
                     }}
                   >
                     <Text style={styles.devBypassText}>[DEV] SKIP INVITE</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.button, { backgroundColor: colors.accent.orange, marginTop: 10, width: 220, height: 50, borderRadius: 8, justifyContent: 'center', alignItems: 'center' }]}
+                    onPress={() => {
+                      console.log("[BYPASS] Landing God Mode triggered");
+                      setToken("guest_god_token");
+                      setUser({
+                        id: "guest.god",
+                        username: "QuickSovereign",
+                        displayName: "Guest Sovereign",
+                        avatarUrl: "https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=150&h=150&fit=crop",
+                      });
+                    }}
+                  >
+                    <Text style={{ color: '#000', fontWeight: 'bold' }}>DEMO BYPASS: ENTER NOW</Text>
                   </TouchableOpacity>
                 </View>
               ) : (

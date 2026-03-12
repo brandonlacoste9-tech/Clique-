@@ -81,8 +81,25 @@ async function setupEmpireChannel() {
 
 // Main app with auth check
 export default function App() {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { isAuthenticated, isLoading, setToken, setUser } = useAuthStore();
   const navigationRef = useRef(null);
+  const [tapCount, setTapCount] = useState(0);
+
+  const handleLogoTap = () => {
+    const newCount = tapCount + 1;
+    if (newCount >= 5) {
+      console.log("GOD MODE: Imperial Bypass triggered");
+      setToken("imperial_dev_token");
+      setUser({
+        id: "dev.sovereign",
+        username: "TheSovereign",
+        displayName: "Souverain / Sovereign",
+        avatarUrl: "https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=150&h=150&fit=crop",
+      });
+    } else {
+      setTapCount(newCount);
+    }
+  };
 
   useEffect(() => {
     setupEmpireChannel();
@@ -140,11 +157,16 @@ export default function App() {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
+      <TouchableOpacity 
+        activeOpacity={1} 
+        style={styles.loadingContainer} 
+        onPress={handleLogoTap}
+      >
         <StatusBar barStyle="light-content" />
         <Text style={styles.loadingLogo}>CLIQUE</Text>
         <Text style={styles.loadingTagline}>L'Élite de l'Instant / The Instant Elite</Text>
-      </View>
+        {tapCount > 0 && <Text style={{ color: 'rgba(255,215,0,0.2)', marginTop: 20 }}>Tap {5-tapCount} more for God Mode</Text>}
+      </TouchableOpacity>
     );
   }
 

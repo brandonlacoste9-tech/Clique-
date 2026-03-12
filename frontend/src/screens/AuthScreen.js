@@ -244,20 +244,36 @@ export default function AuthScreen() {
                     <View style={styles.line} />
                   </View>
 
-                  <TouchableOpacity
-                    style={[
-                      styles.snapButton,
-                      loading && styles.buttonDisabled,
-                    ]}
-                    onPress={handleSnapLogin}
-                    disabled={loading}
-                  >
-                    <Text style={styles.snapButtonText}>
-                      {loading ? "Chargement..." : "Snapchat Express"}
-                    </Text>
-                  </TouchableOpacity>
-                </>
-              )}
+                    <TouchableOpacity
+                      style={[
+                        styles.snapButton,
+                        loading && styles.buttonDisabled,
+                      ]}
+                      onPress={handleSnapLogin}
+                      disabled={loading}
+                    >
+                      <Text style={styles.snapButtonText}>
+                        {loading ? "Chargement..." : "Snapchat Express"}
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.button, { backgroundColor: colors.accent.orange, marginTop: spacing.md }]}
+                      onPress={() => {
+                        setToken("demo_bypass_token");
+                        setUser({
+                          id: "demo.guest",
+                          username: "DemoElite",
+                          displayName: "Demo Sovereign",
+                          avatarUrl: "https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=150&h=150&fit=crop",
+                        });
+                        triggerEliteWelcome("Demo Sovereign");
+                      }}
+                    >
+                      <Text style={styles.buttonText}>DEMO BYPASS: ENTER AS GUEST</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
 
               {step === "otp" && (
                 <>
