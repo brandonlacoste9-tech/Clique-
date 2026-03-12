@@ -133,6 +133,46 @@ export default async function messageRoutes(fastify, opts) {
     };
   });
 
+  // Global search across all conversations
+  fastify.get("/search/global", async (request, reply) => {
+    const userId = request.user.userId;
+    const { q, limit = 20 } = request.query;
+
+    if (!q || q.length < 2) {
+      return { results: [] };
+    }
+
+    const result = await query(
+      `SELECT m.id, m.sender_id, m.recipient_id, m.content_type, m.text_content, m.sent_at,
+              u.username as other_username, u.display_name as other_display_name, u.avatar_url as other_avatar_url,
+              CASE WHEN m.sender_id = $1 THEN m.recipient_id ELSE m.sender_id END as other_user_id
+       FROM messages m
+       JOIN users u ON (CASE WHEN m.sender_id = $1 THEN m.recipient_id ELSE m.sender_id END) = u.id
+       WHERE (m.sender_id = $1 OR m.recipient_id = $1)
+         AND m.content_type = 'text'
+         AND m.text_content ILIKE $2
+         AND (m.deleted_by_sender_at IS NULL OR m.sender_id != $1)
+         AND (m.deleted_by_recipient_at IS NULL OR m.recipient_id != $1)
+       ORDER BY m.sent_at DESC
+       LIMIT $3`,
+      [userId, `%${q}%`, limit],
+    );
+
+    return {
+      results: result.rows.map((m) => ({
+        id: m.id,
+        text: m.text_content,
+        sentAt: m.sent_at,
+        user: {
+          id: m.other_user_id,
+          username: m.other_username,
+          displayName: m.other_display_name,
+          avatarUrl: m.other_avatar_url,
+        },
+      })),
+    };
+  });
+
   // Send message
   fastify.post("/:userId", async (request, reply) => {
     const senderId = request.user.userId;

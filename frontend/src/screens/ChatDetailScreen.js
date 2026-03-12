@@ -11,7 +11,12 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Image,
+  AppState,
+  Animated,
+  Easing,
 } from "react-native";
+import * as Notifications from "expo-notifications";
+import { LinearGradient } from "expo-linear-gradient";
 import { useMessagesStore } from "../store/cliqueStore";
 import { messagesAPI } from "../api/cliqueApi";
 import {
@@ -28,6 +33,8 @@ import {
   shadows,
   cliquePhrases,
 } from "../theme/cliqueTheme";
+import AnimatedEliteGradient from "../components/AnimatedEliteGradient";
+import ChatOptionsSheet from "../components/ChatOptionsSheet";
 import BitmojiSheet from "../components/BitmojiSheet";
 import VoiceRecorder from "../components/VoiceRecorder";
 import MediaPicker from "../components/MediaPicker";
@@ -325,6 +332,8 @@ export default function ChatDetailScreen({ route, navigation }) {
     }
 
     const isMe = item.sender === "me";
+    const isElite = item.isElite || item.text?.includes("⚜️");
+
     return (
       <SwipeableReplyWrapper onReply={() => handleReply(item)}>
         <MessageReactions
@@ -342,14 +351,32 @@ export default function ChatDetailScreen({ route, navigation }) {
               isMe ? styles.myMessageWrapper : styles.theirMessageWrapper,
             ]}
           >
-            <View style={[
-              styles.messageBubble,
-              isMe ? styles.myBubble : styles.theirBubble,
-              item.sending && styles.sendingBubble,
-              item.failed && styles.failedBubble,
-              item.contentType === "sticker" && styles.stickerBubble,
-              item.contentType === "location" && styles.locationBubble,
-            ]}>
+            {isElite ? (
+              <AnimatedEliteGradient
+                style={[
+                  styles.messageBubble,
+                  isMe ? styles.myEliteBubble : styles.theirEliteBubble,
+                ]}
+              >
+                <View style={[
+                  styles.eliteInnerBubble,
+                  isMe ? styles.myBubble : styles.theirBubble,
+                ]}>
+                  <Text style={[styles.messageText, styles.eliteText]}>
+                    {item.text}
+                  </Text>
+                </View>
+              </AnimatedEliteGradient>
+            ) : (
+              <View style={[
+                styles.messageBubble,
+                isMe ? styles.myBubble : styles.theirBubble,
+                item.sending && styles.sendingBubble,
+                item.failed && styles.failedBubble,
+                item.contentType === "sticker" && styles.stickerBubble,
+                item.contentType === "location" && styles.locationBubble,
+              ]}>
+                {/* ... existing bubble content ... */}
               {/* Replying to Preview inside bubble */}
               {item.replyTo && (
                 <View style={[
@@ -857,10 +884,30 @@ const styles = StyleSheet.create({
   theirMessageText: {
     color: colors.text.primary,
   },
+  eliteText: {
+    color: colors.gold.DEFAULT,
+    fontWeight: "800",
+    textShadowColor: "rgba(0, 0, 0, 0.5)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  eliteInnerBubble: {
+    borderRadius: 18,
+    padding: 10,
+    backgroundColor: colors.leather.black,
+  },
+  myEliteBubble: {
+    borderTopRightRadius: 4,
+    ...shadows.gold,
+  },
+  theirEliteBubble: {
+    borderTopLeftRadius: 4,
+  },
   failedText: {
     color: colors.accent.red,
-    fontSize: typography.sizes.xs,
-    marginTop: spacing.xs,
+    fontSize: 10,
+    marginTop: 4,
+    fontWeight: "bold",
   },
   systemMessageContainer: {
     marginVertical: spacing.xl,

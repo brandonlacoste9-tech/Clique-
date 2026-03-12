@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Image,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import { useMessagesStore } from "../store/cliqueStore";
 import { messagesAPI } from "../api/cliqueApi";
@@ -121,12 +122,20 @@ export default function ChatScreen({ navigation }) {
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Messages</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => navigation.navigate("AddFriends")}
-        >
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => navigation.navigate("GlobalSearch")}
+          >
+            <Ionicons name="search" size={24} color={colors.gold.DEFAULT} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => navigation.navigate("AddFriends")}
+          >
+            <Ionicons name="person-add" size={24} color={colors.gold.DEFAULT} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <FlatList
@@ -191,15 +200,20 @@ const styles = StyleSheet.create({
     letterSpacing: 4,
     textTransform: "uppercase",
   },
-  addButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.surface,
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  actionButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
     justifyContent: "center",
     alignItems: "center",
+    marginLeft: spacing.sm,
     borderWidth: 1,
-    borderColor: colors.gold.DEFAULT,
+    borderColor: "rgba(212, 175, 55, 0.2)",
   },
   addButtonText: {
     color: colors.gold.DEFAULT,

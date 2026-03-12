@@ -37,11 +37,32 @@ import SettingsScreen from "./src/screens/SettingsScreen";
 import CliqueChatScreen from "./src/screens/CliqueChatScreen";
 import SearchCliquesScreen from "./src/screens/SearchCliquesScreen";
 import ProfileCustomizeScreen from "./src/screens/ProfileCustomizeScreen";
+import GlobalSearchScreen from "./src/screens/GlobalSearchScreen";
 
 // Auth
 import AuthScreen from "./src/screens/AuthScreen";
 import LandingVIPScreen from "./src/screens/LandingVIPScreen";
 import StoryViewer from "./src/components/StoryViewer";
+
+const linking = {
+  prefixes: ["clique://", "https://clique.app"],
+  config: {
+    screens: {
+      Main: {
+        screens: {
+          Chat: "chat",
+          Stories: "stories",
+          Map: "map",
+          Profile: "profile",
+        },
+      },
+      ChatDetail: "chat/:userId",
+      CliqueChat: "clique/:cliqueId",
+      GlobalSearch: "search",
+      SearchCliques: "explore",
+    },
+  },
+};
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -128,7 +149,21 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer
+      ref={navigationRef}
+      theme={{
+        dark: true,
+        colors: {
+          primary: colors.gold.DEFAULT,
+          background: colors.background,
+          card: colors.surface,
+          text: colors.text.primary,
+          border: colors.surfaceHighlight,
+          notification: colors.accent.orange,
+        },
+      }}
+      linking={linking}
+    >
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isAuthenticated ? (
@@ -149,36 +184,13 @@ export default function App() {
         ) : (
           <>
             <Stack.Screen name="Main" component={MainTabs} />
-            <Stack.Screen
-              name="ChatDetail"
-              component={ChatDetailScreen}
-              options={{ gestureEnabled: true }}
-            />
-            <Stack.Screen
-              name="AddFriends"
-              component={AddFriendsScreen}
-              options={{ gestureEnabled: true }}
-            />
-            <Stack.Screen
-              name="Settings"
-              component={SettingsScreen}
-              options={{ gestureEnabled: true }}
-            />
-            <Stack.Screen
-              name="CliqueChat"
-              component={CliqueChatScreen}
-              options={{ gestureEnabled: true }}
-            />
-            <Stack.Screen
-              name="SearchCliques"
-              component={SearchCliquesScreen}
-              options={{ gestureEnabled: true }}
-            />
-            <Stack.Screen
-              name="ProfileCustomize"
-              component={ProfileCustomizeScreen}
-              options={{ gestureEnabled: true }}
-            />
+            <Stack.Screen name="ChatDetail" component={ChatDetailScreen} options={{ gestureEnabled: true }} />
+            <Stack.Screen name="CliqueChat" component={CliqueChatScreen} options={{ gestureEnabled: true }} />
+            <Stack.Screen name="GlobalSearch" component={GlobalSearchScreen} options={{ gestureEnabled: true }} />
+            <Stack.Screen name="AddFriends" component={AddFriendsScreen} options={{ gestureEnabled: true }} />
+            <Stack.Screen name="Settings" component={SettingsScreen} options={{ gestureEnabled: true }} />
+            <Stack.Screen name="SearchCliques" component={SearchCliquesScreen} options={{ gestureEnabled: true }} />
+            <Stack.Screen name="ProfileCustomize" component={ProfileCustomizeScreen} options={{ gestureEnabled: true }} />
           </>
         )}
       </Stack.Navigator>

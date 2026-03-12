@@ -1,5 +1,6 @@
 // Cliques API — Geo-fenced group communities
 import { query } from "../models/db.js";
+import { notifyCliqueMessage } from "../services/pushNotificationService.js";
 
 export default async function cliqueRoutes(fastify, opts) {
   // Get nearby cliques
@@ -318,6 +319,15 @@ export default async function cliqueRoutes(fastify, opts) {
     // Broadcast via WebSocket
     const { sendToRoom } = await import("../services/websocket.js");
     sendToRoom(id, "clique_message", broadcastData);
+
+    // Send push notifications to members NOT in the room
+    const cliqueInfo = await query("SELECT name FROM cliques WHERE id = $1", [id]);
+    const cliqueName = cliqueInfo.rows[0]?.name || "La Clique";
+    const preview = type === "text" ? text : `📷 ${type}`;
+    
+    notifyCliqueMessage(id, cliqueName, user.rows[0].username, preview, userId).catch(err => {
+      fastify.log.error("Clique push error:", err.message);
+    });
 
     return { message: "Message envoyé", messageId };
   });

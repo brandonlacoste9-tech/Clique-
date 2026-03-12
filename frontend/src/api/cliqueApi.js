@@ -1,8 +1,9 @@
 // API client for Clique backend
 import axios from "axios";
+import { Platform } from "react-native";
 import { useAuthStore } from "../store/cliqueStore";
 
-const API_URL = "http://localhost:3001"; // Change for production
+const API_URL = Platform.OS === "android" ? "http://10.0.2.2:3001" : "http://localhost:3001";
 
 const api = axios.create({
   baseURL: API_URL,

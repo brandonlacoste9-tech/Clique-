@@ -1,6 +1,7 @@
 // User API - Profile, friends, settings
 import { query } from "../models/db.js";
 import { presence, storyCache } from "../services/redis.js";
+import { notifyFriendRequest, notifyFriendAccepted } from "../services/pushNotificationService.js";
 
 export default async function userRoutes(fastify, opts) {
   // Get my profile
@@ -156,6 +157,29 @@ export default async function userRoutes(fastify, opts) {
     };
   });
 
+  // Get elite streaks leaderboard
+  fastify.get("/leaderboard", async (request, reply) => {
+    // Top 10 users by streak count
+    const result = await query(
+      `SELECT id, username, display_name, avatar_url, streak_count
+       FROM users 
+       WHERE deleted_at IS NULL AND streak_count > 0
+       ORDER BY streak_count DESC, created_at ASC
+       LIMIT 10`,
+      []
+    );
+
+    return {
+      leaderboard: result.rows.map(u => ({
+        id: u.id,
+        username: u.username,
+        displayName: u.display_name,
+        avatarUrl: u.avatar_url,
+        streakCount: u.streak_count
+      }))
+    };
+  });
+
   // Get friends list
   fastify.get("/me/friends", async (request, reply) => {
     const userId = request.user.userId;
@@ -234,6 +258,12 @@ export default async function userRoutes(fastify, opts) {
       [userId, friendId],
     );
 
+    // Send push notification to the recipient
+    const sender = await query("SELECT username FROM users WHERE id = $1", [userId]);
+    notifyFriendRequest(friendId, sender.rows[0]?.username || "Someone").catch(err => {
+      fastify.log.error("Friend request push error:", err.message);
+    });
+
     return { message: "Friend request sent", status: "pending" };
   });
 
@@ -253,6 +283,12 @@ export default async function userRoutes(fastify, opts) {
     if (result.rowCount === 0) {
       return reply.code(404).send({ error: "Friend request not found" });
     }
+
+    // Send push notification to the requestor
+    const me = await query("SELECT username FROM users WHERE id = $1", [userId]);
+    notifyFriendAccepted(id, me.rows[0]?.username || "Someone").catch(err => {
+      fastify.log.error("Friend accept push error:", err.message);
+    });
 
     return { message: "Friend request accepted" };
   });

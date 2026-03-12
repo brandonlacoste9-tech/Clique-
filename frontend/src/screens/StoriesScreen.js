@@ -20,6 +20,7 @@ import {
   spacing,
   borderRadius,
 } from "../theme/cliqueTheme";
+import EliteLeaderboard from "../components/EliteLeaderboard";
 
 export default function StoriesScreen({ navigation }) {
   const { stories, myStories, setStories, setMyStories } = useStoriesStore();
@@ -147,6 +148,8 @@ export default function StoriesScreen({ navigation }) {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
       />
+
+      <EliteLeaderboard />
 
       {/* Empty state */}
       {stories.length === 0 && nearbyCliques.length === 0 && (

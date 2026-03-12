@@ -105,6 +105,51 @@ export async function notifyFriendRequest(recipientId, senderUsername) {
 }
 
 /**
+ * Notify user that a friend request was accepted.
+ */
+export async function notifyFriendAccepted(recipientId, friendUsername) {
+  await sendPushToUser(recipientId, {
+    title: "⚜️ L'Élite grandit",
+    body: `${friendUsername} est maintenant dans ton Élite`,
+    data: { type: "friend_accepted", friendUsername },
+  });
+}
+
+/**
+ * Notify users in a clique of a new message.
+ * Optimized to skip the sender and only target members not active in the room.
+ */
+export async function notifyCliqueMessage(cliqueId, cliqueName, senderUsername, messagePreview, senderId) {
+  const members = await query(
+    `SELECT cm.user_id, d.push_token 
+     FROM clique_members cm
+     JOIN devices d ON cm.user_id = d.user_id
+     WHERE cm.clique_id = $1 AND cm.user_id != $2`,
+    [cliqueId, senderId]
+  );
+
+  if (members.rows.length === 0) return;
+
+  const messages = members.rows.map(row => ({
+    to: row.push_token,
+    sound: "default",
+    title: `🏰 ${cliqueName}`,
+    body: `${senderUsername}: ${messagePreview.length > 60 ? messagePreview.substring(0, 57) + "..." : messagePreview}`,
+    data: { type: "clique_message", cliqueId, cliqueName, senderUsername },
+    channelId: "elite_messages",
+  }));
+
+  const chunks = expo.chunkPushNotifications(messages);
+  for (const chunk of chunks) {
+    try {
+      await expo.sendPushNotificationsAsync(chunk);
+    } catch (err) {
+      console.error("[PUSH] Clique notification failed:", err.message);
+    }
+  }
+}
+
+/**
  * Notify user of a story view.
  */
 export async function notifyStoryView(ownerId, viewerUsername) {
