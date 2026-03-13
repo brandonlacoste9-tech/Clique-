@@ -10,7 +10,7 @@ import {
   ImageBackground,
   Alert,
 } from "react-native";
-import * as SnapLogin from "react-native-snap-kit-login";
+import * as SnapLogin from "../lib/snapLogin";
 import * as Haptics from "expo-haptics";
 
 import { useAuthStore } from "../store/cliqueStore";
