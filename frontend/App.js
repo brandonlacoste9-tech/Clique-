@@ -7,20 +7,20 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 
-import { useAuthStore } from "./store/cliqueStore";
+import { useAuthStore } from "./src/store/cliqueStore";
 import { colors, shadows, spacing } from "./src/theme/cliqueTheme";
 
 // Screens
-import CameraScreen from "./screens/CameraScreen";
-import StoriesScreen from "./screens/StoriesScreen";
-import ChatScreen from "./screens/ChatScreen";
-import MapScreen from "./screens/MapScreen";
-import ProfileScreen from "./screens/ProfileScreen";
-import ChatDetailScreen from "./screens/ChatDetailScreen";
+import CameraScreen from "./src/screens/CameraScreen";
+import StoriesScreen from "./src/screens/StoriesScreen";
+import ChatScreen from "./src/screens/ChatScreen";
+import MapScreen from "./src/screens/MapScreen";
+import ProfileScreen from "./src/screens/ProfileScreen";
+import ChatDetailScreen from "./src/screens/ChatDetailScreen";
 import PremiumUpgrade from "./src/components/ImperialPremiumUpgrade";
 
 // Auth
-import AuthScreen from "./screens/AuthScreen";
+import AuthScreen from "./src/screens/AuthScreen";
 import StoryViewer from "./src/components/StoryViewer";
 import ImperialTabBar from "./src/components/ImperialTabBar";
 
