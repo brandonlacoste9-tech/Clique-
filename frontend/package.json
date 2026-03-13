@@ -10,16 +10,17 @@
     "build:web": "npx expo export --platform web && node scripts/patch-index.js"
   },
   "dependencies": {
-    "expo-device": "~55.0.9",
     "@react-native-async-storage/async-storage": "2.1.0",
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@react-navigation/native": "^7.0.0",
     "@react-navigation/stack": "^7.8.4",
+    "@sentry/react-native": "^8.4.0",
     "axios": "^1.7.0",
     "date-fns": "^4.1.0",
     "expo": "~55.0.5",
     "expo-av": "~14.0.0",
     "expo-camera": "~16.0.0",
+    "expo-device": "~55.0.9",
     "expo-haptics": "^55.0.8",
     "expo-location": "~18.0.0",
     "expo-media-library": "~17.0.0",

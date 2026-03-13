@@ -37,6 +37,13 @@
                         "./src/assets/sounds/empire_chime.wav"
                     ]
                 }
+            ],
+            [
+                "@sentry/react-native/expo",
+                {
+                    "organization": "your-sentry-org",
+                    "project": "clique-app"
+                }
             ]
         ]
     }
