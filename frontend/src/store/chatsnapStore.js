@@ -1,4 +1,4 @@
-// Zustand store for Clique state management
+// Zustand store for ChatSnap state management
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -43,7 +43,7 @@ export const useAuthStore = create(
       }
     }),
     {
-      name: 'clique-auth',
+      name: 'chatsnap-auth',
       storage: createJSONStorage(() => AsyncStorage)
     }
   )

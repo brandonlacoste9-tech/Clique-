@@ -13,9 +13,9 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import { Video } from "expo-av";
 import * as MediaLibrary from "expo-media-library";
 
-import { colors, spacing, borderRadius } from "../theme/cliqueTheme";
-import { uploadAPI, storiesAPI } from "../api/cliqueApi";
-import { useStoriesStore } from "../store/cliqueStore";
+import { colors, typography, spacing, borderRadius } from "../theme/chatsnapTheme";
+import { uploadAPI, storiesAPI } from "../api/chatsnapApi";
+import { useStoriesStore } from "../store/chatsnapStore";
 
 const { width, height } = Dimensions.get("window");
 
@@ -64,7 +64,7 @@ export default function CameraScreen() {
   if (!permission?.granted) {
     return (
       <View style={styles.permissionContainer}>
-        <Text style={styles.permissionText}>Clique a besoin de ta caméra</Text>
+        <Text style={styles.permissionText}>ChatSnap a besoin de ta caméra</Text>
         <TouchableOpacity
           style={styles.permissionButton}
           onPress={requestPermission}

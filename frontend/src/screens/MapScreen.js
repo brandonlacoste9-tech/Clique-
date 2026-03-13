@@ -16,8 +16,8 @@ import {
   spacing,
   shadows,
   borderRadius,
-  cliquePhrases,
-} from "../theme/cliqueTheme";
+  chatsnapPhrases,
+} from "../theme/chatsnapTheme";
 
 const { width, height } = Dimensions.get("window");
 

@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { colors, typography, spacing, borderRadius } from '../theme/cliqueTheme';
+import { colors, typography, spacing, borderRadius } from '../theme/chatsnapTheme';
 
 const moods = [
   { id: 'all', label: 'Tout', icon: '✨' },

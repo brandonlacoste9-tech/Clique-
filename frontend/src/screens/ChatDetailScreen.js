@@ -11,16 +11,16 @@ import {
   SafeAreaView,
   Image,
 } from "react-native";
-import { useMessagesStore } from "../store/cliqueStore";
+import { useMessagesStore } from "../store/chatsnapStore";
 import {
   colors,
   typography,
   spacing,
   borderRadius,
   shadows,
-} from "../theme/cliqueTheme";
+} from "../theme/chatsnapTheme";
 import TypingIndicator from "../components/TypingIndicator";
-import { messagesAPI } from "../api/cliqueApi";
+import { messagesAPI } from "../api/chatsnapApi";
 
 export default function ChatDetailScreen({ route, navigation }) {
   const { userId, userName } = route.params;

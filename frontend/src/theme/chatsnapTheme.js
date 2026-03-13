@@ -1,4 +1,4 @@
-// Clique Theme - Imperial Gold & Leather
+// ChatSnap Theme - Imperial Gold & Leather
 // Louis Vuitton meets Roots Canada: Luxury with Canadian heritage
 
 export const colors = {
@@ -109,7 +109,7 @@ export const shadows = {
 };
 
 // Quebecois expressions for UI
-export const cliquePhrases = {
+export const chatsnapPhrases = {
   // Greetings
   hello: ['Yo', 'Wesh', 'Heille', 'Salut'],
   goodbye: ['Ciao', 'A+', 'Plus tard'],

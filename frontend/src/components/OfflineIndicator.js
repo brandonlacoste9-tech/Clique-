@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-import { colors, typography, spacing } from '../theme/cliqueTheme';
+import { colors, typography, spacing } from '../theme/chatsnapTheme';
 
 export default function OfflineIndicator({ isConnected, onRetry }) {
   const [showIndicator, setShowIndicator] = useState(false);

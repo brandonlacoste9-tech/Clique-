@@ -5,7 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { colors, typography, spacing, borderRadius, shadows } from '../theme/cliqueTheme';
+import { colors, typography, spacing, borderRadius, shadows } from '../theme/chatsnapTheme';
 
 export default function ImperialMuteBlock({
   type = 'muted',

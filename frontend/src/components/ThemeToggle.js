@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-import { colors, typography, spacing } from '../theme/cliqueTheme';
-import { useAuthStore } from '../store/cliqueStore';
-import { userAPI } from '../api/cliqueApi';
+import { colors, typography, spacing } from '../theme/chatsnapTheme';
+import { useAuthStore } from '../store/chatsnapStore';
+import { userAPI } from '../api/chatsnapApi';
 
 export default function ThemeToggle() {
   const { user } = useAuthStore();

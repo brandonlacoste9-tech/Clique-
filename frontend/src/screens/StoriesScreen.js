@@ -7,29 +7,26 @@ import {
   StyleSheet,
   Image,
   RefreshControl,
-  Modal,
 } from "react-native";
 
-import { useStoriesStore, useUIStore } from "../store/cliqueStore";
-import { storiesAPI } from "../api/cliqueApi";
+import { useStoriesStore, useUIStore } from "../store/chatsnapStore";
+import { storiesAPI } from "../api/chatsnapApi";
 import {
   colors,
   typography,
   spacing,
   borderRadius,
   shadows,
-} from "../theme/cliqueTheme";
+} from "../theme/chatsnapTheme";
 import StoryFilters from "../components/StoryFilters";
 import StoryReplyPreview from "../components/StoryReplyPreview";
-import StoryViewerProgress from "../components/StoryViewerProgress";
 
 export default function StoriesScreen() {
   const { stories, myStories, setStories, setMyStories } = useStoriesStore();
-  const { openStoryViewer, closeStoryViewer, activeStory } = useUIStore();
+  const { openStoryViewer } = useUIStore();
   const [refreshing, setRefreshing] = React.useState(false);
   const [selectedMood, setSelectedMood] = React.useState('all');
   const [selectedSort, setSelectedSort] = React.useState('newest');
-  const [showStoryViewer, setShowStoryViewer] = React.useState(false);
 
   useEffect(() => {
     loadStories();
@@ -62,7 +59,6 @@ export default function StoriesScreen() {
 
   const handleStoryPress = (item) => {
     openStoryViewer(item);
-    setShowStoryViewer(true);
   };
 
   const renderStoryRing = ({ item }) => {
@@ -167,51 +163,7 @@ export default function StoriesScreen() {
         </View>
       )}
 
-      {/* Story Viewer Modal */}
-      <Modal
-        visible={showStoryViewer && activeStory}
-        transparent
-        animationType="none"
-        onRequestClose={() => {
-          setShowStoryViewer(false);
-          closeStoryViewer();
-        }}
-      >
-        <View style={styles.storyViewerContainer}>
-          <TouchableOpacity 
-            style={styles.storyViewerClose}
-            onPress={() => {
-              setShowStoryViewer(false);
-              closeStoryViewer();
-            }}
-          >
-            <Text style={styles.storyViewerCloseText}>×</Text>
-          </TouchableOpacity>
-          
-          {activeStory && (
-            <View style={styles.storyContent}>
-              <Image
-                source={{ uri: activeStory.mediaUrl }}
-                style={styles.storyImage}
-                resizeMode="cover"
-              />
-              <View style={styles.storyCaption}>
-                <Text style={styles.storyCaptionText}>
-                  {activeStory.caption}
-                </Text>
-              </View>
-              
-              <StoryViewerProgress 
-                duration={15}
-                onComplete={() => {
-                  setShowStoryViewer(false);
-                  closeStoryViewer();
-                }}
-              />
-            </View>
-          )}
-        </View>
-      </Modal>
+      {/* Story viewer: global <StoryViewer /> in App.js uses openStoryViewer(item) → currentStoryGroup */}
     </View>
   );
 }

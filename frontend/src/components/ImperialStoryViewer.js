@@ -8,7 +8,7 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
-import { colors, typography, spacing, borderRadius, shadows } from '../theme/cliqueTheme';
+import { colors, typography, spacing, borderRadius, shadows } from '../theme/chatsnapTheme';
 
 const { width, height } = Dimensions.get('window');
 

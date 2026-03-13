@@ -1,7 +1,7 @@
 {
-  "name": "clique-api",
+  "name": "chatsnap-api",
   "version": "2026.1.0",
-  "description": "Clique - Quebec's ephemeral social platform",
+  "description": "ChatSnap - Quebec's ephemeral social platform",
   "type": "module",
   "scripts": {
     "start": "node src/index.js",

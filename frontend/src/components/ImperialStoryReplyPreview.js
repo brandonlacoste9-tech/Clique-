@@ -5,7 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { colors, typography, spacing, borderRadius } from '../theme/cliqueTheme';
+import { colors, typography, spacing, borderRadius } from '../theme/chatsnapTheme';
 
 export default function ImperialStoryReplyPreview({
   reply,

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 
-import { colors, typography, spacing, borderRadius } from '../theme/cliqueTheme';
+import { colors, typography, spacing, borderRadius } from '../theme/chatsnapTheme';
 
 const MOODS = [
   { id: 'all', label: 'Tout' },

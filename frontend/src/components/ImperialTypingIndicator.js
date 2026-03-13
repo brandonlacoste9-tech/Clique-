@@ -5,7 +5,7 @@ import {
   StyleSheet,
   Animated,
 } from 'react-native';
-import { colors, typography, spacing } from '../theme/cliqueTheme';
+import { colors, typography, spacing } from '../theme/chatsnapTheme';
 
 export default function ImperialTypingIndicator({
   userId,

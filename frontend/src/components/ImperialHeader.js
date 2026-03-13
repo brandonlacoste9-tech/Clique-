@@ -5,7 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { colors, typography, spacing } from '../theme/cliqueTheme';
+import { colors, typography, spacing } from '../theme/chatsnapTheme';
 
 export default function ImperialHeader({
   title,

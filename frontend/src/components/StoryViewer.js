@@ -21,8 +21,8 @@ import Animated, {
   SlideOutDown,
 } from "react-native-reanimated";
 import { Video } from "expo-av";
-import { colors, typography, spacing, shadows } from "../theme/cliqueTheme";
-import { useUIStore } from "../store/cliqueStore";
+import { colors, typography, spacing, shadows } from "../theme/chatsnapTheme";
+import { useUIStore } from "../store/chatsnapStore";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -236,12 +236,12 @@ const StoryViewer = () => {
           <View style={styles.topBar}>
             <View style={styles.userInfo}>
               <Image
-                source={{ uri: currentStoryGroup.avatarUrl }}
+                source={{ uri: currentStoryGroup.avatarUrl ?? currentStoryGroup.user?.avatarUrl }}
                 style={styles.avatar}
               />
               <View>
                 <Text style={styles.username}>
-                  {currentStoryGroup.username}
+                  {currentStoryGroup.username ?? currentStoryGroup.user?.displayName ?? currentStoryGroup.user?.username ?? "Story"}
                 </Text>
                 <Text style={styles.timestamp}>L'Élite de l'Instant</Text>
               </View>
@@ -257,7 +257,7 @@ const StoryViewer = () => {
           <View style={styles.footer}>
             <TouchableOpacity style={styles.replyButton}>
               <Text style={styles.replyText}>
-                Répondre à {currentStoryGroup.username}...
+                Répondre à {currentStoryGroup.username ?? currentStoryGroup.user?.displayName ?? currentStoryGroup.user?.username ?? "..."}...
               </Text>
             </TouchableOpacity>
           </View>

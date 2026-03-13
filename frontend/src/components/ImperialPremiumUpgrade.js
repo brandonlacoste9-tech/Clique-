@@ -2,15 +2,14 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useAuthStore } from '../store/cliqueStore';
-import { cliqueTheme } from '../theme/cliqueTheme';
-import { cliquePhrases } from '../data/marketingContent';
+import { useAuthStore } from '../store/chatsnapStore';
+import { colors, spacing, typography } from '../theme/chatsnapTheme';
+import { chatsnapPhrases } from '../data/marketingContent';
 import ImperialButton from './ImperialButton';
 import ImperialCard from './ImperialCard';
 import ImperialHeader from './ImperialHeader';
 import ImperialLoading from './ImperialLoading';
 
-const { colors, spacing, typography } = cliqueTheme;
 
 const PremiumUpgrade = () => {
   const navigation = useNavigation();
@@ -200,8 +199,8 @@ const PremiumUpgrade = () => {
       'stories:unlimited': 'Stories illimités',
       'messages:5_ephemeral': '5 messages éphémères par jour',
       'messages:unlimited': 'Messages éphémères illimités',
-      'cliques:1': '1 clique',
-      'cliques:unlimited': 'Cliques illimités',
+      'cliques:1': '1 vue',
+      'cliques:unlimited': 'ChatSnaps illimités',
       'map:basic': 'Carte de base',
       'map:advanced': 'Carte avancée',
       'analytics:basic': 'Statistiques de base',

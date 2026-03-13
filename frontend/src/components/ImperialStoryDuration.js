@@ -5,7 +5,7 @@ import {
   StyleSheet,
   Animated,
 } from 'react-native';
-import { colors, typography, spacing, borderRadius } from '../theme/cliqueTheme';
+import { colors, typography, spacing, borderRadius } from '../theme/chatsnapTheme';
 
 export default function ImperialStoryDuration({
   duration = 15,

@@ -3,7 +3,7 @@
 
 import * as Haptics from "expo-haptics";
 import { Audio } from "expo-av";
-import { useMessagesStore } from "../store/cliqueStore";
+import { useMessagesStore } from "../store/chatsnapStore";
 
 export const triggerEliteWelcome = async (userName) => {
   const addMessage = useMessagesStore.getState().addMessage;

@@ -1,8 +1,8 @@
-// API client for Clique backend
+// API client for ChatSnap backend
 import axios from 'axios';
-import { useAuthStore } from '../store/cliqueStore';
+import { useAuthStore } from '../store/chatsnapStore';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 const api = axios.create({
   baseURL: API_URL,

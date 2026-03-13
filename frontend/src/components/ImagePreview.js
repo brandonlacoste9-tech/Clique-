@@ -9,7 +9,7 @@ import {
   Modal,
 } from 'react-native';
 
-import { colors, borderRadius, spacing } from '../theme/cliqueTheme';
+import { colors, borderRadius, spacing } from '../theme/chatsnapTheme';
 
 export default function ImagePreview({ 
   mediaKey, 

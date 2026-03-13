@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 
-import { colors, typography, spacing, borderRadius, shadows } from '../theme/cliqueTheme';
+import { colors, typography, spacing, borderRadius, shadows } from '../theme/chatsnapTheme';
 
 export default function ProfileStats({ stats, onStoryPress }) {
   if (!stats) return null;

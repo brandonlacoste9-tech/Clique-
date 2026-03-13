@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, DateTimePicker } from 'react-native';
 
-import { colors, typography, spacing, borderRadius } from '../theme/cliqueTheme';
-import { schedulingAPI } from '../api/cliqueApi';
+import { colors, typography, spacing, borderRadius } from '../theme/chatsnapTheme';
+import { schedulingAPI } from '../api/chatsnapApi';
 
 export default function StoryScheduler({ 
   storyData, 

@@ -1,5 +1,5 @@
 export const marketingContent = {
-  brand: "Clique",
+  brand: "ChatSnap",
   tagline: "L'Élite de l'Instant",
   mission:
     "Rétablir la souveraineté de votre présence numérique. Pas de bruit. Que de l'éclat.",
@@ -43,10 +43,10 @@ export const marketingContent = {
     remaining: 100, // This will be dynamic in production
     badge: "100 PREMIERS GRATUITS",
   },
-  legal: "Bilingue. Sécurisé. Québécois. © 2026 Clique.",
+  legal: "Bilingue. Sécurisé. Québécois. © 2026 ChatSnap.",
 };
 
-export const cliquePhrases = {
+export const chatsnapPhrases = {
   upgradeSuccess: "Accès Élite confirmé",
   checkoutRedirect: "Redirection vers le paiement sécurisé...",
   upgradeNow: "DÉBLOQUER L'ÉLITE",

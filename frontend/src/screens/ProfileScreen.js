@@ -9,18 +9,18 @@ import {
   ImageBackground,
 } from "react-native";
 
-import { useAuthStore } from "../store/cliqueStore";
+import { useAuthStore } from "../store/chatsnapStore";
 import {
   colors,
   typography,
   spacing,
   borderRadius,
   shadows,
-} from "../theme/cliqueTheme";
+} from "../theme/chatsnapTheme";
 import ThemeToggle from "../components/ThemeToggle";
 import ProfileStats from "../components/ProfileStats";
 import MuteBlockList from "../components/MuteBlock";
-import { userAPI } from "../api/cliqueApi";
+import { userAPI } from "../api/chatsnapApi";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
@@ -129,7 +129,7 @@ export default function ProfileScreen() {
         <Text style={styles.logoutText}>Déconnexion</Text>
       </TouchableOpacity>
 
-      <Text style={styles.version}>Clique 2026.1.0</Text>
+      <Text style={styles.version}>ChatSnap 2026.1.0</Text>
     </ScrollView>
   );
 }

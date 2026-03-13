@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList } from 'react-native';
 
-import { colors, typography, spacing, borderRadius } from '../theme/cliqueTheme';
-import { reactionsAPI } from '../api/cliqueApi';
+import { colors, typography, spacing, borderRadius } from '../theme/chatsnapTheme';
+import { reactionsAPI } from '../api/chatsnapApi';
 
 const EMOJIS = [
   '❤️', '🔥', '😂', '😍', '😮', '😢', '😡', '👍', '👎', '👏', '🎉', '💯',

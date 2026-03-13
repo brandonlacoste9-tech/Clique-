@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList } from 'react-native';
 
-import { colors, typography, spacing, borderRadius } from '../theme/cliqueTheme';
-import { blockingAPI } from '../api/cliqueApi';
+import { colors, typography, spacing, borderRadius } from '../theme/chatsnapTheme';
+import { blockingAPI } from '../api/chatsnapApi';
 
 export default function MuteBlock({ 
   userId, 

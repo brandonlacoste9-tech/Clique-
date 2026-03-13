@@ -1,8 +1,9 @@
 // WebSocket client for real-time features
 import io from 'socket.io-client';
-import { useAuthStore } from '../store/cliqueStore';
+import { useAuthStore } from '../store/chatsnapStore';
 
-const WS_URL = 'http://localhost:3001';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const WS_URL = API_URL.replace(/^http/, 'ws');
 
 let socket = null;
 let isConnected = false;

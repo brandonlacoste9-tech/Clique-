@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, Share } from 'react-native';
 
-import { colors, typography, spacing, borderRadius } from '../theme/cliqueTheme';
-import { uploadAPI } from '../api/cliqueApi';
+import { colors, typography, spacing, borderRadius } from '../theme/chatsnapTheme';
+import { uploadAPI } from '../api/chatsnapApi';
 
 export default function ShareToStory({ mediaUri, onShare }) {
   const [showModal, setShowModal] = useState(false);
@@ -13,9 +13,9 @@ export default function ShareToStory({ mediaUri, onShare }) {
     try {
       // Try native share first
       await Share.share({
-        message: 'Regarde cette story sur Clique!',
+        message: 'Regarde cette story sur ChatSnap!',
         url: mediaUri,
-        title: 'Clique',
+        title: 'ChatSnap',
       });
     } catch (err) {
       console.error('Share failed:', err);

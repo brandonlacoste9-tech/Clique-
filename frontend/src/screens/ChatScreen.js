@@ -8,16 +8,16 @@ import {
   Image,
 } from "react-native";
 
-import { useMessagesStore } from "../store/cliqueStore";
-import { messagesAPI } from "../api/cliqueApi";
+import { useMessagesStore } from "../store/chatsnapStore";
+import { messagesAPI } from "../api/chatsnapApi";
 import {
   colors,
   typography,
   spacing,
   borderRadius,
   shadows,
-  cliquePhrases,
-} from "../theme/cliqueTheme";
+  chatsnapPhrases,
+} from "../theme/chatsnapTheme";
 
 export default function ChatScreen({ navigation }) {
   const { conversations, setConversations } = useMessagesStore();
@@ -119,7 +119,7 @@ export default function ChatScreen({ navigation }) {
 
       {conversations.length === 0 && (
         <View style={styles.empty}>
-          <Text style={styles.emptyTitle}>{cliquePhrases.error[2]}</Text>
+          <Text style={styles.emptyTitle}>{chatsnapPhrases.error[2]}</Text>
           <Text style={styles.emptyText}>
             Ajoute tes amis à l'Élite pour commencer à jaser!
           </Text>

@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as Haptics from "expo-haptics";
-import { View, Image, StyleSheet, StatusBar, Text } from "react-native";
+import { View, StyleSheet, StatusBar, Text, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 
-import { useAuthStore } from "./src/store/cliqueStore";
-import { colors, shadows, spacing } from "./src/theme/cliqueTheme";
+import { useAuthStore } from "./src/store/chatsnapStore";
+import { colors, shadows, spacing } from "./src/theme/chatsnapTheme";
 
 // Screens
 import CameraScreen from "./src/screens/CameraScreen";
@@ -26,6 +26,29 @@ import ImperialTabBar from "./src/components/ImperialTabBar";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
+
+class AppErrorBoundary extends React.Component {
+  state = { hasError: false };
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={[styles.appRoot, styles.errorFallback]}>
+          <Text style={styles.errorText}>Something went wrong.</Text>
+          <TouchableOpacity
+            style={styles.errorButton}
+            onPress={() => (Platform.OS === "web" && typeof window !== "undefined" ? window.location.reload() : this.setState({ hasError: false }))}
+          >
+            <Text style={styles.errorButtonText}>Reload</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 async function setupEmpireChannel() {
   if (Platform.OS === "android") {
@@ -76,6 +99,7 @@ export default function App() {
   }
 
   return (
+    <AppErrorBoundary>
     <View style={styles.appRoot}>
       <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -98,6 +122,7 @@ export default function App() {
       {isAuthenticated && <StoryViewer />}
     </NavigationContainer>
     </View>
+    </AppErrorBoundary>
   );
 }
 
@@ -189,5 +214,24 @@ const styles = StyleSheet.create({
   loadingText: {
     color: colors.gold.DEFAULT,
     fontSize: 18,
+  },
+  errorFallback: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorText: {
+    color: colors.gold.DEFAULT,
+    fontSize: 18,
+    marginBottom: 16,
+  },
+  errorButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: colors.gold.DEFAULT,
+    borderRadius: 8,
+  },
+  errorButtonText: {
+    color: "#0A0A0A",
+    fontWeight: "bold",
   },
 });

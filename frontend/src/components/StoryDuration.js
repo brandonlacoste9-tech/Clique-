@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-import { colors, typography, spacing } from '../theme/cliqueTheme';
+import { colors, typography, spacing } from '../theme/chatsnapTheme';
 
 export default function StoryDuration({ 
   createdAt, 

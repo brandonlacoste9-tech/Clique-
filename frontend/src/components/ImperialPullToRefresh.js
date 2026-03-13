@@ -6,7 +6,7 @@ import {
   Animated,
   RefreshControl,
 } from 'react-native';
-import { colors, spacing, borderRadius, shadows } from '../theme/cliqueTheme';
+import { colors, spacing, borderRadius, shadows } from '../theme/chatsnapTheme';
 
 export default function ImperialPullToRefresh({
   refreshing,

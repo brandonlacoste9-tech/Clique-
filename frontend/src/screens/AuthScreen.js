@@ -13,8 +13,8 @@ import {
 import * as SnapLogin from "../lib/snapLogin";
 import * as Haptics from "expo-haptics";
 
-import { useAuthStore } from "../store/cliqueStore";
-import { authAPI } from "../api/cliqueApi";
+import { useAuthStore } from "../store/chatsnapStore";
+import { authAPI } from "../api/chatsnapApi";
 import { SNAP_CONFIG } from "../services/snapKitService";
 import { triggerEliteWelcome } from "../services/eliteGreetingService";
 import {
@@ -22,9 +22,9 @@ import {
   typography,
   spacing,
   borderRadius,
-  cliquePhrases,
+  chatsnapPhrases,
   shadows,
-} from "../theme/cliqueTheme";
+} from "../theme/chatsnapTheme";
 
 export default function AuthScreen() {
   const [step, setStep] = useState("phone"); // phone, otp, username
@@ -49,7 +49,7 @@ export default function AuthScreen() {
       await authAPI.requestOTP(phone);
       setStep("otp");
     } catch (err) {
-      setError(cliquePhrases.error[2]); // "Ça marche pas"
+      setError(chatsnapPhrases.error[2]); // "Ça marche pas"
     } finally {
       setLoading(false);
     }
@@ -78,7 +78,7 @@ export default function AuthScreen() {
         setUser(response.data.user);
       }
     } catch (err) {
-      setError(cliquePhrases.error[2]); // "Ça marche pas"
+      setError(chatsnapPhrases.error[2]); // "Ça marche pas"
     } finally {
       setLoading(false);
     }
@@ -98,7 +98,7 @@ export default function AuthScreen() {
       setToken(response.data.token);
       setUser(response.data.user);
     } catch (err) {
-      setError(cliquePhrases.error[2]); // "Ça marche pas"
+      setError(chatsnapPhrases.error[2]); // "Ça marche pas"
     } finally {
       setLoading(false);
     }
@@ -129,7 +129,7 @@ export default function AuthScreen() {
     } catch (err) {
       // QUEBECOIS ERROR LOGIC
       console.log("Ça marche pas:", err);
-      setError(cliquePhrases.error[2]); // "Ça marche pas"
+      setError(chatsnapPhrases.error[2]); // "Ça marche pas"
       Alert.alert("Erreur d'accès", "L'accès à l'Élite a échoué. Réessayez.");
     } finally {
       setLoading(false);
@@ -259,8 +259,8 @@ export default function AuthScreen() {
 
           <Text style={styles.footer}>Bilingue. Sécurisé. Québécois.</Text>
 
-          {/* Dev only: skip auth to reach main app */}
-          {__DEV__ && (
+          {/* Dev, or production demo: ?demo=1 in URL */}
+          {(__DEV__ || (Platform.OS === "web" && typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "1")) && (
             <TouchableOpacity
               style={styles.devSkip}
               onPress={() => {
@@ -268,7 +268,7 @@ export default function AuthScreen() {
                 setUser({ id: "dev", displayName: "Dev", username: "dev" });
               }}
             >
-              <Text style={styles.devSkipText}>Dev: Enter app</Text>
+              <Text style={styles.devSkipText}>Enter app</Text>
             </TouchableOpacity>
           )}
         </View>

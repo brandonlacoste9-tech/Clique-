@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 
-import { colors } from '../theme/cliqueTheme';
+import { colors } from '../theme/chatsnapTheme';
 
 export default function StoryViewerProgress({ 
   duration = 15, 
