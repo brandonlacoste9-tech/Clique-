@@ -70,6 +70,7 @@ export default function App() {
     return (
       <View style={styles.loadingContainer}>
         <StatusBar barStyle="light-content" />
+        <Text style={styles.loadingText}>Chargement...</Text>
       </View>
     );
   }
@@ -176,11 +177,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
     minHeight: Platform.OS === "web" ? "100vh" : undefined,
+    width: Platform.OS === "web" ? "100%" : undefined,
   },
   loadingContainer: {
     flex: 1,
     backgroundColor: colors.background,
     justifyContent: "center",
     alignItems: "center",
+    minHeight: Platform.OS === "web" ? "100vh" : undefined,
+  },
+  loadingText: {
+    color: colors.gold.DEFAULT,
+    fontSize: 18,
   },
 });
