@@ -31,6 +31,13 @@ if (html.includes("<head>")) {
   process.exit(0);
 }
 
+// --- Ensure <script> tags load as ES modules so import.meta works ---
+html = html.replace(
+  /<script(?=\s)((?!type\s*=)[^>]*)src=/g,
+  '<script type="module"$1src='
+);
+console.log("patch-index: converted script tags to type=\"module\"");
+
 // --- Inject loading fallback inside #root (or .root) ---
 // React will replace the contents of #root when it mounts.
 if (html.includes('id="root"')) {
