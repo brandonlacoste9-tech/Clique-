@@ -1,9 +1,18 @@
 // Background worker for CLIQUE
 // Handles: ephemeral message cleanup, story expiration, stats updates
 
+import * as Sentry from '@sentry/node';
 import { config } from './config/index.js';
 import { db } from './models/db.js';
 import { redis, ephemeralQueue } from './services/redis.js';
+
+Sentry.init({
+  dsn: config.SENTRY_DSN,
+  environment: config.NODE_ENV,
+  release: 'clique-worker@2026.1.0',
+  tracesSampleRate: config.NODE_ENV === 'production' ? 0.1 : 1.0,
+  enabled: !!config.SENTRY_DSN,
+});
 
 // Process ephemeral messages
 async function processEphemeralMessages() {
@@ -108,21 +117,27 @@ async function runWorker() {
       await cleanupStoryViews();
       await updateSnapScores();
     } catch (err) {
+      Sentry.captureException(err);
       console.error('Worker error:', err);
     }
   }, interval * 1000);
 }
 
 // Start worker
-runWorker().catch(console.error);
+runWorker().catch((err) => {
+  Sentry.captureException(err);
+  console.error(err);
+});
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   console.log('Worker shutting down...');
+  await Sentry.flush(2000);
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   console.log('Worker shutting down...');
+  await Sentry.flush(2000);
   process.exit(0);
 });

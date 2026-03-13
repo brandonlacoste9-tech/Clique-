@@ -15,6 +15,9 @@ export const config = {
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRES_IN: '7d',
   
+  // Sentry
+  SENTRY_DSN: process.env.SENTRY_DSN || '',
+
   // CORS
   CORS_ORIGINS: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:19006'],
   

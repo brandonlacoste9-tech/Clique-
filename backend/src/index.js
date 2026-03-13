@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
@@ -7,6 +8,14 @@ import websocket from "@fastify/websocket";
 import { config } from "./config/index.js";
 import { db } from "./models/db.js";
 import { redis } from "./services/redis.js";
+
+Sentry.init({
+  dsn: config.SENTRY_DSN,
+  environment: config.NODE_ENV,
+  release: "clique-api@2026.1.0",
+  tracesSampleRate: config.NODE_ENV === "production" ? 0.2 : 1.0,
+  enabled: !!config.SENTRY_DSN,
+});
 
 // Routes
 import authRoutes from "./api/auth.js";
@@ -93,6 +102,22 @@ app.register(async function (fastify) {
   fastify.get("/ws/stories", { websocket: true }, storySocketHandler);
 });
 
+// Capture unhandled errors with Sentry
+app.setErrorHandler((error, request, reply) => {
+  Sentry.captureException(error, {
+    extra: {
+      url: request.url,
+      method: request.method,
+      params: request.params,
+      query: request.query,
+    },
+  });
+  app.log.error(error);
+  reply.code(error.statusCode || 500).send({
+    error: error.message || "Internal Server Error",
+  });
+});
+
 // Health check
 app.get("/health", async () => {
   return {
@@ -108,6 +133,8 @@ try {
   await app.listen({ port: config.PORT, host: "0.0.0.0" });
   app.log.info(`Clique API running on port ${config.PORT}`);
 } catch (err) {
+  Sentry.captureException(err);
   app.log.error(err);
+  await Sentry.flush(2000);
   process.exit(1);
 }

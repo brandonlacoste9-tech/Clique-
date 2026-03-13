@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Platform } from "react-native";
+import * as Sentry from "@sentry/react-native";
 import * as Notifications from "expo-notifications";
 import * as Haptics from "expo-haptics";
 import { View, Image, StyleSheet, StatusBar, Text } from "react-native";
@@ -23,6 +24,13 @@ import PremiumUpgrade from "./src/components/ImperialPremiumUpgrade";
 import AuthScreen from "./src/screens/AuthScreen";
 import StoryViewer from "./src/components/StoryViewer";
 import ImperialTabBar from "./src/components/ImperialTabBar";
+
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN || "",
+  release: "clique-app@2026.1.0",
+  tracesSampleRate: __DEV__ ? 1.0 : 0.2,
+  enabled: !__DEV__ && !!process.env.EXPO_PUBLIC_SENTRY_DSN,
+});
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -59,7 +67,7 @@ if (typeof document !== "undefined") {
   }
 }
 
-export default function App() {
+function App() {
   const { isAuthenticated, isLoading } = useAuthStore();
 
   useEffect(() => {
@@ -191,3 +199,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 });
+
+export default Sentry.wrap(App);
