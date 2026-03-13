@@ -41,27 +41,29 @@ async function setupEmpireChannel() {
 
 const WEB_BG = "#0A0A0A";
 
+// Web: run before first paint so the screen is never white
+if (typeof document !== "undefined") {
+  const style = document.createElement("style");
+  style.textContent = `html,body{background:${WEB_BG}!important;margin:0;min-height:100vh;}body *{box-sizing:border-box;}#root,.root{background:${WEB_BG}!important;min-height:100vh!important;display:flex!important;flex-direction:column!important;}`;
+  document.head.appendChild(style);
+  document.documentElement.style.backgroundColor = WEB_BG;
+  document.body.style.backgroundColor = WEB_BG;
+  document.body.style.margin = "0";
+  document.body.style.minHeight = "100vh";
+  const root = document.getElementById("root") || document.getElementById("app-root") || document.body.firstElementChild;
+  if (root) {
+    root.style.backgroundColor = WEB_BG;
+    root.style.minHeight = "100vh";
+    root.style.display = "flex";
+    root.style.flexDirection = "column";
+  }
+}
+
 export default function App() {
   const { isAuthenticated, isLoading } = useAuthStore();
 
   useEffect(() => {
     setupEmpireChannel();
-  }, []);
-
-  // Web: prevent white flash — set document and root to dark so app fills viewport
-  useEffect(() => {
-    if (Platform.OS !== "web" || typeof document === "undefined") return;
-    document.documentElement.style.backgroundColor = WEB_BG;
-    document.body.style.backgroundColor = WEB_BG;
-    document.body.style.margin = "0";
-    document.body.style.minHeight = "100vh";
-    const root = document.getElementById("root") || document.body.firstElementChild;
-    if (root) {
-      root.style.backgroundColor = WEB_BG;
-      root.style.minHeight = "100vh";
-      root.style.display = "flex";
-      root.style.flexDirection = "column";
-    }
   }, []);
 
   if (isLoading) {

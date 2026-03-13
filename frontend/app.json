@@ -4,6 +4,10 @@
         "slug": "clique-app",
         "version": "2026.1.0",
         "orientation": "portrait",
+        "backgroundColor": "#0A0A0A",
+        "web": {
+            "backgroundColor": "#0A0A0A"
+        },
         "icon": "./assets/icon.png",
         "userInterfaceStyle": "dark",
         "splash": {
