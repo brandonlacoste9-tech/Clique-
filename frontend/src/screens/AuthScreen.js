@@ -259,8 +259,8 @@ export default function AuthScreen() {
 
           <Text style={styles.footer}>Bilingue. Sécurisé. Québécois.</Text>
 
-          {/* Dev, or production demo: ?demo=1 in URL */}
-          {(__DEV__ || (Platform.OS === "web" && typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "1")) && (
+          {/* Web: always show demo entry so users can reach the app */}
+          {Platform.OS === "web" && (
             <TouchableOpacity
               style={styles.devSkip}
               onPress={() => {
@@ -268,7 +268,7 @@ export default function AuthScreen() {
                 setUser({ id: "dev", displayName: "Dev", username: "dev" });
               }}
             >
-              <Text style={styles.devSkipText}>Enter app</Text>
+              <Text style={styles.devSkipText}>Enter ChatSnap</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -281,15 +281,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+    ...(Platform.OS === "web" && { minHeight: "100vh", width: "100%" }),
   },
   backgroundImage: {
     flex: 1,
     width: "100%",
     height: "100%",
+    ...(Platform.OS === "web" && { minHeight: "100vh" }),
   },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)", // Darken the suede for focus
+    backgroundColor: "rgba(0,0,0,0.6)", // Darken the suede for focus; solid enough for web fallback
     justifyContent: "center",
   },
   content: {
@@ -422,13 +424,14 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 50,
     right: 16,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: colors.gold.DEFAULT,
     borderRadius: 8,
   },
   devSkipText: {
-    color: colors.text.muted,
-    fontSize: 12,
+    color: colors.leather.black,
+    fontSize: 14,
+    fontWeight: "600",
   },
 });

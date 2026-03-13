@@ -64,21 +64,29 @@ async function setupEmpireChannel() {
 
 const WEB_BG = "#0A0A0A";
 
-// Web: run before first paint so the screen is never white
+// Web: run before first paint so the screen is never white; force root to fill viewport so content is visible
 if (typeof document !== "undefined") {
   const style = document.createElement("style");
-  style.textContent = `html,body{background:${WEB_BG}!important;margin:0;min-height:100vh;}body *{box-sizing:border-box;}#root,.root{background:${WEB_BG}!important;min-height:100vh!important;display:flex!important;flex-direction:column!important;}`;
+  style.textContent = [
+    `html,body{background:${WEB_BG}!important;margin:0;padding:0;min-height:100vh;height:100%;}`,
+    `body *{box-sizing:border-box;}`,
+    `#root,.root{background:${WEB_BG}!important;min-height:100vh!important;height:100%!important;display:flex!important;flex-direction:column!important;width:100%!important;}`,
+    `#root>*,.root>*{flex:1!important;min-height:100vh!important;display:flex!important;flex-direction:column!important;width:100%!important;}`,
+  ].join("");
   document.head.appendChild(style);
   document.documentElement.style.backgroundColor = WEB_BG;
   document.body.style.backgroundColor = WEB_BG;
   document.body.style.margin = "0";
   document.body.style.minHeight = "100vh";
+  document.body.style.height = "100%";
   const root = document.getElementById("root") || document.getElementById("app-root") || document.body.firstElementChild;
   if (root) {
     root.style.backgroundColor = WEB_BG;
     root.style.minHeight = "100vh";
+    root.style.height = "100%";
     root.style.display = "flex";
     root.style.flexDirection = "column";
+    root.style.width = "100%";
   }
 }
 
@@ -91,7 +99,7 @@ export default function App() {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={[styles.loadingContainer, Platform.OS === "web" && styles.loadingContainerWeb]}>
         <StatusBar barStyle="light-content" />
         <Text style={styles.loadingText}>Chargement...</Text>
       </View>
@@ -202,6 +210,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
     minHeight: Platform.OS === "web" ? "100vh" : undefined,
+    height: Platform.OS === "web" ? "100%" : undefined,
     width: Platform.OS === "web" ? "100%" : undefined,
   },
   loadingContainer: {
@@ -210,6 +219,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     minHeight: Platform.OS === "web" ? "100vh" : undefined,
+  },
+  loadingContainerWeb: {
+    width: "100%",
+    height: "100vh",
   },
   loadingText: {
     color: colors.gold.DEFAULT,
