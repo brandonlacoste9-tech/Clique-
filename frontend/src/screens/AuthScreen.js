@@ -258,6 +258,19 @@ export default function AuthScreen() {
           </View>
 
           <Text style={styles.footer}>Bilingue. Sécurisé. Québécois.</Text>
+
+          {/* Dev only: skip auth to reach main app */}
+          {__DEV__ && (
+            <TouchableOpacity
+              style={styles.devSkip}
+              onPress={() => {
+                setToken("dev");
+                setUser({ id: "dev", displayName: "Dev", username: "dev" });
+              }}
+            >
+              <Text style={styles.devSkipText}>Dev: Enter app</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </ImageBackground>
     </KeyboardAvoidingView>
@@ -404,5 +417,18 @@ const styles = StyleSheet.create({
     fontSize: 10,
     textTransform: "uppercase",
     letterSpacing: 1,
+  },
+  devSkip: {
+    position: "absolute",
+    top: 50,
+    right: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    borderRadius: 8,
+  },
+  devSkipText: {
+    color: colors.text.muted,
+    fontSize: 12,
   },
 });

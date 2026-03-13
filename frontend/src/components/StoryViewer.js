@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   View,
   StyleSheet,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Text,
   Modal,
+  TouchableWithoutFeedback,
 } from "react-native";
 import * as Haptics from "expo-haptics";
 import Animated, {
@@ -23,24 +24,128 @@ import { Video } from "expo-av";
 import { colors, typography, spacing, shadows } from "../theme/cliqueTheme";
 import { useUIStore } from "../store/cliqueStore";
 
-const { width, height } = Dimensions.get("window");
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const StoryViewer = () => {
   const { showStoryViewer, currentStoryGroup, closeStoryViewer } = useUIStore();
   const borderOpacity = useSharedValue(0);
 
+  // Which story in the group (user can have multiple stories)
+  const [storyIndex, setStoryIndex] = useState(0);
+  // Which segment within the current story (for backend-segmented video)
+  const [segmentIndex, setSegmentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const containerWidthRef = useRef(SCREEN_WIDTH);
+  const segmentEndHandledRef = useRef(false);
+
+  const stories = currentStoryGroup?.stories ?? [];
+  const story = stories[storyIndex];
+  // Segment resolution: backend segments or single-URL backward compat
+  const hasSegments =
+    Array.isArray(story?.segments) && story.segments.length > 0;
+  const currentSegment = hasSegments
+    ? story.segments[segmentIndex]
+    : story
+      ? { url: story.url ?? story.mediaUrl, durationSeconds: story.durationSeconds ?? 7 }
+      : null;
+  const totalSegments = hasSegments ? story.segments.length : 1;
+  const progressBarsSource = hasSegments ? story.segments : (currentSegment ? [currentSegment] : []);
+
+  // Reset indices when viewer opens or when story group changes
+  useEffect(() => {
+    if (showStoryViewer && currentStoryGroup) {
+      setStoryIndex(0);
+      setSegmentIndex(0);
+      setIsPaused(false);
+    }
+  }, [showStoryViewer, currentStoryGroup?.id ?? currentStoryGroup?.username]);
+
+  // Reset segment when switching to another story in the same group
+  useEffect(() => {
+    setSegmentIndex(0);
+  }, [storyIndex]);
+
+  // Allow segment end to fire again when segment or story changes
+  useEffect(() => {
+    segmentEndHandledRef.current = false;
+  }, [storyIndex, segmentIndex]);
+
   useEffect(() => {
     if (showStoryViewer) {
-      // Imperial Haptic Pulse
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
-      // Imperial Glow sequence
       borderOpacity.value = withSequence(
         withTiming(1, { duration: 500 }),
         withTiming(0, { duration: 2000 }),
       );
     }
   }, [showStoryViewer]);
+
+  const goToNextStoryGroup = useCallback(() => {
+    if (storyIndex < stories.length - 1) {
+      setStoryIndex((i) => i + 1);
+      setSegmentIndex(0);
+    } else {
+      closeStoryViewer();
+    }
+  }, [storyIndex, stories.length, closeStoryViewer]);
+
+  const goToPreviousStoryGroup = useCallback(() => {
+    if (storyIndex > 0) {
+      setStoryIndex((i) => i - 1);
+      setSegmentIndex(0);
+    } else {
+      closeStoryViewer();
+    }
+  }, [storyIndex, closeStoryViewer]);
+
+  const handleSegmentEnd = useCallback(() => {
+    if (segmentIndex < totalSegments - 1) {
+      setSegmentIndex((i) => i + 1);
+    } else {
+      goToNextStoryGroup();
+    }
+  }, [totalSegments, segmentIndex, goToNextStoryGroup]);
+
+  const onPlaybackStatusUpdate = useCallback(
+    (status) => {
+      if (!status.isLoaded || isPaused || segmentEndHandledRef.current) return;
+      const remaining = status.durationMillis - status.positionMillis;
+      if (remaining < 200 && status.durationMillis > 0) {
+        segmentEndHandledRef.current = true;
+        handleSegmentEnd();
+      }
+    },
+    [isPaused, handleSegmentEnd],
+  );
+
+  const preloadNextSegment = useCallback(() => {
+    if (!hasSegments) return;
+    const next = story.segments[segmentIndex + 1];
+    if (next?.url && typeof Video.prefetch === "function") {
+      Video.prefetch(next.url);
+    }
+  }, [hasSegments, story?.segments, segmentIndex]);
+
+  const onTap = useCallback(
+    (evt) => {
+      const x = evt.nativeEvent.locationX;
+      const w = containerWidthRef.current;
+      if (x < w / 2) {
+        if (segmentIndex > 0) {
+          setSegmentIndex((i) => i - 1);
+        } else {
+          goToPreviousStoryGroup();
+        }
+      } else {
+        if (segmentIndex < totalSegments - 1) {
+          setSegmentIndex((i) => i + 1);
+        } else {
+          goToNextStoryGroup();
+        }
+      }
+    },
+    [totalSegments, segmentIndex, goToNextStoryGroup, goToPreviousStoryGroup],
+  );
 
   if (!showStoryViewer || !currentStoryGroup) return null;
 
@@ -58,10 +163,12 @@ const StoryViewer = () => {
     zIndex: 10,
   }));
 
+  const isImage = story?.mediaType === "image";
+  const isVideo = !isImage && (story?.type === "video" || story?.mediaType === "video");
+
   return (
     <Modal transparent visible={showStoryViewer} animationType="none">
       <View style={styles.container}>
-        {/* Suede Curtain Effect */}
         <Animated.View
           entering={FadeIn.duration(400)}
           exiting={FadeOut.duration(300)}
@@ -74,34 +181,58 @@ const StoryViewer = () => {
           />
         </Animated.View>
 
-        {/* Story Content Slide */}
         <Animated.View
           entering={SlideInUp.springify().damping(15)}
           exiting={SlideOutDown.duration(300)}
           style={styles.contentContainer}
+          onLayout={(e) => {
+            containerWidthRef.current = e.nativeEvent.layout.width;
+          }}
         >
-          {/* Gold Glow Border Overlay */}
           <Animated.View style={animatedBorderStyle} pointerEvents="none" />
 
-          {/* Media Rendering */}
-          <View style={styles.mediaContainer}>
-            {currentStoryGroup.stories[0]?.type === "video" ? (
-              <Video
-                source={{ uri: currentStoryGroup.stories[0].url }}
-                style={styles.media}
-                resizeMode="cover"
-                shouldPlay
-                isLooping
-              />
-            ) : (
-              <Image
-                source={{ uri: currentStoryGroup.stories[0]?.url }}
-                style={styles.media}
-              />
-            )}
-          </View>
+          <TouchableWithoutFeedback
+            onPress={onTap}
+            onLongPress={() => setIsPaused(true)}
+            onPressOut={() => setIsPaused(false)}
+          >
+            <View style={styles.mediaContainer}>
+              {!story || !currentSegment?.url ? null : isImage ? (
+                <Image
+                  source={{ uri: currentSegment.url }}
+                  style={styles.media}
+                  resizeMode="cover"
+                />
+              ) : (
+                <Video
+                  source={{ uri: currentSegment.url }}
+                  style={styles.media}
+                  resizeMode="cover"
+                  shouldPlay={!isPaused}
+                  isLooping={false}
+                  onPlaybackStatusUpdate={onPlaybackStatusUpdate}
+                  onLoad={preloadNextSegment}
+                />
+              )}
+            </View>
+          </TouchableWithoutFeedback>
 
-          {/* Top Bar (Info & Close) */}
+          {/* Per-segment progress bars (one bar for single-URL stories) */}
+          {progressBarsSource.length > 0 && (
+            <View style={styles.progressContainer}>
+              {progressBarsSource.map((_, i) => (
+                <View
+                  key={i}
+                  style={[
+                    styles.progressBar,
+                    i < segmentIndex && styles.progressBarFilled,
+                    i === segmentIndex && styles.progressBarActive,
+                  ]}
+                />
+              ))}
+            </View>
+          )}
+
           <View style={styles.topBar}>
             <View style={styles.userInfo}>
               <Image
@@ -123,7 +254,6 @@ const StoryViewer = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Suede Interaction footer */}
           <View style={styles.footer}>
             <TouchableOpacity style={styles.replyButton}>
               <Text style={styles.replyText}>
@@ -163,6 +293,28 @@ const styles = StyleSheet.create({
   media: {
     width: "100%",
     height: "100%",
+  },
+  progressContainer: {
+    position: "absolute",
+    top: 50,
+    left: 12,
+    right: 12,
+    flexDirection: "row",
+    zIndex: 15,
+  },
+  progressBar: {
+    flex: 1,
+    height: 3,
+    borderRadius: 2,
+    marginHorizontal: 2,
+    backgroundColor: "rgba(255,255,255,0.3)",
+    overflow: "hidden",
+  },
+  progressBarFilled: {
+    backgroundColor: "rgba(255,255,255,0.9)",
+  },
+  progressBarActive: {
+    backgroundColor: "white",
   },
   topBar: {
     position: "absolute",
