@@ -1,8 +1,9 @@
+import "react-native-gesture-handler";
 import React, { useEffect, useState, useRef } from "react";
 import { Platform, AppState } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as Haptics from "expo-haptics";
-import { View, Image, StyleSheet, StatusBar, Text } from "react-native";
+import { View, Image, StyleSheet, StatusBar, Text, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -155,7 +156,19 @@ export default function App() {
     return () => disconnectWebSocket();
   }, [isAuthenticated]);
 
-  if (isLoading) {
+  // Wait for store to hydrate to avoid flashing or black screen
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    // Check if store has hydrated from AsyncStorage
+    const checkHydration = async () => {
+      // Short delay to ensure persist rehydration
+      setTimeout(() => setIsHydrated(true), 500);
+    };
+    checkHydration();
+  }, []);
+
+  if (isLoading || !isHydrated) {
     return (
       <TouchableOpacity 
         activeOpacity={1} 
@@ -165,7 +178,7 @@ export default function App() {
         <StatusBar barStyle="light-content" />
         <Text style={styles.loadingLogo}>CLIQUE</Text>
         <Text style={styles.loadingTagline}>L'Élite de l'Instant / The Instant Elite</Text>
-        {tapCount > 0 && <Text style={{ color: 'rgba(255,215,0,0.2)', marginTop: 20 }}>Tap {5-tapCount} more for God Mode</Text>}
+        {tapCount > 0 && <Text style={{ color: 'rgba(255,215,0,0.2)', marginTop: 20 }}>Tap {5 - tapCount} more for God Mode</Text>}
       </TouchableOpacity>
     );
   }
