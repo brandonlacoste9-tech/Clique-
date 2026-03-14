@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CHATSNAP | L'Élite de l'Instant</title>
+    <title>CHATSNAP | Sovereign Protocol</title>
     <link rel="icon" type="image/png" href="favicon.ico" />
     <link
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap"
@@ -34,10 +34,10 @@
         background-color: var(--obsidian);
         color: var(--suede-text);
         font-family: "Outfit", sans-serif;
-        overflow-x: hidden;
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         min-height: 100vh;
         background-image: radial-gradient(
           circle at top,
@@ -46,236 +46,265 @@
         );
       }
 
-      .container {
+      .auth-card {
         width: 100%;
-        max-width: 800px;
-        padding: 4rem 1.5rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        max-width: 400px;
+        padding: 2.5rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(212, 175, 55, 0.2);
+        border-radius: 16px;
         text-align: center;
+        box-shadow: 0 40px 100px rgba(0,0,0,0.8);
       }
 
-      /* Bullion Header */
-      .bullion-logo {
-        width: 480px;
-        max-width: 90vw;
-        aspect-ratio: 3/1;
+      .logo-mini {
+        width: 140px;
+        height: 80px;
         background: var(--bullion-grad);
-        border-radius: 12px;
+        border-radius: 8px;
+        margin: 0 auto 2rem;
         display: flex;
-        flex-direction: column;
         justify-content: center;
         align-items: center;
-        box-shadow: 0 40px 100px rgba(0,0,0,0.8), inset 2px 2px 0 rgba(255,255,255,0.4);
-        margin-bottom: 3rem;
         position: relative;
-        text-decoration: none;
+        ...shadows.gold;
       }
 
-      .bullion-logo::before {
-        content: "CHATSNAP • AU 999.9 FINE GOLD";
+      .logo-mini::before {
+        content: "CHATSNAP • 999.9";
         position: absolute;
-        top: 10px;
-        font-size: 0.6rem;
+        top: 8px;
+        font-size: 0.5rem;
         font-weight: 900;
-        letter-spacing: 0.3rem;
+        letter-spacing: 0.1rem;
         color: rgba(0,0,0,0.4);
       }
 
       .logo-text {
-        font-size: 3.5rem;
+        font-size: 1.2rem;
         font-weight: 900;
-        letter-spacing: 0.8rem;
+        letter-spacing: 0.1rem;
         color: rgba(0,0,0,0.7);
-        text-shadow: 0 1px 2px rgba(255,255,255,0.2);
-        margin-bottom: -10px;
       }
 
-      .tagline {
-        font-size: 1.2rem;
-        letter-spacing: 0.8rem;
+      h1 {
+        font-size: 1.5rem;
+        letter-spacing: 4px;
         color: var(--gold);
-        font-weight: 400;
-        margin-bottom: 4rem;
+        margin-bottom: 0.5rem;
         text-transform: uppercase;
       }
 
-      /* Counter Block */
-      .counter-card {
-        width: 100%;
-        max-width: 440px;
-        padding: 2.5rem;
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(212, 175, 55, 0.3);
-        border-radius: 16px;
-        margin-bottom: 3rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.8rem;
+      .tagline {
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+        color: rgba(255,255,255,0.4);
+        margin-bottom: 2.5rem;
+        text-transform: uppercase;
       }
 
-      .pill {
-        background: var(--gold);
-        color: #000;
-        padding: 0.4rem 1.2rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 900;
-        margin-bottom: 0.5rem;
-      }
-
-      .counter-sub {
-        font-size: 1rem;
-        font-weight: 400;
-        color: #fff;
-      }
-
-      .counter-main {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #fff;
-      }
-
-      .gold-num {
-        color: var(--gold);
-        font-size: 1.5rem;
-        font-weight: 900;
-      }
-
-      .description {
-        max-width: 600px;
-        font-size: 1.1rem;
-        line-height: 1.6;
-        color: rgba(255,255,255,0.7);
-        margin-bottom: 5rem;
-      }
-
-      /* Form Area */
-      .form-area {
-        width: 100%;
-        max-width: 440px;
+      .form-group {
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
       }
 
-      .elite-input {
+      .auth-input {
         width: 100%;
-        height: 70px;
+        height: 60px;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 8px;
         padding: 0 1.5rem;
         color: #fff;
         font-family: inherit;
-        font-size: 1rem;
-        letter-spacing: 0.1rem;
+        font-size: 1.1rem;
         outline: none;
         transition: border-color 0.3s;
+        text-align: center;
       }
 
-      .elite-input:focus {
+      .auth-input:focus {
         border-color: var(--gold);
       }
 
       .cta-button {
         width: 100%;
-        height: 70px;
+        height: 60px;
         background: var(--bullion-grad);
         color: #000;
         border: none;
         border-radius: 8px;
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 900;
-        letter-spacing: 0.2rem;
+        letter-spacing: 2px;
         cursor: pointer;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        transition: transform 0.2s;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        transition: transform 0.2s, opacity 0.3s;
+        text-transform: uppercase;
       }
 
       .cta-button:hover {
         transform: translateY(-2px);
       }
 
-      .btn-subtext {
-        font-size: 0.5rem;
-        opacity: 0.4;
-        margin-top: 4px;
-        font-weight: 900;
+      .cta-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .footer-note {
+        margin-top: 2.5rem;
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.3);
         letter-spacing: 1px;
       }
 
-      .success-box {
+      #otp-section {
         display: none;
-        animation: fadeIn 0.5s ease-out;
       }
 
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+      .error-msg {
+        color: #ff5e5e;
+        font-size: 0.8rem;
+        margin-top: 1rem;
+        display: none;
       }
 
-      @media (max-width: 600px) {
-        .bullion-logo { width: 100%; }
-        .logo-text { font-size: 2.5rem; }
-        .tagline { font-size: 0.9rem; letter-spacing: 0.4rem; }
+      .deep-link-btn {
+        margin-top: 1.5rem;
+        display: block;
+        color: var(--gold);
+        font-size: 0.8rem;
+        text-decoration: none;
+        opacity: 0.6;
+        font-weight: 700;
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="bullion-logo">
-        <h1 class="logo-text">CHATSNAP</h1>
+    <div class="auth-card">
+      <div class="logo-mini">
+        <span class="logo-text">CHATSNAP</span>
       </div>
       
+      <h1>SOVEREIGN AUTH</h1>
       <p class="tagline">The Elite of the Moment</p>
 
-      <div class="counter-card" id="counter-block">
-        <div class="pill">BIENVENUE / WELCOME</div>
-        <p class="counter-sub">L'application la plus exclusive au Québec</p>
-        <p class="counter-main">Souveraineté Digitale / Digital Sovereignty</p>
+      <div class="form-group" id="phone-section">
+        <input type="tel" id="phone-input" placeholder="514 555 0123" class="auth-input" />
+        <button class="cta-button" id="send-otp-btn">SEND SECURITY CODE</button>
       </div>
 
-      <p class="description">
-        Restore sovereignty over your digital presence. No noise. Only brilliance. Quebec's most exclusive social experience, Designed for those who demand excellence.
-      </p>
-
-      <div class="form-area" id="auth-area">
-        <p style="margin-bottom: 2rem; color: var(--gold); font-weight: 700; letter-spacing: 1px;">
-          L'accès à l'Élite est maintenant ouvert.<br/>
-          Elite Access is now open.
-        </p>
-        
-        <a href="chatsnap://auth" class="cta-button" style="text-decoration: none; display: flex; margin-bottom: 2rem;">
-          <span>LOGIN WITH CHATSNAP</span>
-          <span class="btn-subtext">SOVEREIGN PROTOCOL</span>
-        </a>
-
-        <p style="font-size: 0.9rem; color: rgba(255,255,255,0.5); line-height: 1.6;">
-          Rejoins le territoire. Sans compromis.<br/>
-          Join the territory. No compromise.
-        </p>
+      <div class="form-group" id="otp-section">
+        <p style="font-size: 0.8rem; color: var(--gold); margin-bottom: 0.5rem;">VÉRIFICATION CODE (6 DIGITS)</p>
+        <input type="text" id="otp-input" placeholder="123 456" class="auth-input" maxlength="6" />
+        <button class="cta-button" id="verify-otp-btn">VERIFY & ENTER</button>
+        <a href="#" id="change-phone-link" style="color: rgba(255,255,255,0.4); font-size: 0.7rem; text-decoration: none;">Change phone number</a>
       </div>
 
-      <div class="success-box" id="success-area">
-        <!-- Success box currently not used as we removed the request flow -->
+      <div id="error-box" class="error-msg">Ça marche pas. Réessayez.</div>
+
+      <div class="footer-note">
+        CHATSNAP • BILINGUAL • SECURE • QUÉBECOIS
       </div>
-      
-      <div style="margin-top: 3rem;">
-          <a href="clique://chat" style="color: var(--gold); font-size: 0.8rem; text-decoration: none; opacity: 0.5;">[ DEV: DEEP LINK TO APP ]</a>
-      </div>
+
+      <a href="chatsnap://auth" class="deep-link-btn">OPEN IN MOBILE APP ▸</a>
     </div>
 
     <script>
-      // CHATSNAP v2026 Protocol
-      console.log("ChatSnap: Direct Sovereign Protocol Active");
+      const API_URL = window.location.origin.includes('localhost') ? 'http://localhost:3001' : '/api';
+      // Fallback to absolute if served as static file
+      const BASE_URL = window.location.hostname === 'chatsnap.ca' ? 'https://chatsnap.ca/api' : 'http://localhost:3001';
+
+      const phoneSection = document.getElementById('phone-section');
+      const otpSection = document.getElementById('otp-section');
+      const phoneInput = document.getElementById('phone-input');
+      const otpInput = document.getElementById('otp-input');
+      const sendBtn = document.getElementById('send-otp-btn');
+      const verifyBtn = document.getElementById('verify-otp-btn');
+      const errorBox = document.getElementById('error-box');
+      const changePhoneLink = document.getElementById('change-phone-link');
+
+      let currentPhone = "";
+
+      const showError = (msg) => {
+        errorBox.innerText = msg;
+        errorBox.style.display = 'block';
+        setTimeout(() => { errorBox.style.display = 'none'; }, 4000);
+      };
+
+      sendBtn.addEventListener('click', async () => {
+        const phone = phoneInput.value.replace(/\s+/g, '');
+        if (phone.length < 10) return showError("Enter valid phone number.");
+
+        sendBtn.disabled = true;
+        sendBtn.innerText = "SENDING...";
+
+        try {
+          const res = await fetch(`${BASE_URL}/auth/otp`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone })
+          });
+
+          if (res.ok) {
+            currentPhone = phone;
+            phoneSection.style.display = 'none';
+            otpSection.style.display = 'flex';
+          } else {
+            showError("Request failed. Try again.");
+          }
+        } catch (e) {
+          console.error(e);
+          showError("Connection error. Is backend up?");
+        } finally {
+          sendBtn.disabled = false;
+          sendBtn.innerText = "SEND SECURITY CODE";
+        }
+      });
+
+      verifyBtn.addEventListener('click', async () => {
+        const otp = otpInput.value;
+        if (otp.length !== 6) return showError("Enter 6-digit code.");
+
+        verifyBtn.disabled = true;
+        verifyBtn.innerText = "VERIFYING...";
+
+        try {
+          const res = await fetch(`${BASE_URL}/auth/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: currentPhone, otp })
+          });
+
+          const data = await res.json();
+          if (res.ok && data.token) {
+            // Success! Store token and redirect
+            localStorage.setItem('chatsnap_token', data.token);
+            verifyBtn.innerText = "ACCESS GRANTED";
+            
+            // Trigger Mobile App Deep Link or show success
+            window.location.href = "chatsnap://auth?token=" + data.token;
+            
+            setTimeout(() => {
+                alert("Welcome to ChatSnap. Access granted via Sovereign Protocol.");
+            }, 500);
+          } else {
+            showError(data.error || "Invalid code.");
+          }
+        } catch (e) {
+          showError("Verification failed.");
+        } finally {
+          verifyBtn.disabled = false;
+          verifyBtn.innerText = "VERIFY & ENTER";
+        }
+      });
+
+      changePhoneLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        phoneSection.style.display = 'flex';
+        otpSection.style.display = 'none';
+      });
     </script>
   </body>
 </html>
