@@ -212,8 +212,31 @@ export default function LandingVIPScreen({ navigation }) {
                   <Text style={styles.successEmoji}>⚜️</Text>
                   <Text style={styles.successTitle}>REQUEST RECEIVED</Text>
                   <Text style={styles.successDesc}>Your invitation is being forged. We will notify you when your prestige is ready.</Text>
-                  <TouchableOpacity style={styles.backBtn} onPress={() => navigation.navigate("Auth")}>
-                    <Text style={styles.backBtnText}>GO TO LOGIN</Text>
+                  
+                  <TouchableOpacity 
+                    style={[styles.requestButton, { marginBottom: 20 }]} 
+                    onPress={() => navigation.navigate("Auth")}
+                  >
+                    <Svg height="60" width="220" style={StyleSheet.absoluteFill}>
+                      <Rect x="0" y="0" width="100%" height="100%" fill="url(#goldGrad)" rx="8" />
+                    </Svg>
+                    <Text style={styles.requestButtonText}>GO TO LOGIN ▸</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.secondaryButton, { borderColor: colors.accent.orange, backgroundColor: 'rgba(255, 149, 0, 0.1)' }]}
+                    onPress={() => {
+                      console.log("[BYPASS] Success Screen God Mode triggered");
+                      setToken("guest_god_token");
+                      setUser({
+                        id: "guest.god",
+                        username: "QuickSovereign",
+                        displayName: "Guest Sovereign",
+                        avatarUrl: "https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=150&h=150&fit=crop",
+                      });
+                    }}
+                  >
+                    <Text style={[styles.secondaryButtonText, { color: colors.accent.orange }]}>DEMO BYPASS: ENTER NOW</Text>
                   </TouchableOpacity>
                 </View>
               )}
