@@ -158,33 +158,7 @@ export default function App() {
     return () => disconnectWebSocket();
   }, [isAuthenticated]);
 
-  // Wait for store to hydrate to avoid flashing or black screen
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  useEffect(() => {
-    // Check if store has hydrated from AsyncStorage
-    const checkHydration = async () => {
-      // Short delay to ensure persist rehydration
-      setTimeout(() => setIsHydrated(true), 500);
-    };
-    checkHydration();
-  }, []);
-
-  if (isLoading || !isHydrated) {
-    return (
-      <TouchableOpacity 
-        activeOpacity={1} 
-        style={styles.loadingContainer} 
-        onPress={handleLogoTap}
-      >
-        <StatusBar barStyle="light-content" />
-        <Text style={styles.loadingLogo}>CHATSNAP</Text>
-        <Text style={styles.loadingTagline}>L'Élite de l'Instant / The Instant Elite</Text>
-        {tapCount > 0 && <Text style={{ color: 'rgba(255,215,0,0.2)', marginTop: 20 }}>Tap {5 - tapCount} more for God Mode</Text>}
-      </TouchableOpacity>
-    );
-  }
-
+  // Direct Navigation Render
   return (
     <NavigationContainer
       ref={navigationRef}
