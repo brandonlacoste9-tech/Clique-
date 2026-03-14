@@ -1,5 +1,5 @@
 // src/services/eliteGreetingService.js
-// Imperial Greeting Orchestration for CLIQUE (2026 Protocol)
+// Imperial Greeting Orchestration for CHATSNAP (2026 Protocol)
 // Bilingual FR-CA / EN — Randomized Luxury Greeting Engine
 
 import * as Haptics from "expo-haptics";
@@ -159,9 +159,9 @@ export const triggerEliteWelcome = async (userName) => {
         name,
       );
 
-      addMessage("CLIQUE", {
+      addMessage("CHATSNAP", {
         id: `system_welcome_${Date.now()}`,
-        sender: "CLIQUE",
+        sender: "CHATSNAP",
         text,
         timestamp: new Date().toISOString(),
         isSystem: true,
@@ -191,9 +191,9 @@ export const triggerDailyGreeting = async (userName) => {
       name,
     );
 
-    addMessage("CLIQUE", {
+    addMessage("CHATSNAP", {
       id: `system_daily_${Date.now()}`,
-      sender: "CLIQUE",
+      sender: "CHATSNAP",
       text,
       timestamp: new Date().toISOString(),
       isSystem: true,
@@ -218,9 +218,9 @@ export const triggerStreakCelebration = async (streakCount) => {
       streakCount,
     );
 
-    addMessage("CLIQUE", {
+    addMessage("CHATSNAP", {
       id: `system_streak_${Date.now()}`,
-      sender: "CLIQUE",
+      sender: "CHATSNAP",
       text,
       timestamp: new Date().toISOString(),
       isSystem: true,
@@ -242,9 +242,9 @@ export const triggerCliqueJoined = async (cliqueName) => {
     const fr = `Tu as rejoint la clique "${cliqueName}". Le territoire s'agrandit. 📍`;
     const en = `You've joined the clique "${cliqueName}". The territory expands. 📍`;
 
-    addMessage("CLIQUE", {
+    addMessage("CHATSNAP", {
       id: `system_clique_${Date.now()}`,
-      sender: "CLIQUE",
+      sender: "CHATSNAP",
       text: `${fr}\n\n${en}`,
       timestamp: new Date().toISOString(),
       isSystem: true,

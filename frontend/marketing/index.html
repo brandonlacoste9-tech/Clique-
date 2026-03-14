@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CLIQUE | The Elite of the Moment</title>
+    <title>CHATSNAP | L'Élite de l'Instant</title>
     <link rel="icon" type="image/png" href="favicon.ico" />
     <link
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap"
@@ -74,7 +74,7 @@
       }
 
       .bullion-logo::before {
-        content: "CLIQUE • AU 999.9 FINE GOLD";
+        content: "CHATSNAP • AU 999.9 FINE GOLD";
         position: absolute;
         top: 10px;
         font-size: 0.6rem;
@@ -84,9 +84,9 @@
       }
 
       .logo-text {
-        font-size: 5rem;
+        font-size: 3.5rem;
         font-weight: 900;
-        letter-spacing: 1.5rem;
+        letter-spacing: 0.8rem;
         color: rgba(0,0,0,0.7);
         text-shadow: 0 1px 2px rgba(255,255,255,0.2);
         margin-bottom: -10px;
@@ -232,15 +232,15 @@
   <body>
     <div class="container">
       <div class="bullion-logo">
-        <h1 class="logo-text">CLIQUE</h1>
+        <h1 class="logo-text">CHATSNAP</h1>
       </div>
       
       <p class="tagline">The Elite of the Moment</p>
 
       <div class="counter-card" id="counter-block">
-        <div class="pill">FIRST 100 FREE</div>
-        <p class="counter-sub">Lifetime access for the first 100 Sovereigns</p>
-        <p class="counter-main"><span class="gold-num" id="places-count">99</span> places left</p>
+        <div class="pill">BIENVENUE / WELCOME</div>
+        <p class="counter-sub">L'application la plus exclusive au Québec</p>
+        <p class="counter-main">Souveraineté Digitale / Digital Sovereignty</p>
       </div>
 
       <p class="description">
@@ -248,31 +248,24 @@
       </p>
 
       <div class="form-area" id="auth-area">
-        <input type="email" id="elite-email" placeholder="ELITE EMAIL" class="elite-input" required />
-        <button class="cta-button" id="request-btn">
-          <span>REQUEST ELITE ACCESS</span>
-          <span class="btn-subtext">999.9 FINE GOLD</span>
-        </button>
+        <p style="margin-bottom: 2rem; color: var(--gold); font-weight: 700; letter-spacing: 1px;">
+          L'accès à l'Élite est maintenant ouvert.<br/>
+          Elite Access is now open.
+        </p>
+        
+        <a href="chatsnap://auth" class="cta-button" style="text-decoration: none; display: flex; margin-bottom: 2rem;">
+          <span>LOGIN WITH CHATSNAP</span>
+          <span class="btn-subtext">SOVEREIGN PROTOCOL</span>
+        </a>
+
+        <p style="font-size: 0.9rem; color: rgba(255,255,255,0.5); line-height: 1.6;">
+          Rejoins le territoire. Sans compromis.<br/>
+          Join the territory. No compromise.
+        </p>
       </div>
 
       <div class="success-box" id="success-area">
-        <h2 style="color: var(--gold); letter-spacing: 3px; margin-bottom: 1rem;">REQUEST RECEIVED</h2>
-        <p style="color: rgba(255,255,255,0.6); margin-bottom: 2rem;">Your invitation is being forged. Check your email soon.</p>
-        
-        <a href="clique://chat" class="cta-button" style="text-decoration: none; display: flex; margin-bottom: 1rem;">
-            <span>LAUNCH CLIQUE APP</span>
-            <span class="btn-subtext">SOVEREIGN PROTOCOL</span>
-        </a>
-        
-        <p style="font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-bottom: 2rem;">
-          Tapping above requires the mobile app installed.<br/>
-          (Nécessite l'application mobile installée)
-        </p>
-
-        <div style="border-top: 1px solid rgba(212, 175, 55, 0.1); padding-top: 2rem;">
-          <p style="font-size: 0.9rem; color: #fff; margin-bottom: 1rem;">Already have access? / Déjà accès?</p>
-          <a href="clique://auth" style="color: var(--gold); font-weight: 700; text-decoration: none; letter-spacing: 2px;">SOVEREIGN LOGIN ▸</a>
-        </div>
+        <!-- Success box currently not used as we removed the request flow -->
       </div>
       
       <div style="margin-top: 3rem;">
@@ -281,60 +274,8 @@
     </div>
 
     <script>
-      const placesEl = document.getElementById('places-count');
-      const requestBtn = document.getElementById('request-btn');
-      const emailInput = document.getElementById('elite-email');
-      const authArea = document.getElementById('auth-area');
-      const successArea = document.getElementById('success-area');
-
-      // 1. Fetch live count from backend
-      const fetchCount = async () => {
-        try {
-          // Assuming the script is served from the same origin as Fastify
-          const res = await fetch('/api/elite/hall');
-          const data = await res.json();
-          if (data.placesLeft !== undefined) {
-            placesEl.innerText = data.placesLeft;
-          }
-        } catch (e) {
-          console.error("Scarcity sync failed", e);
-        }
-      };
-
-      fetchCount();
-      setInterval(fetchCount, 10000); // Sync every 10s
-
-      // 2. Handle Elite Registration
-      requestBtn.addEventListener('click', async () => {
-        const email = emailInput.value;
-        if (!email || !email.includes('@')) return alert("Enter valid elite email.");
-
-        requestBtn.disabled = true;
-        requestBtn.innerText = "FORGING...";
-        requestBtn.style.opacity = "0.5";
-
-        // AUTO-BYPASS TIMEOUT: In case backend is taking too long
-        const timeout = setTimeout(() => {
-            authArea.style.display = 'none';
-            successArea.style.display = 'block';
-        }, 2000);
-
-        try {
-          const res = await fetch('/api/elite/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-          });
-          
-          clearTimeout(timeout);
-          authArea.style.display = 'none';
-          successArea.style.display = 'block';
-        } catch (e) {
-          clearTimeout(timeout);
-          authArea.style.display = 'none';
-          successArea.style.display = 'block';
-        }
-      });
+      // CHATSNAP v2026 Protocol
+      console.log("ChatSnap: Direct Sovereign Protocol Active");
     </script>
   </body>
 </html>

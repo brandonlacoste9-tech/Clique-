@@ -46,7 +46,7 @@ import LandingVIPScreen from "./src/screens/LandingVIPScreen";
 import StoryViewer from "./src/components/StoryViewer";
 
 const linking = {
-  prefixes: ["clique://", "https://clique.app"],
+  prefixes: ["chatsnap://", "https://chatsnap.ca"],
   config: {
     screens: {
       Main: {
@@ -73,7 +73,7 @@ const Stack = createStackNavigator();
 async function setupEmpireChannel() {
   if (Platform.OS === "android") {
     await Notifications.setNotificationChannelAsync("elite_messages", {
-      name: "L'Élite Notifications",
+      name: "ChatSnap Notifications",
       importance: Notifications.AndroidImportance.MAX,
       sound: "empire_chime.wav",
       vibrationPattern: [0, 100, 50, 100],
@@ -178,7 +178,7 @@ export default function App() {
         onPress={handleLogoTap}
       >
         <StatusBar barStyle="light-content" />
-        <Text style={styles.loadingLogo}>CLIQUE</Text>
+        <Text style={styles.loadingLogo}>CHATSNAP</Text>
         <Text style={styles.loadingTagline}>L'Élite de l'Instant / The Instant Elite</Text>
         {tapCount > 0 && <Text style={{ color: 'rgba(255,215,0,0.2)', marginTop: 20 }}>Tap {5 - tapCount} more for God Mode</Text>}
       </TouchableOpacity>
@@ -204,20 +204,13 @@ export default function App() {
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isAuthenticated ? (
-          <>
-            <Stack.Screen
-              name="LandingVIP"
-              component={LandingVIPScreen}
-              options={{ animationEnabled: true }}
-            />
-            <Stack.Screen
-              name="Auth"
-              component={AuthScreen}
-              options={{
-                animationTypeForReplace: !isAuthenticated ? "pop" : "push",
-              }}
-            />
-          </>
+          <Stack.Screen
+            name="Auth"
+            component={AuthScreen}
+            options={{
+              animationTypeForReplace: !isAuthenticated ? "pop" : "push",
+            }}
+          />
         ) : (
           <>
             <Stack.Screen name="Main" component={MainTabs} />

@@ -190,13 +190,13 @@ export default function AuthScreen() {
                   <SvgText
                     x="50%"
                     y="60%"
-                    fontSize="42"
+                    fontSize="18"
                     fontWeight="900"
                     fill="rgba(0,0,0,0.6)"
                     textAnchor="middle"
-                    letterSpacing="4"
+                    letterSpacing="1"
                   >
-                    C
+                    CHATSNAP
                   </SvgText>
                   <SvgText
                     x="85%"
@@ -210,7 +210,7 @@ export default function AuthScreen() {
                   </SvgText>
                 </Svg>
               </View>
-              <Text style={styles.title}>CLIQUE</Text>
+              <Text style={styles.title}>CHATSNAP</Text>
               <Text style={styles.tagline}>L'Élite de l'Instant / The Instant Elite</Text>
             </View>
 

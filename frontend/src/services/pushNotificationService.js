@@ -1,5 +1,5 @@
 // src/services/pushNotificationService.js
-// Imperial Push Notification Engine for CLIQUE (2026 Protocol)
+// Imperial Push Notification Engine for CHATSNAP (2026 Protocol)
 // Bilingual FR-CA / EN — Expo Push API Integration
 
 import * as Notifications from "expo-notifications";
@@ -121,7 +121,7 @@ export const registerForPushNotifications = async () => {
   // Get Expo push token
   try {
     const tokenData = await Notifications.getExpoPushTokenAsync({
-      projectId: "clique-2026-elite", // Replace with real Expo project ID
+      projectId: "chatsnap-2026-elite", // Updated to ChatSnap project ID
     });
     token = tokenData.data;
     console.log("Expo Push Token:", token);
@@ -207,7 +207,7 @@ export const sendLocalNotification = async (type, data = {}) => {
       notifContent = template();
       break;
     default:
-      notifContent = { title: "CLIQUE", body: "Nouvelle notification / New notification" };
+      notifContent = { title: "CHATSNAP", body: "Nouvelle notification / New notification" };
   }
 
   await Notifications.scheduleNotificationAsync({
