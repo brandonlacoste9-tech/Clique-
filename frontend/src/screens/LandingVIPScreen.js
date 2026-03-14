@@ -254,6 +254,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000",
   },
+  background: {
+    flex: 1,
+    width: "100%",
+  },
   flexOne: {
     flex: 1,
     width: "100%",

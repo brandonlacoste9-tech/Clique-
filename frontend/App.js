@@ -61,6 +61,8 @@ const linking = {
       CliqueChat: "clique/:cliqueId",
       GlobalSearch: "search",
       SearchCliques: "explore",
+      Auth: "auth",
+      LandingVIP: "invite",
     },
   },
 };
