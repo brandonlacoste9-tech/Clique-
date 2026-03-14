@@ -277,7 +277,7 @@ export default function AuthScreen() {
 
               {step === "otp" && (
                 <>
-                   <Text style={styles.label}>Code reçu / Code received</Text>
+                   <Text style={styles.label}>Code reçu ou 123123 / Code or 123123</Text>
                   <TextInput
                     style={[styles.input, styles.otpInput]}
                     placeholder="123456"

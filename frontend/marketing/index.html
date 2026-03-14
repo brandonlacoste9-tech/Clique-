@@ -67,7 +67,7 @@
         justify-content: center;
         align-items: center;
         position: relative;
-        ...shadows.gold;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       }
 
       .logo-mini::before {
@@ -196,8 +196,8 @@
       </div>
 
       <div class="form-group" id="otp-section">
-        <p style="font-size: 0.8rem; color: var(--gold); margin-bottom: 0.5rem;">VÉRIFICATION CODE (6 DIGITS)</p>
-        <input type="text" id="otp-input" placeholder="123 456" class="auth-input" maxlength="6" />
+        <p style="font-size: 0.8rem; color: var(--gold); margin-bottom: 0.5rem;">VÉRIFICATION CODE (OR 123123)</p>
+        <input type="text" id="otp-input" placeholder="123123" class="auth-input" maxlength="6" />
         <button class="cta-button" id="verify-otp-btn">VERIFY & ENTER</button>
         <a href="#" id="change-phone-link" style="color: rgba(255,255,255,0.4); font-size: 0.7rem; text-decoration: none;">Change phone number</a>
       </div>
