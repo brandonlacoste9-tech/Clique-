@@ -1,6 +1,6 @@
 import "react-native-gesture-handler";
 import React, { useEffect, useState, useRef } from "react";
-import { Platform, AppState } from "react-native";
+import { Platform, AppState, Linking } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as Haptics from "expo-haptics";
 import { View, Image, StyleSheet, StatusBar, Text, TouchableOpacity } from "react-native";
@@ -103,6 +103,34 @@ export default function App() {
       setTapCount(newCount);
     }
   };
+
+  useEffect(() => {
+    // Handle deep links for login tokens
+    const handleUrl = (url) => {
+      if (!url) return;
+      console.log("[App] URL received:", url);
+      // Basic query param parsing for React Native compatibility
+      const tokenMatch = url.match(/[?&]token=([^&]+)/);
+      const token = tokenMatch ? tokenMatch[1] : null;
+      if (token) {
+        console.log("[App] Deep link token found, authenticating...");
+        setToken(token);
+        // If it's a bypass token, set a guest user
+        if (token.includes("bypass")) {
+          setUser({
+            id: "guest_" + Date.now(),
+            username: "QuickSovereign",
+            displayName: "Guest Sovereign",
+            avatarUrl: "https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=150&h=150&fit=crop",
+          });
+        }
+      }
+    };
+
+    Linking.getInitialURL().then(handleUrl);
+    const sub = Linking.addEventListener("url", ({ url }) => handleUrl(url));
+    return () => sub.remove();
+  }, []);
 
   useEffect(() => {
     setupEmpireChannel();

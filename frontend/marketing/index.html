@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CHATSNAP | Sovereign Protocol</title>
-    <link rel="icon" type="image/png" href="favicon.ico" />
     <link
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap"
       rel="stylesheet"
@@ -39,11 +38,7 @@
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-        background-image: radial-gradient(
-          circle at top,
-          #111 0%,
-          var(--obsidian) 80%
-        );
+        background-image: radial-gradient(circle at top, #111 0%, var(--obsidian) 80%);
       }
 
       .auth-card {
@@ -80,104 +75,40 @@
         color: rgba(0,0,0,0.4);
       }
 
-      .logo-text {
-        font-size: 1.2rem;
-        font-weight: 900;
-        letter-spacing: 0.1rem;
-        color: rgba(0,0,0,0.7);
-      }
+      .logo-text { font-size: 1.2rem; font-weight: 900; letter-spacing: 0.1rem; color: rgba(0,0,0,0.7); }
+      h1 { font-size: 1.5rem; letter-spacing: 4px; color: var(--gold); margin-bottom: 0.5rem; text-transform: uppercase; }
+      .tagline { font-size: 0.7rem; letter-spacing: 2px; color: rgba(255,255,255,0.4); margin-bottom: 2.5rem; text-transform: uppercase; }
 
-      h1 {
-        font-size: 1.5rem;
-        letter-spacing: 4px;
-        color: var(--gold);
-        margin-bottom: 0.5rem;
-        text-transform: uppercase;
-      }
-
-      .tagline {
-        font-size: 0.7rem;
-        letter-spacing: 2px;
-        color: rgba(255,255,255,0.4);
-        margin-bottom: 2.5rem;
-        text-transform: uppercase;
-      }
-
-      .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-      }
-
+      .form-group { display: flex; flex-direction: column; gap: 1.5rem; }
       .auth-input {
-        width: 100%;
-        height: 60px;
+        width: 100%; height: 60px;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 8px;
-        padding: 0 1.5rem;
-        color: #fff;
-        font-family: inherit;
-        font-size: 1.1rem;
-        outline: none;
-        transition: border-color 0.3s;
-        text-align: center;
+        padding: 0 1.5rem; color: #fff;
+        font-family: inherit; font-size: 1.1rem;
+        outline: none; transition: border-color 0.3s; text-align: center;
       }
-
-      .auth-input:focus {
-        border-color: var(--gold);
-      }
+      .auth-input:focus { border-color: var(--gold); }
 
       .cta-button {
-        width: 100%;
-        height: 60px;
+        width: 100%; height: 60px;
         background: var(--bullion-grad);
-        color: #000;
-        border: none;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 900;
-        letter-spacing: 2px;
-        cursor: pointer;
-        transition: transform 0.2s, opacity 0.3s;
+        color: #000; border: none; border-radius: 8px;
+        font-size: 1rem; font-weight: 900; letter-spacing: 2px;
+        cursor: pointer; transition: transform 0.2s, opacity 0.3s;
         text-transform: uppercase;
       }
+      .cta-button:hover { transform: translateY(-2px); }
+      .cta-button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-      .cta-button:hover {
-        transform: translateY(-2px);
-      }
-
-      .cta-button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      .footer-note {
-        margin-top: 2.5rem;
-        font-size: 0.7rem;
-        color: rgba(255,255,255,0.3);
-        letter-spacing: 1px;
-      }
-
-      #otp-section {
-        display: none;
-      }
-
-      .error-msg {
-        color: #ff5e5e;
-        font-size: 0.8rem;
-        margin-top: 1rem;
-        display: none;
-      }
-
-      .deep-link-btn {
-        margin-top: 1.5rem;
-        display: block;
-        color: var(--gold);
-        font-size: 0.8rem;
-        text-decoration: none;
-        opacity: 0.6;
-        font-weight: 700;
+      .footer-note { margin-top: 2.5rem; font-size: 0.7rem; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+      #otp-section { display: none; }
+      .error-msg { color: #ff5e5e; font-size: 0.8rem; margin-top: 1rem; display: none; padding: 10px; border-radius: 4px; background: rgba(255,0,0,0.1); }
+      .deep-link-btn { margin-top: 1.5rem; display: block; color: var(--gold); font-size: 0.8rem; text-decoration: none; opacity: 0.6; font-weight: 700; }
+      
+      .bypass-btn {
+        margin-top: 1rem; text-decoration: underline; color: #ff9500; font-size: 0.8rem; cursor: pointer; display: block;
       }
     </style>
   </head>
@@ -187,7 +118,7 @@
         <span class="logo-text">CHATSNAP</span>
       </div>
       
-      <h1>SOVEREIGN AUTH</h1>
+      <h1>CHATSNAP LOGIN</h1>
       <p class="tagline">The Elite of the Moment</p>
 
       <div class="form-group" id="phone-section">
@@ -196,25 +127,32 @@
       </div>
 
       <div class="form-group" id="otp-section">
-        <p style="font-size: 0.8rem; color: var(--gold); margin-bottom: 0.5rem;">VÉRIFICATION CODE (OR 123123)</p>
+        <p style="font-size: 0.8rem; color: var(--gold); margin-bottom: 0.5rem;">VÉRIFICATION CODE (CODE: 123123)</p>
         <input type="text" id="otp-input" placeholder="123123" class="auth-input" maxlength="6" />
         <button class="cta-button" id="verify-otp-btn">VERIFY & ENTER</button>
-        <a href="#" id="change-phone-link" style="color: rgba(255,255,255,0.4); font-size: 0.7rem; text-decoration: none;">Change phone number</a>
+        <a href="#" id="change-phone-link" style="color: rgba(255,255,255,0.4); font-size: 0.7rem; text-decoration: none; margin-top: 10px; display: block;">Change phone number</a>
       </div>
 
-      <div id="error-box" class="error-msg">Ça marche pas. Réessayez.</div>
+      <div id="error-box" class="error-msg"></div>
 
-      <div class="footer-note">
-        CHATSNAP • BILINGUAL • SECURE • QUÉBECOIS
+      <div class="footer-note">CHATSNAP • BILINGUAL • SECURE • QUÉBECOIS</div>
+
+      <div id="dev-links">
+        <a href="chatsnap://auth" class="deep-link-btn">OPEN IN MOBILE APP ▸</a>
+        <span class="bypass-btn" id="hard-bypass">HARD BYPASS: ENTER APP NOW</span>
       </div>
-
-      <a href="chatsnap://auth" class="deep-link-btn">OPEN IN MOBILE APP ▸</a>
     </div>
 
     <script>
-      const API_URL = window.location.origin.includes('localhost') ? 'http://localhost:3001' : '/api';
-      // Fallback to absolute if served as static file
-      const BASE_URL = window.location.hostname === 'chatsnap.ca' ? 'https://chatsnap.ca/api' : 'http://localhost:3001';
+      // DYNAMIC BACKEND DISCOVERY
+      const BACKEND_URLS = [
+        window.location.origin + '/api', // Production proxy
+        'http://localhost:3001',         // Local dev
+        'https://chatsnap.ca/api',       // Production absolute
+        'http://192.168.2.26:3001'      // Last known Local IP
+      ];
+
+      let activeUrl = BACKEND_URLS[0];
 
       const phoneSection = document.getElementById('phone-section');
       const otpSection = document.getElementById('otp-section');
@@ -224,13 +162,34 @@
       const verifyBtn = document.getElementById('verify-otp-btn');
       const errorBox = document.getElementById('error-box');
       const changePhoneLink = document.getElementById('change-phone-link');
+      const hardBypass = document.getElementById('hard-bypass');
 
       let currentPhone = "";
 
       const showError = (msg) => {
+        console.error("DEBUG:", msg);
         errorBox.innerText = msg;
         errorBox.style.display = 'block';
-        setTimeout(() => { errorBox.style.display = 'none'; }, 4000);
+        setTimeout(() => { errorBox.style.display = 'none'; }, 6000);
+      };
+
+      // Tries multiple backend URLs sequentially
+      const sovereignFetch = async (endpoint, options) => {
+        let lastError = null;
+        for (const url of BACKEND_URLS) {
+          try {
+            console.log(`Trying backend: ${url}${endpoint}`);
+            const res = await fetch(`${url}${endpoint}`, options);
+            if (res.ok || res.status === 401 || res.status === 429) {
+                activeUrl = url;
+                return res;
+            }
+          } catch (e) {
+            lastError = e;
+            console.warn(`URL failed: ${url}`, e);
+          }
+        }
+        throw lastError || new Error("All backends unreachable");
       };
 
       sendBtn.addEventListener('click', async () => {
@@ -238,10 +197,10 @@
         if (phone.length < 10) return showError("Enter valid phone number.");
 
         sendBtn.disabled = true;
-        sendBtn.innerText = "SENDING...";
+        sendBtn.innerText = "FORGING...";
 
         try {
-          const res = await fetch(`${BASE_URL}/auth/otp`, {
+          const res = await sovereignFetch('/auth/otp', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ phone })
@@ -252,11 +211,11 @@
             phoneSection.style.display = 'none';
             otpSection.style.display = 'flex';
           } else {
-            showError("Request failed. Try again.");
+            const data = await res.json();
+            showError(data.error || "Request failed.");
           }
         } catch (e) {
-          console.error(e);
-          showError("Connection error. Is backend up?");
+          showError("Backend unavailable. Ensure the server is running on port 3001.");
         } finally {
           sendBtn.disabled = false;
           sendBtn.innerText = "SEND SECURITY CODE";
@@ -271,7 +230,7 @@
         verifyBtn.innerText = "VERIFYING...";
 
         try {
-          const res = await fetch(`${BASE_URL}/auth/verify`, {
+          const res = await fetch(`${activeUrl}/auth/verify`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ phone: currentPhone, otp })
@@ -279,21 +238,14 @@
 
           const data = await res.json();
           if (res.ok && data.token) {
-            // Success! Store token and redirect
-            localStorage.setItem('chatsnap_token', data.token);
-            verifyBtn.innerText = "ACCESS GRANTED";
-            
-            // Trigger Mobile App Deep Link or show success
             window.location.href = "chatsnap://auth?token=" + data.token;
-            
-            setTimeout(() => {
-                alert("Welcome to ChatSnap. Access granted via Sovereign Protocol.");
-            }, 500);
+            verifyBtn.innerText = "ACCESS GRANTED";
+            setTimeout(() => { alert("Opening ChatSnap..."); }, 500);
           } else {
             showError(data.error || "Invalid code.");
           }
         } catch (e) {
-          showError("Verification failed.");
+          showError("Verification connection failed.");
         } finally {
           verifyBtn.disabled = false;
           verifyBtn.innerText = "VERIFY & ENTER";
@@ -304,6 +256,11 @@
         e.preventDefault();
         phoneSection.style.display = 'flex';
         otpSection.style.display = 'none';
+      });
+
+      hardBypass.addEventListener('click', () => {
+        window.location.href = "chatsnap://auth?token=bypass_guest_token";
+        alert("Redirecting to ChatSnap App...");
       });
     </script>
   </body>

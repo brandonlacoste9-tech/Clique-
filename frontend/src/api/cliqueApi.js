@@ -3,7 +3,8 @@ import axios from "axios";
 import { Platform } from "react-native";
 import { useAuthStore } from "../store/cliqueStore";
 
-const API_URL = Platform.OS === "android" ? "http://10.0.2.2:3001" : "http://localhost:3001";
+const API_URL = Platform.OS === "android" ? "http://10.0.2.2:3001" : 
+                (process.env.NODE_ENV === "development" ? "http://192.168.2.26:3001" : "http://localhost:3001");
 
 const api = axios.create({
   baseURL: API_URL,
