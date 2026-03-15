@@ -91,10 +91,15 @@ if (typeof document !== "undefined") {
 }
 
 export default function App() {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { isAuthenticated, isLoading, setToken, setUser } = useAuthStore();
 
   useEffect(() => {
     setupEmpireChannel();
+    // On web, auto-authenticate with a guest session so users land in the app directly
+    if (Platform.OS === "web" && !isAuthenticated) {
+      setToken("guest-web");
+      setUser({ id: "guest", displayName: "Invité", username: "invité" });
+    }
   }, []);
 
   if (isLoading) {
