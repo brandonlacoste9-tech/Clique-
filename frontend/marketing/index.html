@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CHATSNAP | Sovereign Protocol</title>
+    <title>CLIQUE | The Hive Awaits</title>
+    <meta name="description" content="Clique — The sovereign social experience. Location-based groups, encrypted messaging, and prestige that matters." />
     <link
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap"
       rel="stylesheet"
@@ -15,253 +16,341 @@
         --gold-bright: #ffefaf;
         --gold-dark: #8c6d1f;
         --suede-text: #e8e8e1;
+        --hive-yellow: #fcd116;
         --bullion-grad: linear-gradient(
-          to right,
+          135deg,
           #d4af37 0%,
           #ffefaf 50%,
-          #8c6d1f 100%
+          #d4af37 100%
         );
       }
 
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
 
       body {
         background-color: var(--obsidian);
         color: var(--suede-text);
         font-family: "Outfit", sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Animated background grid */
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background:
+          radial-gradient(circle at 20% 20%, rgba(212,175,55,0.04) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(252,209,22,0.03) 0%, transparent 50%),
+          radial-gradient(circle at 50% 50%, rgba(255,255,255,0.01) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .hero {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-        background-image: radial-gradient(circle at top, #111 0%, var(--obsidian) 80%);
+        padding: 2rem;
+        position: relative;
+        z-index: 1;
       }
 
-      .auth-card {
-        width: 100%;
-        max-width: 400px;
-        padding: 2.5rem;
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(212, 175, 55, 0.2);
-        border-radius: 16px;
-        text-align: center;
-        box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+      /* Floating hex particles */
+      .hex-particle {
+        position: fixed;
+        font-size: 1.2rem;
+        opacity: 0.04;
+        animation: float 20s infinite ease-in-out;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .hex-particle:nth-child(1) { top: 10%; left: 15%; animation-delay: 0s; }
+      .hex-particle:nth-child(2) { top: 30%; right: 20%; animation-delay: -5s; }
+      .hex-particle:nth-child(3) { bottom: 20%; left: 25%; animation-delay: -10s; }
+      .hex-particle:nth-child(4) { top: 60%; right: 10%; animation-delay: -15s; font-size: 2rem; }
+      .hex-particle:nth-child(5) { bottom: 40%; left: 10%; animation-delay: -7s; }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.04; }
+        50% { transform: translateY(-30px) rotate(15deg); opacity: 0.08; }
       }
 
-      .logo-mini {
-        width: 140px;
-        height: 80px;
+      /* Gold bar logo */
+      .logo-bar {
+        width: 180px;
+        height: 90px;
         background: var(--bullion-grad);
-        border-radius: 8px;
-        margin: 0 auto 2rem;
+        border-radius: 10px;
         display: flex;
         justify-content: center;
         align-items: center;
         position: relative;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        box-shadow:
+          0 20px 60px rgba(212,175,55,0.15),
+          0 4px 20px rgba(0,0,0,0.6),
+          inset 0 1px 0 rgba(255,255,255,0.3);
+        margin-bottom: 3rem;
+        animation: barGlow 4s ease-in-out infinite;
       }
 
-      .logo-mini::before {
-        content: "CHATSNAP • 999.9";
+      .logo-bar::before {
+        content: "CLIQUE • 999.9";
         position: absolute;
-        top: 8px;
+        top: 10px;
         font-size: 0.5rem;
         font-weight: 900;
-        letter-spacing: 0.1rem;
-        color: rgba(0,0,0,0.4);
+        letter-spacing: 0.15rem;
+        color: rgba(0,0,0,0.35);
       }
 
-      .logo-text { font-size: 1.2rem; font-weight: 900; letter-spacing: 0.1rem; color: rgba(0,0,0,0.7); }
-      h1 { font-size: 1.5rem; letter-spacing: 4px; color: var(--gold); margin-bottom: 0.5rem; text-transform: uppercase; }
-      .tagline { font-size: 0.7rem; letter-spacing: 2px; color: rgba(255,255,255,0.4); margin-bottom: 2.5rem; text-transform: uppercase; }
-
-      .form-group { display: flex; flex-direction: column; gap: 1.5rem; }
-      .auth-input {
-        width: 100%; height: 60px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        padding: 0 1.5rem; color: #fff;
-        font-family: inherit; font-size: 1.1rem;
-        outline: none; transition: border-color 0.3s; text-align: center;
+      .logo-bar::after {
+        content: "🐝";
+        position: absolute;
+        bottom: 8px;
+        font-size: 0.7rem;
       }
-      .auth-input:focus { border-color: var(--gold); }
 
-      .cta-button {
-        width: 100%; height: 60px;
+      .logo-text {
+        font-size: 1.6rem;
+        font-weight: 900;
+        letter-spacing: 0.2rem;
+        color: rgba(0,0,0,0.7);
+      }
+
+      @keyframes barGlow {
+        0%, 100% { box-shadow: 0 20px 60px rgba(212,175,55,0.15), 0 4px 20px rgba(0,0,0,0.6); }
+        50% { box-shadow: 0 20px 80px rgba(212,175,55,0.25), 0 4px 30px rgba(0,0,0,0.6); }
+      }
+
+      h1 {
+        font-size: clamp(2rem, 6vw, 3.5rem);
+        letter-spacing: 8px;
         background: var(--bullion-grad);
-        color: #000; border: none; border-radius: 8px;
-        font-size: 1rem; font-weight: 900; letter-spacing: 2px;
-        cursor: pointer; transition: transform 0.2s, opacity 0.3s;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+        text-align: center;
+      }
+
+      .tagline {
+        font-size: 0.75rem;
+        letter-spacing: 4px;
+        color: rgba(255,255,255,0.35);
+        text-transform: uppercase;
+        margin-bottom: 3rem;
+        text-align: center;
+      }
+
+      /* Feature cards */
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        max-width: 700px;
+        width: 100%;
+        margin-bottom: 3rem;
+      }
+
+      .feature-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(212, 175, 55, 0.12);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .feature-card:hover {
+        border-color: rgba(212, 175, 55, 0.35);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+      }
+
+      .feature-emoji {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+        display: block;
+      }
+
+      .feature-title {
+        color: var(--gold);
+        font-size: 0.7rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        margin-bottom: 0.5rem;
         text-transform: uppercase;
       }
-      .cta-button:hover { transform: translateY(-2px); }
-      .cta-button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-      .footer-note { margin-top: 2.5rem; font-size: 0.7rem; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
-      #otp-section { display: none; }
-      .error-msg { color: #ff5e5e; font-size: 0.8rem; margin-top: 1rem; display: none; padding: 10px; border-radius: 4px; background: rgba(255,0,0,0.1); }
-      .deep-link-btn { margin-top: 1.5rem; display: block; color: var(--gold); font-size: 0.8rem; text-decoration: none; opacity: 0.6; font-weight: 700; }
-      
-      .bypass-btn {
-        margin-top: 1rem; text-decoration: underline; color: #ff9500; font-size: 0.8rem; cursor: pointer; display: block;
+      .feature-desc {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.45);
+        line-height: 1.5;
+      }
+
+      /* CTA buttons */
+      .cta-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .cta-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 3rem;
+        background: var(--bullion-grad);
+        color: #000;
+        border: none;
+        border-radius: 50px;
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 900;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 30px rgba(212,175,55,0.2);
+      }
+
+      .cta-primary:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 12px 40px rgba(212,175,55,0.35);
+      }
+
+      .cta-secondary {
+        color: var(--gold);
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-decoration: none;
+        opacity: 0.6;
+        transition: opacity 0.3s;
+        text-transform: uppercase;
+      }
+
+      .cta-secondary:hover { opacity: 1; }
+
+      /* Status bar */
+      .status-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 2.5rem;
+        padding: 0.75rem 1.5rem;
+        background: rgba(212,175,55,0.06);
+        border: 1px solid rgba(212,175,55,0.15);
+        border-radius: 50px;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #4ade80;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
+        50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(74,222,128,0); }
+      }
+
+      .status-text {
+        font-size: 0.65rem;
+        letter-spacing: 2px;
+        color: rgba(255,255,255,0.4);
+        text-transform: uppercase;
+      }
+
+      .footer {
+        font-size: 0.6rem;
+        color: rgba(255,255,255,0.2);
+        letter-spacing: 2px;
+        text-align: center;
+        padding-bottom: 2rem;
+      }
+
+      /* Entrance animations */
+      .hero > * {
+        animation: fadeUp 0.8s ease-out both;
+      }
+      .hero > *:nth-child(1) { animation-delay: 0.1s; }
+      .hero > *:nth-child(2) { animation-delay: 0.2s; }
+      .hero > *:nth-child(3) { animation-delay: 0.3s; }
+      .hero > *:nth-child(4) { animation-delay: 0.5s; }
+      .hero > *:nth-child(5) { animation-delay: 0.7s; }
+      .hero > *:nth-child(6) { animation-delay: 0.9s; }
+      .hero > *:nth-child(7) { animation-delay: 1.0s; }
+      .hero > *:nth-child(8) { animation-delay: 1.1s; }
+
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @media (max-width: 480px) {
+        .features { grid-template-columns: 1fr; }
+        .cta-primary { padding: 1rem 2rem; font-size: 0.85rem; }
       }
     </style>
   </head>
   <body>
-    <div class="auth-card">
-      <div class="logo-mini">
-        <span class="logo-text">CHATSNAP</span>
-      </div>
-      
-      <h1>CHATSNAP LOGIN</h1>
-      <p class="tagline">The Elite of the Moment</p>
+    <!-- Background particles -->
+    <div class="hex-particle">⬡</div>
+    <div class="hex-particle">⬡</div>
+    <div class="hex-particle">⬡</div>
+    <div class="hex-particle">⬡</div>
+    <div class="hex-particle">⬡</div>
 
-      <div class="form-group" id="phone-section">
-        <input type="tel" id="phone-input" placeholder="514 555 0123" class="auth-input" />
-        <button class="cta-button" id="send-otp-btn">SEND SECURITY CODE</button>
-      </div>
-
-      <div class="form-group" id="otp-section">
-        <p style="font-size: 0.8rem; color: var(--gold); margin-bottom: 0.5rem;">VÉRIFICATION CODE (CODE: 123123)</p>
-        <input type="text" id="otp-input" placeholder="123123" class="auth-input" maxlength="6" />
-        <button class="cta-button" id="verify-otp-btn">VERIFY & ENTER</button>
-        <a href="#" id="change-phone-link" style="color: rgba(255,255,255,0.4); font-size: 0.7rem; text-decoration: none; margin-top: 10px; display: block;">Change phone number</a>
+    <section class="hero">
+      <div class="logo-bar">
+        <span class="logo-text">CLIQUE</span>
       </div>
 
-      <div id="error-box" class="error-msg"></div>
+      <h1>The Hive Awaits</h1>
+      <p class="tagline">Location-based groups · Encrypted messaging · Prestige that matters</p>
 
-      <div class="footer-note">CHATSNAP • BILINGUAL • SECURE • QUÉBECOIS</div>
-
-      <div id="dev-links">
-        <a href="chatsnap://auth" class="deep-link-btn">OPEN IN MOBILE APP ▸</a>
-        <span class="bypass-btn" id="hard-bypass">HARD BYPASS: ENTER APP NOW</span>
+      <div class="status-bar">
+        <div class="status-dot"></div>
+        <span class="status-text">Hive is live · Québec & Beyond</span>
       </div>
-    </div>
 
-    <script>
-      // DYNAMIC BACKEND DISCOVERY
-      const BACKEND_URLS = [
-        window.location.origin + '/api', // Production proxy
-        'http://localhost:3001',         // Local dev
-        'https://chatsnap.ca/api',       // Production absolute
-        'http://192.168.2.26:3001'      // Last known Local IP
-      ];
+      <div class="features">
+        <div class="feature-card">
+          <span class="feature-emoji">📍</span>
+          <div class="feature-title">Cliques</div>
+          <div class="feature-desc">Find and join location-based groups near you. Your neighbourhood, your people.</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-emoji">👻</span>
+          <div class="feature-title">Ghost Mode</div>
+          <div class="feature-desc">Go invisible on the map. Control who sees you, when you want.</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-emoji">🏆</span>
+          <div class="feature-title">Prestige</div>
+          <div class="feature-desc">Earn influence, climb the ranks, and unlock sovereign status.</div>
+        </div>
+      </div>
 
-      let activeUrl = BACKEND_URLS[0];
+      <div class="cta-group">
+        <a href="clique://home" class="cta-primary" id="open-app-btn">
+          Open Clique ▸
+        </a>
+        <a href="clique://home" class="cta-secondary">Download on the App Store (Coming Soon)</a>
+      </div>
 
-      const phoneSection = document.getElementById('phone-section');
-      const otpSection = document.getElementById('otp-section');
-      const phoneInput = document.getElementById('phone-input');
-      const otpInput = document.getElementById('otp-input');
-      const sendBtn = document.getElementById('send-otp-btn');
-      const verifyBtn = document.getElementById('verify-otp-btn');
-      const errorBox = document.getElementById('error-box');
-      const changePhoneLink = document.getElementById('change-phone-link');
-      const hardBypass = document.getElementById('hard-bypass');
-
-      let currentPhone = "";
-
-      const showError = (msg) => {
-        console.error("DEBUG:", msg);
-        errorBox.innerText = msg;
-        errorBox.style.display = 'block';
-        setTimeout(() => { errorBox.style.display = 'none'; }, 6000);
-      };
-
-      // Tries multiple backend URLs sequentially
-      const sovereignFetch = async (endpoint, options) => {
-        let lastError = null;
-        for (const url of BACKEND_URLS) {
-          try {
-            console.log(`Trying backend: ${url}${endpoint}`);
-            const res = await fetch(`${url}${endpoint}`, options);
-            if (res.ok || res.status === 401 || res.status === 429) {
-                activeUrl = url;
-                return res;
-            }
-          } catch (e) {
-            lastError = e;
-            console.warn(`URL failed: ${url}`, e);
-          }
-        }
-        throw lastError || new Error("All backends unreachable");
-      };
-
-      sendBtn.addEventListener('click', async () => {
-        const phone = phoneInput.value.replace(/\s+/g, '');
-        if (phone.length < 10) return showError("Enter valid phone number.");
-
-        sendBtn.disabled = true;
-        sendBtn.innerText = "FORGING...";
-
-        try {
-          const res = await sovereignFetch('/auth/otp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone })
-          });
-
-          if (res.ok) {
-            currentPhone = phone;
-            phoneSection.style.display = 'none';
-            otpSection.style.display = 'flex';
-          } else {
-            const data = await res.json();
-            showError(data.error || "Request failed.");
-          }
-        } catch (e) {
-          showError("Backend unavailable. Ensure the server is running on port 3001.");
-        } finally {
-          sendBtn.disabled = false;
-          sendBtn.innerText = "SEND SECURITY CODE";
-        }
-      });
-
-      verifyBtn.addEventListener('click', async () => {
-        const otp = otpInput.value;
-        if (otp.length !== 6) return showError("Enter 6-digit code.");
-
-        verifyBtn.disabled = true;
-        verifyBtn.innerText = "VERIFYING...";
-
-        try {
-          const res = await fetch(`${activeUrl}/auth/verify`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone: currentPhone, otp })
-          });
-
-          const data = await res.json();
-          if (res.ok && data.token) {
-            window.location.href = "chatsnap://auth?token=" + data.token;
-            verifyBtn.innerText = "ACCESS GRANTED";
-            setTimeout(() => { alert("Opening ChatSnap..."); }, 500);
-          } else {
-            showError(data.error || "Invalid code.");
-          }
-        } catch (e) {
-          showError("Verification connection failed.");
-        } finally {
-          verifyBtn.disabled = false;
-          verifyBtn.innerText = "VERIFY & ENTER";
-        }
-      });
-
-      changePhoneLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        phoneSection.style.display = 'flex';
-        otpSection.style.display = 'none';
-      });
-
-      hardBypass.addEventListener('click', () => {
-        window.location.href = "chatsnap://auth?token=bypass_guest_token";
-        alert("Redirecting to ChatSnap App...");
-      });
-    </script>
+      <p class="footer">CLIQUE 2026 · BILINGUAL · SECURE · QUÉBÉCOIS</p>
+    </section>
   </body>
 </html>
