@@ -137,40 +137,27 @@ export default async function uploadRoutes(fastify, opts) {
       expiresAt.setHours(expiresAt.getHours() + config.STORY_TTL_HOURS);
 
       // Insert story
+      // Insert story
       const result = await request.server.db.query(
         `INSERT INTO stories (
           user_id, media_key, media_type, thumbnail_key,
           caption, mood, is_public, allow_replies,
           location, expires_at, created_at
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 
-          ${location ? `ST_SetSRID(ST_MakePoint($9, $10), 4326)` : "NULL"},
-          $11, NOW()
+          $9, $10, NOW()
         ) RETURNING *`,
-        location
-          ? [
-              userId,
-              mediaKey,
-              mediaType,
-              thumbnailKey,
-              caption,
-              mood,
-              isPublic,
-              allowReplies,
-              location.lng,
-              location.lat,
-              expiresAt,
-            ]
-          : [
-              userId,
-              mediaKey,
-              mediaType,
-              thumbnailKey,
-              caption,
-              mood,
-              isPublic,
-              allowReplies,
-              expiresAt,
-            ],
+        [
+          userId,
+          mediaKey,
+          mediaType,
+          thumbnailKey,
+          caption,
+          mood,
+          isPublic,
+          allowReplies,
+          location ? `SRID=4326;POINT(${location.lng} ${location.lat})` : null,
+          expiresAt,
+        ]
       );
 
       const story = result.rows[0];
@@ -194,7 +181,8 @@ export default async function uploadRoutes(fastify, opts) {
         },
       };
     } catch (err) {
-      fastify.log.error("Story creation error:", err);
+      console.error("CRITICAL STORY ERROR:", err);
+      fastify.log.error("Story creation error:", err.message, err.stack);
       return reply.code(500).send({ error: "Failed to create story" });
     }
   });

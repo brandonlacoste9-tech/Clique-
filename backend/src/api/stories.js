@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 import { query } from "../models/db.js";
 import { storyCache, presence } from "../services/redis.js";
 import { config } from "../config/index.js";
+import { prestigeService } from "../services/prestigeService.js";
+import { aurumService } from "../services/aurumService.js";
 
 export default async function storyRoutes(fastify, opts) {
   // Get stories feed (friends + public)
@@ -172,17 +174,22 @@ export default async function storyRoutes(fastify, opts) {
         [id],
       );
 
-      // Notify story owner in real-time (if online)
-      // const isOnline = await presence.isOnline(story.user_id);
-      const isOnline = false;
-      if (isOnline) {
-        // WebSocket notification would go here
-        fastify.log.info(`Notifying ${story.user_id} of new view`);
+      // --- PRESTIGE SYSTEM: Reward owner ---
+      if (screenshotDetected) {
+        await prestigeService.onScreenshotDetected(story.user_id);
+        
+        // --- AURUM ALERT: Identify the offender ---
+        const viewerRes = await query('SELECT username FROM users WHERE id = $1', [viewerId]);
+        const viewerName = viewerRes.rows[0]?.username || "Un inconnu / Unknown";
+        await aurumService.sendAlert(story.user_id, `${viewerName} a pris une capture d'écran de votre story. 🔱 / ${viewerName} captured your story.`);
+      } else {
+        await prestigeService.onStoryViewed(story.user_id);
       }
 
       return { message: "View recorded" };
     } catch (err) {
-      fastify.log.error("View error:", err);
+      console.error("CRITICAL VIEW ERROR:", err);
+      fastify.log.error("View error:", err.message, err.stack);
       return reply.code(500).send({ error: "Failed to record view" });
     }
   });

@@ -1,16 +1,14 @@
-// Clique Theme - Imperial Gold & Leather
-// 15-25 year old aesthetic: raw, premium, Quebecois
-
 export const colors = {
-  // Imperial Gold palette
+  // The Hive & Imperial Gold
   gold: {
     DEFAULT: '#D4AF37',
     light: '#F4D03F',
     dark: '#B8860B',
-    shimmer: '#FFE5A0'
+    shimmer: '#FFE5A0',
+    hive: '#FCD116' // Vibrant Hive Yellow
   },
   
-  // Leather textures
+  // Leather & Hive textures
   leather: {
     black: '#0D0D0D',
     dark: '#1A1A1A',
@@ -19,25 +17,32 @@ export const colors = {
     cream: '#F5F0E8'
   },
   
+  // Hive Elements
+  hive: {
+    yellow: '#FCD116',
+    border: 'rgba(252, 209, 22, 0.3)',
+    glow: 'rgba(252, 209, 22, 0.5)'
+  },
+  
   // Functional
-  background: '#0A0A0A',
-  surface: '#141414',
-  surfaceHighlight: '#1E1E1E',
+  background: '#070707', // Darker for high contrast yellow
+  surface: '#121212',
+  surfaceHighlight: '#1A1A1A',
   
   // Accents
   accent: {
-    red: '#FF3B30',      // notifications, alerts
-    green: '#34C759',    // online, success
-    orange: '#FF9500',   // streaks, warnings
-    purple: '#AF52DE',   // premium features
-    blue: '#007AFF'      // links, actions
+    red: '#FF3B30',      
+    green: '#34C759',    
+    orange: '#FF9500',   
+    purple: '#AF52DE',   
+    blue: '#007AFF'      
   },
   
   // Text
   text: {
     primary: '#FFFFFF',
-    secondary: '#8E8E93',
-    muted: '#636366'
+    secondary: '#A1A1A1',
+    muted: '#707070'
   }
 };
 
@@ -113,26 +118,26 @@ export const shadows = {
 // Quebecois & English expressions for UI
 export const cliquePhrases = {
   // Greetings
-  hello: ['Yo', 'Wesh', 'Heille', 'Salut', 'Greetings'],
-  goodbye: ['Ciao', 'A+', 'Plus tard', 'Peace'],
+  hello: ['Yo 🐝', 'Wesh Hive', 'Heille Sovereign', 'Salut Architect', 'Enter the Hive'],
+  goodbye: ['Ciao', 'A+ Hive', 'Plus tard', 'Return to Hive'],
   
   // States
-  typing: ['Écrit... / typing...', 'Tape...', 'Compose...'],
-  online: ['En ligne', 'Online', 'Connecté'],
-  cool: ['C\'est tiguidou', 'C\'est malade', 'L\'fun', 'C\'est d\'la bombe', 'Premium'],
-  thanks: ['Merci ben', 'C\'est ça', 'Good'],
+  typing: ['Écrit... / buzz...', 'Tape...', 'Compose...'],
+  online: ['Actif dans la ruche / Active in the Hive', 'Connecté'],
+  cool: ['C\'est d\'la bombe 🐝', 'Hive approved', 'Sovereign tier', 'Royal Jelly'],
+  thanks: ['Merci ben', 'Hive gratitude', 'Good'],
   
   // Navigation / CTA
-  join: ['REJOINDRE', 'JOIN'],
+  join: ['REJOINDRE LA RUCHE', 'JOIN THE HIVE'],
   leave: ['QUITTER', 'LEAVE'],
-  territory: ['TERRITOIRE', 'TERRITORY'],
-  elite: ['L\'ÉLITE', 'THE ELITE'],
-  messages: ['MESSAGES', 'MESSAGES'],
-  ghostMode: ['MODE FANTÔME', 'GHOST MODE'],
+  territory: ['LA RUCHE / THE HIVE', 'TERRITORY'],
+  elite: ['LES SOUVERAINS', 'THE SOVEREIGN'],
+  messages: ['INSIGHTS', 'INSIGHTS'],
+  ghostMode: ['MODE DISCRET', 'DISCREET MODE'],
   
   // Loading
-  loading: ['Un instant...', 'Ça charge...', 'Attends un peu...', 'Loading...'],
+  loading: ['Préparation de la ruche...', 'Concentration...', 'Buzzing...', 'Loading...'],
   
   // Errors
-  error: ['Oups!', 'C\'est cassé', 'Ça marche pas', 'Technical Issue']
+  error: ['Oups Hive!', 'Broken link', 'Failure in the hive', 'Technical Glitch']
 };

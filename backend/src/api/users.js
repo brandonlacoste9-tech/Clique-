@@ -10,8 +10,9 @@ export default async function userRoutes(fastify, opts) {
 
     const result = await query(
       `SELECT id, username, display_name, avatar_url, bio, location,
-              snap_score, streak_count, story_visibility, 
-              allow_screenshots, ghost_mode, created_at
+              snap_score, streak_count, influence_score, sovereign_tier,
+              story_visibility, allow_screenshots, ghost_mode, 
+              created_at, public_key
        FROM users WHERE id = $1 AND deleted_at IS NULL`,
       [userId],
     );
@@ -31,19 +32,22 @@ export default async function userRoutes(fastify, opts) {
       location: user.location,
       snapScore: user.snap_score,
       streakCount: user.streak_count,
+      influenceScore: user.influence_score,
+      sovereignTier: user.sovereign_tier,
       settings: {
         storyVisibility: user.story_visibility,
         allowScreenshots: user.allow_screenshots,
         ghostMode: user.ghost_mode,
       },
       createdAt: user.created_at,
+      publicKey: user.public_key,
     };
   });
 
   // Update profile
   fastify.patch("/me", async (request, reply) => {
     const userId = request.user.userId;
-    const { displayName, bio, avatarUrl, location } = request.body;
+    const { displayName, bio, avatarUrl, location, publicKey } = request.body;
 
     const updates = [];
     const values = [];
@@ -65,6 +69,10 @@ export default async function userRoutes(fastify, opts) {
       updates.push(`location = $${paramIndex++}`);
       values.push(location);
     }
+    if (publicKey !== undefined) {
+      updates.push(`public_key = $${paramIndex++}`);
+      values.push(publicKey);
+    }
 
     if (updates.length === 0) {
       return reply.code(400).send({ error: "No fields to update" });
@@ -84,6 +92,7 @@ export default async function userRoutes(fastify, opts) {
       avatarUrl: result.rows[0].avatar_url,
       bio: result.rows[0].bio,
       location: result.rows[0].location,
+      publicKey: result.rows[0].public_key,
     };
   });
 
@@ -93,7 +102,7 @@ export default async function userRoutes(fastify, opts) {
     const userId = request.user.userId;
 
     const result = await query(
-      `SELECT id, username, display_name, avatar_url, bio, location, snap_score
+      `SELECT id, username, display_name, avatar_url, bio, location, snap_score, public_key
        FROM users WHERE username = $1 AND deleted_at IS NULL`,
       [username],
     );
@@ -125,6 +134,7 @@ export default async function userRoutes(fastify, opts) {
       snapScore: user.snap_score,
       friendshipStatus,
       isOnline,
+      publicKey: user.public_key,
     };
   });
 
@@ -159,12 +169,12 @@ export default async function userRoutes(fastify, opts) {
 
   // Get elite streaks leaderboard
   fastify.get("/leaderboard", async (request, reply) => {
-    // Top 10 users by streak count
+    // Top 10 users by influence score (prestige metrics)
     const result = await query(
-      `SELECT id, username, display_name, avatar_url, streak_count
+      `SELECT id, username, display_name, avatar_url, streak_count, influence_score, sovereign_tier
        FROM users 
-       WHERE deleted_at IS NULL AND streak_count > 0
-       ORDER BY streak_count DESC, created_at ASC
+       WHERE deleted_at IS NULL AND (influence_score > 0 OR streak_count > 0)
+       ORDER BY influence_score DESC, streak_count DESC, created_at ASC
        LIMIT 10`,
       []
     );
@@ -175,7 +185,9 @@ export default async function userRoutes(fastify, opts) {
         username: u.username,
         displayName: u.display_name,
         avatarUrl: u.avatar_url,
-        streakCount: u.streak_count
+        streakCount: u.streak_count,
+        influenceScore: u.influence_score,
+        tier: u.sovereign_tier
       }))
     };
   });
@@ -316,6 +328,68 @@ export default async function userRoutes(fastify, opts) {
         [userId, id],
       );
       return { message: "Friend removed" };
+    }
+  });
+
+  // AURUM Whisper — Contextual intelligence for elitism
+  fastify.get("/:username/whisper", async (request, reply) => {
+    const { username } = request.params;
+    const myId = request.user.userId;
+
+    try {
+      // Get target user and friendship metadata
+      const userRes = await query(
+        `SELECT u.id, u.display_name, u.streak_count, u.location,
+                f.streak_count as friend_streak, f.streak_last_snapped_at
+         FROM users u
+         LEFT JOIN friendships f ON ((f.user_a = $1 AND f.user_b = u.id) OR (f.user_a = u.id AND f.user_b = $1))
+         WHERE u.username = $2 AND u.deleted_at IS NULL`,
+        [myId, username]
+      );
+
+      if (userRes.rows.length === 0) {
+        return reply.code(404).send({ error: "Sovereign not found" });
+      }
+
+      const target = userRes.rows[0];
+      
+      // AURUM's logic: Build a golden context clue
+      let whisper = `AURUM notes the presence of ${target.display_name}. `;
+      
+      if (target.friend_streak > 0) {
+        whisper += `Your flame with them burns with a streak of ${target.friend_streak}. `;
+      } else {
+        whisper += `Prestige awaits an initial snap. `;
+      }
+
+      if (target.location) {
+        whisper += `They are currently established near ${target.location}. `;
+      }
+
+      // --- AURUM STORY VISION (YOLO) ---
+      const storyRes = await query(
+        `SELECT mood FROM stories 
+         WHERE user_id = $1 AND expires_at > NOW() 
+         ORDER BY created_at DESC LIMIT 1`,
+        [target.id]
+      );
+      
+      const latestStory = storyRes.rows[0];
+      if (latestStory?.mood?.includes("auto-tag:")) {
+          const tag = latestStory.mood.split("auto-tag:")[1].trim();
+          whisper += `AURUM sensed a ${tag} in their recent story — a point of conversation? `;
+      }
+
+      whisper += `What message shall the Golden Concierge deliver? ⚜️`;
+
+      return { 
+        whisper,
+        prestigeLevel: target.streak_count > 10 ? 'Imperial' : 'Sovereign',
+        aurumMode: 'watchful'
+      };
+    } catch (err) {
+      fastify.log.error("Whisper error:", err.message);
+      return { whisper: "AURUM is currently observing. ⚜️" };
     }
   });
 }

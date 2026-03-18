@@ -13,11 +13,13 @@ import { websocketRoutes } from "./services/websocket.js";
 import authRoutes from "./api/auth.js";
 import userRoutes from "./api/users.js";
 import storyRoutes from "./api/stories.js";
-import messageRoutes from "./api/messages.js";
+import messageRoutes, { disappearingRoutes } from "./api/messages.js";
 import cliqueRoutes from "./api/cliques.js";
 import uploadRoutes from "./api/upload.js";
 import eliteQueueRoutes from "./api/eliteQueue.js";
 import notificationRoutes from "./api/notifications.js";
+import adminRoutes from "./api/admin.js";
+import paymentRoutes from "./api/payments.js";
 
 const app = Fastify({
   logger: {
@@ -57,7 +59,7 @@ app.decorate("redis", redis);
 // Auth hook
 app.addHook("onRequest", async (request, reply) => {
   // Public routes that don't need auth
-  const publicRoutes = ["/auth/verify", "/auth/otp", "/auth/refresh", "/health", "/elite", "/ws"];
+  const publicRoutes = ["/auth/verify", "/auth/otp", "/auth/refresh", "/health", "/elite", "/ws", "/payments/webhook"];
   if (publicRoutes.some((route) => request.url.startsWith(route))) {
     return;
   }
@@ -78,6 +80,9 @@ await app.register(cliqueRoutes, { prefix: "/cliques" });
 await app.register(uploadRoutes, { prefix: "/upload" });
 await app.register(eliteQueueRoutes, { prefix: "/elite" });
 await app.register(notificationRoutes, { prefix: "/notifications" });
+await app.register(disappearingRoutes, { prefix: "/api" });
+await app.register(adminRoutes, { prefix: "/admin" });
+await app.register(paymentRoutes, { prefix: "/payments" });
 
 // WebSocket routes (with JWT auth via query param)
 app.register(async function (fastify) {

@@ -167,10 +167,14 @@ export const useUIStore = create((set) => ({
   isCameraOpen: true,
   showStoryViewer: false,
   currentStoryGroup: null,
+  aurumWhisper: null,
+  lastAurumChime: 0,
 
   // Actions
-  setActiveTab: (tab) => set({ activeTab: tab }),
+  setActiveTab: (tab) => set ({ activeTab: tab }),
   setCameraOpen: (isOpen) => set({ isCameraOpen: isOpen }),
+  setAurumWhisper: (whisper) => set({ aurumWhisper: whisper }),
+  triggerAurumChime: () => set({ lastAurumChime: Date.now() }),
   openStoryViewer: (storyGroup) =>
     set({
       showStoryViewer: true,

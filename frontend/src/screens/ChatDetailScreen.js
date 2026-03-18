@@ -18,7 +18,8 @@ import {
 import * as Notifications from "expo-notifications";
 import { LinearGradient } from "expo-linear-gradient";
 import { useMessagesStore } from "../store/cliqueStore";
-import { messagesAPI } from "../api/cliqueApi";
+import { messagesAPI, userAPI, authAPI } from "../api/cliqueApi";
+import { audioService } from "../services/audioService";
 import {
   addMessageHandler,
   sendTyping,
@@ -55,11 +56,19 @@ import {
 } from "../services/disappearingMessageService";
 import { callService, CALL_TYPES } from "../services/callService";
 import CallOverlay from "../components/CallOverlay";
+import { 
+  establishSession, 
+  encryptMessage, 
+  decryptMessage 
+} from "../services/encryptionService";
+import { userAPI } from "../api/cliqueApi";
 
 export default function ChatDetailScreen({ route, navigation }) {
   const { userId, userName } = route.params;
   const { messages, setMessages, addMessage, markAllRead, updateMessageStatus } = useMessagesStore();
   const [inputText, setInputText] = useState("");
+  const { aurumWhisper, setAurumWhisper, triggerAurumChime } = useUIStore();
+  
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -78,12 +87,35 @@ export default function ChatDetailScreen({ route, navigation }) {
 
   const userMessages = messages[userId] || [];
   const displayMessages = filterExpiredMessages(userMessages, disappearSeconds);
+  const [recipientPublicKey, setRecipientPublicKey] = useState(null);
 
   // Load messages from API
   useEffect(() => {
+    loadRecipientProfile();
     loadMessages();
     loadDisappearTimer();
   }, [userId]);
+
+  const loadRecipientProfile = async () => {
+    try {
+      const res = await userAPI.getUser(userName);
+      const pk = res.data.publicKey;
+      if (pk) {
+        setRecipientPublicKey(pk);
+        await establishSession(userId, pk);
+      }
+
+      // --- AURUM UPGRADE: Fetch Whisper ---
+      const whisperRes = await userAPI.getWhisper(userName);
+      if (whisperRes.data?.whisper) {
+        setAurumWhisper(whisperRes.data.whisper);
+        audioService.playEmpireChime();
+        triggerAurumChime();
+      }
+    } catch (err) {
+      console.error("Failed to load recipient profile:", err);
+    }
+  };
 
   // Auto-refresh to remove expired messages
   useEffect(() => {
@@ -103,19 +135,25 @@ export default function ChatDetailScreen({ route, navigation }) {
 
   // Listen for real-time messages
   useEffect(() => {
-    const unsubscribe = addMessageHandler((event, data) => {
+    const unsubscribe = addMessageHandler(async (event, data) => {
       if (event === "new_message" && data.senderId === userId) {
+        let text = data.text;
+        if (data.isEncrypted && data.encryptionIv) {
+          text = await decryptMessage(userId, text, data.encryptionIv);
+        }
+
         addMessage(userId, {
           id: data.id,
           sender: "them",
           senderId: data.senderId,
-          text: data.text,
+          text: text,
           contentType: data.contentType,
           contentKey: data.contentKey,
           ephemeral: data.ephemeral,
           timestamp: data.sentAt,
           status: "read", // We're viewing it live
           replyTo: data.replyTo,
+          isEncrypted: data.isEncrypted,
         });
         // Immediately send read receipt since user is on this screen
         sendReadReceipt(userId, data.id);
@@ -146,19 +184,26 @@ export default function ChatDetailScreen({ route, navigation }) {
     setLoading(true);
     try {
       const res = await messagesAPI.getMessages(userId);
-      const formatted = (res.data.messages || []).map((m) => ({
-        id: m.id,
-        sender: m.senderId === userId ? "them" : "me",
-        senderId: m.senderId,
-        text: m.text,
-        contentType: m.contentType,
-        contentKey: m.contentKey,
-        ephemeral: m.ephemeral,
-        timestamp: m.sentAt,
-        readAt: m.readAt,
-        status: m.readAt ? "read" : m.senderId !== userId ? "delivered" : undefined,
-        isSystem: false,
-        replyTo: m.replyTo,
+      const formatted = await Promise.all((res.data.messages || []).map(async (m) => {
+        let text = m.text;
+        if (m.isEncrypted && m.encryptionIv) {
+          text = await decryptMessage(userId, text, m.encryptionIv);
+        }
+        return {
+          id: m.id,
+          sender: m.senderId === userId ? "them" : "me",
+          senderId: m.senderId,
+          text: text,
+          contentType: m.contentType,
+          contentKey: m.contentKey,
+          ephemeral: m.ephemeral,
+          timestamp: m.sentAt,
+          readAt: m.readAt,
+          status: m.readAt ? "read" : m.senderId !== userId ? "delivered" : undefined,
+          isSystem: false,
+          replyTo: m.replyTo,
+          isEncrypted: m.isEncrypted,
+        };
       }));
       setMessages(userId, formatted);
     } catch (err) {
@@ -196,7 +241,21 @@ export default function ChatDetailScreen({ route, navigation }) {
     setReplyingTo(null);
 
     try {
-      const res = await messagesAPI.sendMessage(userId, { text, replyToMessageId: replyingTo?.id });
+      let finalData = { text, replyToMessageId: replyingTo?.id };
+
+      if (recipientPublicKey) {
+        const { ciphertext, iv, encrypted } = await encryptMessage(userId, text);
+        if (encrypted) {
+          finalData = {
+            ...finalData,
+            text: ciphertext,
+            isEncrypted: true,
+            encryptionIv: iv,
+          };
+        }
+      }
+
+      const res = await messagesAPI.sendMessage(userId, finalData);
       // Replace temp message with real one
       const store = useMessagesStore.getState();
       const currentMsgs = store.messages[userId] || [];
@@ -208,6 +267,7 @@ export default function ChatDetailScreen({ route, navigation }) {
               sending: false,
               timestamp: res.data.message.sentAt,
               replyTo: res.data.message.replyTo,
+              isEncrypted: res.data.message.isEncrypted,
             }
           : m,
       );
@@ -457,6 +517,7 @@ export default function ChatDetailScreen({ route, navigation }) {
                 )}
               </TouchableOpacity>
             </View>
+            )}
           </View>
         </MessageReactions>
       </SwipeableReplyWrapper>
@@ -477,7 +538,10 @@ export default function ChatDetailScreen({ route, navigation }) {
         </TouchableOpacity>
 
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>{userName.toUpperCase()}</Text>
+          <Text style={styles.headerTitle}>
+            {userName.toUpperCase()} 
+            {aurumWhisper?.includes("Imperial") && <Text style={{ color: colors.gold.DEFAULT }}> ⚜️</Text>}
+          </Text>
           {isTyping && (
             <Text style={styles.typingIndicator}>
               {cliquePhrases.typing[0]}
@@ -511,6 +575,17 @@ export default function ChatDetailScreen({ route, navigation }) {
           <EncryptionBadge recipientId={userId} recipientName={userName} />
         </View>
       </View>
+
+      {/* AURUM WHISPER BANNER */}
+      {aurumWhisper && (
+        <View style={styles.aurumBanner}>
+          <Text style={styles.aurumBannerLabel}>HINT PAR AURUM ⚜️</Text>
+          <Text style={styles.aurumWhisperText}>{aurumWhisper}</Text>
+          <TouchableOpacity onPress={() => setAurumWhisper(null)}>
+            <Text style={styles.closeWhisper}>×</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {loading ? (
         <View style={styles.loadingContainer}>
@@ -1060,5 +1135,35 @@ const styles = StyleSheet.create({
     color: colors.gold.DEFAULT,
     borderColor: "rgba(212, 175, 55, 0.3)",
     backgroundColor: "rgba(212, 175, 55, 0.1)",
+  },
+  aurumBanner: {
+    backgroundColor: "rgba(30, 25, 10, 0.95)",
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gold.DEFAULT,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    ...shadows.gold,
+  },
+  aurumBannerLabel: {
+    color: colors.gold.DEFAULT,
+    fontSize: 9,
+    fontWeight: "900",
+    letterSpacing: 2,
+    marginRight: 12,
+  },
+  aurumWhisperText: {
+    flex: 1,
+    color: "#FFF",
+    fontSize: 12,
+    fontStyle: "italic",
+    lineHeight: 18,
+  },
+  closeWhisper: {
+    color: colors.text.muted,
+    fontSize: 22,
+    marginLeft: 10,
+    padding: 5,
   },
 });

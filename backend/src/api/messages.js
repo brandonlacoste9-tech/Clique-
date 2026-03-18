@@ -19,11 +19,11 @@ export default async function messageRoutes(fastify, opts) {
         CASE WHEN c.user_a = $1 THEN c.unread_count_a ELSE c.unread_count_b END as unread_count,
         m.content_type, m.text_content, m.sent_at as last_message_time,
         c.streak_count, c.streak_expires_at
-       FROM conversations c
-       JOIN users u ON (CASE WHEN c.user_a = $1 THEN c.user_b ELSE c.user_a END) = u.id
-       LEFT JOIN messages m ON c.last_message_id = m.id
-       WHERE c.user_a = $1 OR c.user_b = $1
-       ORDER BY c.last_message_at DESC NULLS LAST`,
+      FROM conversations c
+      JOIN users u ON (CASE WHEN c.user_a = $1 THEN c.user_b ELSE c.user_a END) = u.id
+      LEFT JOIN messages m ON c.last_message_id = m.id
+      WHERE c.user_a = $1 OR c.user_b = $1
+      ORDER BY c.last_message_at DESC NULLS LAST`,
       [userId],
     );
 
@@ -122,6 +122,8 @@ export default async function messageRoutes(fastify, opts) {
           expiresAt: m.expires_at,
           sentAt: m.sent_at,
           readAt: m.read_at,
+          isEncrypted: m.is_encrypted,
+          encryptionIv: m.encryption_iv,
           replyToStory: m.reply_story_id
             ? {
                 id: m.reply_story_id,
@@ -183,6 +185,8 @@ export default async function messageRoutes(fastify, opts) {
       contentKey,
       ephemeral = false,
       replyToStoryId,
+      isEncrypted = false,
+      encryptionIv,
     } = request.body;
 
     if (!text && !contentKey) {
@@ -201,8 +205,9 @@ export default async function messageRoutes(fastify, opts) {
     const result = await query(
       `INSERT INTO messages (
         sender_id, recipient_id, content_type, text_content, content_key,
-        ephemeral_mode, expires_at, reply_to_story_id, sent_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+        ephemeral_mode, expires_at, reply_to_story_id, sent_at,
+        is_encrypted, encryption_iv
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), $9, $10)
       RETURNING *`,
       [
         senderId,
@@ -213,6 +218,8 @@ export default async function messageRoutes(fastify, opts) {
         ephemeral,
         expiresAt,
         replyToStoryId,
+        isEncrypted,
+        encryptionIv,
       ],
     );
 
@@ -222,7 +229,7 @@ export default async function messageRoutes(fastify, opts) {
     await query(
       `INSERT INTO conversations (user_a, user_b, last_message_id, last_message_at, unread_count_a, unread_count_b)
        VALUES (
-         LEAST($1, $2), GREATEST($1, $2), $3, NOW(),
+         LEAST($1, $2)::uuid, GREATEST($1, $2)::uuid, $3, NOW(),
          CASE WHEN $2 < $1 THEN 1 ELSE 0 END,
          CASE WHEN $1 < $2 THEN 1 ELSE 0 END
        )
@@ -250,10 +257,12 @@ export default async function messageRoutes(fastify, opts) {
       ephemeral: message.ephemeral_mode,
       expiresAt: message.expires_at,
       sentAt: message.sent_at,
+      isEncrypted: message.is_encrypted,
+      encryptionIv: message.encryption_iv,
     });
 
     // If not online via WebSocket, send push notification
-    if (!delivered) {
+    if (!delivered && recipientId !== '11111111-1111-1111-1111-111111111111') {
       const senderResult = await query(
         'SELECT username FROM users WHERE id = $1',
         [senderId]
@@ -266,6 +275,24 @@ export default async function messageRoutes(fastify, opts) {
       });
     }
 
+    const NULLCLAW_BOT_ID = '11111111-1111-1111-1111-111111111111';
+    if (recipientId === NULLCLAW_BOT_ID) {
+      try {
+        fetch('http://localhost:3005/api/nanoclaw/message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            senderId: senderId,
+            content: text || '',
+            mediaType: contentType !== 'text' ? contentType : undefined,
+            mediaKey: contentKey
+          })
+        }).catch(e => console.error('NanoClaw webhook failed:', e.message));
+      } catch (err) {
+        console.error('NanoClaw webhook failed:', err);
+      }
+    }
+
     return {
       message: {
         id: message.id,
@@ -275,6 +302,8 @@ export default async function messageRoutes(fastify, opts) {
         ephemeral: message.ephemeral_mode,
         expiresAt: message.expires_at,
         sentAt: message.sent_at,
+        isEncrypted: message.is_encrypted,
+        encryptionIv: message.encryption_iv,
         delivered,
       },
     };
@@ -295,4 +324,151 @@ export default async function messageRoutes(fastify, opts) {
 
     return { message: "Message deleted" };
   });
+
+  // NanoClaw Webhook for replies
+  fastify.post('/webhooks/nanoclaw-reply', async (request, reply) => {
+    // Note: Use a secure token middleware here in production
+    const { recipientId, text, botId } = request.body;
+    
+    // Save the bot's reply in the database
+    const result = await query(
+      `INSERT INTO messages (
+        sender_id, recipient_id, content_type, text_content, sent_at
+      ) VALUES ($1, $2, 'text', $3, NOW())
+      RETURNING *`,
+      [botId, recipientId, text]
+    );
+    const message = result.rows[0];
+
+    await query(
+      `INSERT INTO conversations (user_a, user_b, last_message_id, last_message_at, unread_count_a, unread_count_b)
+       VALUES (LEAST($1, $2), GREATEST($1, $2), $3, NOW(),
+         CASE WHEN $2 < $1 THEN 1 ELSE 0 END,
+         CASE WHEN $1 < $2 THEN 1 ELSE 0 END)
+       ON CONFLICT (user_a, user_b) DO UPDATE SET 
+         last_message_id = $3, last_message_at = NOW(),
+         unread_count_a = CASE WHEN $2 < $1 THEN conversations.unread_count_a + 1 ELSE conversations.unread_count_a END,
+         unread_count_b = CASE WHEN $1 < $2 THEN conversations.unread_count_b + 1 ELSE conversations.unread_count_b END`,
+      [botId, recipientId, message.id]
+    );
+
+    // Blast via WebSocket
+    sendToUser(recipientId, 'new_message', {
+      id: message.id,
+      senderId: botId,
+      contentType: message.content_type,
+      text: message.text_content,
+      sentAt: message.sent_at
+    });
+
+    return { success: true };
+  });
+
+  // NanoClaw Webhook for typing indicators
+  fastify.post('/webhooks/nanoclaw-typing', async (request, reply) => {
+    const { recipientId, isTyping, botId } = request.body;
+    sendToUser(recipientId, isTyping ? 'typing' : 'stop_typing', {
+      userId: botId
+    });
+    return { success: true };
+  });
+}
+
+const dbConversations = {
+  update: async (conversationId, data) => {
+    await query(`UPDATE conversations SET streak_expires_at = $1 WHERE id = $2`, [data.expiresAt, conversationId]);
+  },
+  findById: async (conversationId) => {
+    const res = await query(`SELECT user_a, user_b FROM conversations WHERE id = $1`, [conversationId]);
+    if (!res.rows[0]) return null;
+    return { id: conversationId, participantIds: [res.rows[0].user_a, res.rows[0].user_b] };
+  },
+  findMany: async (args) => {
+    const botId = '11111111-1111-1111-1111-111111111111';
+    const res = await query(`SELECT id, user_a, user_b, streak_expires_at as "expiresAt" FROM conversations WHERE streak_expires_at > NOW() AND (user_a = $1 OR user_b = $1)`, [botId]);
+    return res.rows.map(r => ({ id: r.id, expiresAt: r.expiresAt }));
+  }
+};
+
+async function generateFarewell(conversationId, durationSeconds) {
+  const hours = Math.round(durationSeconds / 3600);
+  const mins = Math.round(durationSeconds / 60);
+  const timeLabel = durationSeconds >= 3600 ? `${hours}h` : `${mins}m`;
+
+  const response = await fetch('http://localhost:3005/api/nanoclaw/message', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      senderId: 'SYSTEM',
+      content: `[SYSTEM EVENT]: The user just set a disappearing timer of ${timeLabel} on this conversation. 
+                Acknowledge it in one short poetic sentence — like you know you're about to forget. 
+                In character as NullClaw. No emoji. Max 12 words.`
+    })
+  });
+
+  await response.json();
+  return true;
+}
+
+export async function disappearingRoutes(fastify, opts) {
+  fastify.post('/conversations/:id/timer', async (req, reply) => {
+    const { id: conversationId } = req.params;
+    const { durationSeconds } = req.body;
+    
+    // We reuse streak_expires_at here to hold the timer expiry for Phase 1.
+    const expiresAt = new Date(Date.now() + durationSeconds * 1000);
+    await dbConversations.update(conversationId, { expiresAt });
+
+    const convo = await dbConversations.findById(conversationId);
+    if (!convo) return reply.send({ ok: false });
+
+    const NULLCLAW_BOT_ID = '11111111-1111-1111-1111-111111111111';
+    const nullClawPresent = convo.participantIds.includes(NULLCLAW_BOT_ID);
+
+    if (nullClawPresent) {
+      // Schedule wipe in backend memory and ALSO notify NanoClaw
+      setTimeout(async () => {
+         try {
+           fastify.log.info({ conversationId }, 'Triggering ephemeral memory wipe');
+           await fetch('http://127.0.0.1:3005/api/nanoclaw/wipe', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ conversationId })
+           });
+         } catch (e) {
+           fastify.log.error({ err: e.message, conversationId }, 'Failed to notify NanoClaw of wipe');
+         }
+      }, durationSeconds * 1000);
+
+      await generateFarewell(conversationId, durationSeconds);
+    }
+
+    return reply.send({ ok: true, expiresAt });
+  });
+
+  const NULLCLAW_BOT_ID = '11111111-1111-1111-1111-111111111111';
+  async function restoreActiveWipes() {
+    const activeConvos = await dbConversations.findMany();
+
+    for (const convo of activeConvos) {
+      const msLeft = new Date(convo.expiresAt).getTime() - Date.now();
+      if (msLeft > 0) {
+        setTimeout(async () => {
+          try {
+            await fetch('http://localhost:3005/api/nanoclaw/wipe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ conversationId: convo.id })
+            });
+          } catch (e) {
+            console.error('Failed to restore NanoClaw wipe:', e.message);
+          }
+        }, msLeft);
+      }
+    }
+
+    console.log(`[NullClaw] ${activeConvos.length} active memory wipes restored`);
+  }
+
+  fastify.addHook('onReady', restoreActiveWipes);
 }

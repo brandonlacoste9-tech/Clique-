@@ -126,6 +126,56 @@ export default async function authRoutes(fastify, opts) {
         [formattedPhone, finalUsername, finalUsername],
       );
       user = result.rows[0];
+
+      // Purple: Automatically add AURUM & Architect as priority friends
+      const BOT_UUID = '11111111-1111-1111-1111-111111111111';
+      const ARCHITECT_UUID = '4fbd6f99-d38b-4216-a612-2d8f867aaef1'; // VANGUARD 👑🐝
+
+      try {
+        // Add AURUM (The Concierge)
+        const [a, b] = [user.id, BOT_UUID].sort();
+        await query(`
+          INSERT INTO friendships (user_a, user_b, status)
+          VALUES ($1, $2, 'accepted')
+          ON CONFLICT (user_a, user_b) DO NOTHING
+        `, [a, b]);
+
+        // Add Architect (VANGUARD 👑🐝)
+        const [u1, u2] = [user.id, ARCHITECT_UUID].sort();
+        if (user.id !== ARCHITECT_UUID) {
+          await query(`
+            INSERT INTO friendships (user_a, user_b, status)
+            VALUES ($1, $2, 'accepted')
+            ON CONFLICT (user_a, user_b) DO NOTHING
+          `, [u1, u2]);
+
+          // --- THE HIVE WELCOME ---
+          try {
+            const { aurumService } = await import("../services/aurumService.js");
+            // Set dynamic sender to Architect for this message
+            const { id: msgId } = (await query(
+                `INSERT INTO messages (sender_id, recipient_id, content_type, text_content, sent_at)
+                 VALUES ($1::uuid, $2::uuid, 'text', $3, NOW()) RETURNING id`,
+                [ARCHITECT_UUID, user.id, "Welcome to the Hive. 👑🐝"]
+            )).rows[0];
+
+            // Update conversation
+            const [cA, cB] = [ARCHITECT_UUID, user.id].sort();
+            await query(
+                `INSERT INTO conversations (user_a, user_b, last_message_id, last_message_at, unread_count_a, unread_count_b)
+                 VALUES ($1::uuid, $2::uuid, $3, NOW(), CASE WHEN $1::uuid = $4::uuid THEN 1 ELSE 0 END, CASE WHEN $2::uuid = $4::uuid THEN 1 ELSE 0 END)
+                 ON CONFLICT (user_a, user_b) DO UPDATE SET last_message_id = $3, last_message_at = NOW(),
+                 unread_count_a = conversations.unread_count_a + CASE WHEN conversations.user_a = $4::uuid THEN 1 ELSE 0 END,
+                 unread_count_b = conversations.unread_count_b + CASE WHEN conversations.user_b = $4::uuid THEN 1 ELSE 0 END`,
+                [cA, cB, msgId, user.id]
+            );
+          } catch (e) {
+            fastify.log.error('Failed to send Hive welcome:', e.message);
+          }
+        }
+      } catch (e) {
+        fastify.log.error('Failed to add global connections:', e.message);
+      }
     }
 
     // Update last active
