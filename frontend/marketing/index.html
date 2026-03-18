@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CLIQUE | The Hive Awaits</title>
-    <meta name="description" content="Clique — The sovereign social experience. Location-based groups, encrypted messaging, and prestige that matters." />
+    <title>CHATSNAP | The Hive Awaits</title>
+    <meta name="description" content="ChatSnap — The sovereign social experience. Location-based groups, encrypted messaging, and prestige that matters." />
     <link
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap"
       rel="stylesheet"
@@ -35,7 +35,6 @@
         overflow-x: hidden;
       }
 
-      /* Animated background grid */
       body::before {
         content: '';
         position: fixed;
@@ -59,7 +58,6 @@
         z-index: 1;
       }
 
-      /* Floating hex particles */
       .hex-particle {
         position: fixed;
         font-size: 1.2rem;
@@ -79,7 +77,6 @@
         50% { transform: translateY(-30px) rotate(15deg); opacity: 0.08; }
       }
 
-      /* Gold bar logo */
       .logo-bar {
         width: 180px;
         height: 90px;
@@ -98,7 +95,7 @@
       }
 
       .logo-bar::before {
-        content: "CLIQUE • 999.9";
+        content: "CHATSNAP • 999.9";
         position: absolute;
         top: 10px;
         font-size: 0.5rem;
@@ -115,9 +112,9 @@
       }
 
       .logo-text {
-        font-size: 1.6rem;
+        font-size: 1.4rem;
         font-weight: 900;
-        letter-spacing: 0.2rem;
+        letter-spacing: 0.15rem;
         color: rgba(0,0,0,0.7);
       }
 
@@ -147,7 +144,6 @@
         text-align: center;
       }
 
-      /* Feature cards */
       .features {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -172,11 +168,7 @@
         box-shadow: 0 12px 40px rgba(0,0,0,0.4);
       }
 
-      .feature-emoji {
-        font-size: 2rem;
-        margin-bottom: 0.75rem;
-        display: block;
-      }
+      .feature-emoji { font-size: 2rem; margin-bottom: 0.75rem; display: block; }
 
       .feature-title {
         color: var(--gold);
@@ -193,7 +185,6 @@
         line-height: 1.5;
       }
 
-      /* CTA buttons */
       .cta-group {
         display: flex;
         flex-direction: column;
@@ -240,7 +231,6 @@
 
       .cta-secondary:hover { opacity: 1; }
 
-      /* Status bar */
       .status-bar {
         display: flex;
         align-items: center;
@@ -280,7 +270,6 @@
         padding-bottom: 2rem;
       }
 
-      /* Entrance animations */
       .hero > * {
         animation: fadeUp 0.8s ease-out both;
       }
@@ -298,6 +287,30 @@
         to { opacity: 1; transform: translateY(0); }
       }
 
+      /* Expo Go fallback notice */
+      .expo-notice {
+        margin-top: 1rem;
+        padding: 1rem 1.5rem;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        max-width: 400px;
+        text-align: center;
+        display: none;
+      }
+
+      .expo-notice p {
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.5);
+        line-height: 1.6;
+      }
+
+      .expo-notice a {
+        color: var(--gold);
+        text-decoration: none;
+        font-weight: 700;
+      }
+
       @media (max-width: 480px) {
         .features { grid-template-columns: 1fr; }
         .cta-primary { padding: 1rem 2rem; font-size: 0.85rem; }
@@ -305,7 +318,6 @@
     </style>
   </head>
   <body>
-    <!-- Background particles -->
     <div class="hex-particle">⬡</div>
     <div class="hex-particle">⬡</div>
     <div class="hex-particle">⬡</div>
@@ -314,7 +326,7 @@
 
     <section class="hero">
       <div class="logo-bar">
-        <span class="logo-text">CLIQUE</span>
+        <span class="logo-text">CHATSNAP</span>
       </div>
 
       <h1>The Hive Awaits</h1>
@@ -344,13 +356,45 @@
       </div>
 
       <div class="cta-group">
-        <a href="clique://home" class="cta-primary" id="open-app-btn">
-          Open Clique ▸
+        <a href="#" class="cta-primary" id="open-app-btn">
+          Open ChatSnap ▸
         </a>
-        <a href="clique://home" class="cta-secondary">Download on the App Store (Coming Soon)</a>
+        <a href="https://expo.dev/go" class="cta-secondary" target="_blank">Get Expo Go to run ChatSnap</a>
       </div>
 
-      <p class="footer">CLIQUE 2026 · BILINGUAL · SECURE · QUÉBÉCOIS</p>
+      <div class="expo-notice" id="expo-fallback">
+        <p>
+          Couldn't open the app? Make sure <a href="https://expo.dev/go" target="_blank">Expo Go</a> is installed, then tap the button again.
+        </p>
+      </div>
+
+      <p class="footer">CHATSNAP 2026 · BILINGUAL · SECURE · QUÉBÉCOIS</p>
     </section>
+
+    <script>
+      const openBtn = document.getElementById('open-app-btn');
+      const fallback = document.getElementById('expo-fallback');
+
+      openBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        // Try the Expo deep link first (works if Expo Go is installed)
+        const expoLink = 'exp://192.168.2.26:8081';
+        const chatSnapScheme = 'chatsnap://home';
+
+        // Attempt custom scheme
+        window.location.href = chatSnapScheme;
+
+        // If that didn't open anything after 1.5s, try Expo link
+        setTimeout(() => {
+          window.location.href = expoLink;
+        }, 1500);
+
+        // Show fallback notice after 3s if still on page
+        setTimeout(() => {
+          fallback.style.display = 'block';
+        }, 3000);
+      });
+    </script>
   </body>
 </html>
