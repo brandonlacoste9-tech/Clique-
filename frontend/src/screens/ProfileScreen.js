@@ -8,6 +8,8 @@ import {
   Image,
   ImageBackground,
   Switch,
+  Linking,
+  Alert,
 } from "react-native";
 import * as Haptics from "expo-haptics";
 
@@ -22,15 +24,49 @@ import {
 } from "../theme/cliqueTheme";
 import { getAvatarUrl } from "../services/bitmojiService";
 import StoryHighlightsRow from "../components/StoryHighlightsRow";
+import { paymentsAPI } from "../api/cliqueApi";
 
 export default function ProfileScreen({ navigation }) {
   const { user, logout } = useAuthStore();
   const [ghostMode, setGhostMode] = useState(user?.ghostMode || false);
+  const [showGodMode, setShowGodMode] = useState(false);
+  const [godModeInfluence, setGodModeInfluence] = useState(user?.influenceScore?.toString() || "0");
 
   const toggleGhostMode = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setGhostMode(!ghostMode);
     // Note: an API call to cliqueApi.settingsAPI.updatePrivacy should go here
+  };
+
+  const toggleGodMode = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    setShowGodMode(!showGodMode);
+  };
+
+  const handleSubscribe = async () => {
+    try {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      const { data } = await paymentsAPI.subscribe();
+      if (data?.checkoutUrl) {
+        Linking.openURL(data.checkoutUrl);
+      }
+    } catch (err) {
+      console.error("Subscription error:", err);
+      Alert.alert("Error", "Could not initiate subscription session. Please try again.");
+    }
+  };
+
+  const handleUpgrade = async (itemId) => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      const { data } = await paymentsAPI.upgrade(itemId);
+      if (data?.checkoutUrl) {
+        Linking.openURL(data.checkoutUrl);
+      }
+    } catch (err) {
+      console.error("Upgrade error:", err);
+      Alert.alert("Error", "Could not initiate upgrade session. Please try again.");
+    }
   };
 
   const menuItems = [
@@ -40,7 +76,7 @@ export default function ProfileScreen({ navigation }) {
       value: "24",
       onPress: () => navigation.navigate("AddFriends"),
     },
-    { icon: "🔥", label: "Streaks actifs / Active Streaks / Rachas activas", value: "7" },
+    { icon: "🔥", label: "Streaks actifs / Active Streaks", value: user?.streakCount?.toString() || "0" },
     { icon: "🏆", label: "Score Élite / Elite Score", value: user?.snapScore?.toString() || "0" },
     {
       icon: "🎨",
@@ -80,7 +116,9 @@ export default function ProfileScreen({ navigation }) {
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.name}>{user?.displayName || "MON NOM"}</Text>
+            <TouchableOpacity onLongPress={toggleGodMode}>
+               <Text style={styles.name}>{user?.displayName || "MON NOM"}</Text>
+            </TouchableOpacity>
             <Text style={styles.username}>@{user?.username || "username"}</Text>
 
             {user?.bio && <Text style={styles.bio}>{user.bio}</Text>}
@@ -98,26 +136,102 @@ export default function ProfileScreen({ navigation }) {
       <StoryHighlightsRow />
 
       <View style={styles.eliteStatusBanner}>
-        <Text style={styles.eliteStatusTitle}>STATUT DE L'ÉLITE / ELITE STATUS</Text>
-        <Text style={styles.eliteStatusValue}>SOUVERAIN D'OR / GOLD SOVEREIGN</Text>
+        <Text style={styles.eliteStatusTitle}>STATUT DE L'RUCHE / HIVE STATUS</Text>
+        <Text style={styles.eliteStatusValue}>
+          {user?.sovereignTier || "INITIÉ"}
+          {(!user?.sovereignTier || user?.sovereignTier.includes("INITIÉ")) && " (GRATUIT / FREE)"}
+        </Text>
       </View>
 
       <View style={styles.stats}>
         <View style={styles.stat}>
-          <Text style={styles.statValue}>{user?.influence || "9.8"}</Text>
+          <Text style={styles.statValue}>{user?.influenceScore?.toFixed(1) || "0.0"}</Text>
           <Text style={styles.statLabel}>INFLUENCE</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.stat}>
-          <Text style={styles.statValue}>{user?.snapScore || "124k"}</Text>
+          <Text style={styles.statValue}>{user?.snapScore || "0"}</Text>
           <Text style={styles.statLabel}>SCORE ÉLITE / ELITE</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.stat}>
-          <Text style={styles.statValue}>{user?.streaks || "7"}</Text>
+          <Text style={styles.statValue}>{user?.streakCount || "0"}</Text>
           <Text style={styles.statLabel}>SOUVERAINETÉ / SOVEREIGNTY</Text>
         </View>
       </View>
+
+      {/* CLIQUE+ Premium Banner */}
+      <TouchableOpacity 
+        style={styles.premiumBanner}
+        onPress={handleSubscribe}
+      >
+        <View style={styles.premiumIconContainer}>
+          <Text style={styles.premiumIcon}>👑</Text>
+        </View>
+        <View style={styles.premiumInfo}>
+          <Text style={styles.premiumTitle}>PASSER À CLIQUE+</Text>
+          <Text style={styles.premiumSubtitle}>Plus de prestige pour seulement 4.99$/mois</Text>
+        </View>
+        <Text style={styles.premiumChevron}>›</Text>
+      </TouchableOpacity>
+
+      {/* God Mode Interface */}
+      {showGodMode && (
+        <View style={styles.godModePanel}>
+          <Text style={styles.godModeTitle}>🛠️ ARCHITECT GOD MODE</Text>
+          <View style={styles.godModeControls}>
+            <TouchableOpacity 
+              style={styles.godModeBtn} 
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                // In production, this would call adminAPI.grantSovereignty
+                alert("Sovereignty Granted. 🔱");
+              }}
+            >
+              <Text style={styles.godModeBtnText}>GRANT SOUVERAINETÉ 🔱</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.godModeBtn, { backgroundColor: colors.accent.red }]}
+              onPress={() => setShowGodMode(false)}
+            >
+              <Text style={styles.godModeBtnText}>CLOSE ARCHITECT MODE</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      {/* THE BEEHIVE SHOP 🐝 */}
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>THE BEEHIVE SHOP 🐝</Text>
+      </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.shopScroll}>
+        <TouchableOpacity 
+          style={styles.shopItem}
+          onPress={() => handleUpgrade("royal_jelly")}
+        >
+          <Text style={styles.shopItemEmoji}>🍯</Text>
+          <Text style={styles.shopItemTitle}>Royal Jelly</Text>
+          <Text style={styles.shopItemPrice}>49.99$</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.shopItem}
+          onPress={() => handleUpgrade("golden_sting")}
+        >
+          <Text style={styles.shopItemEmoji}>🗡️</Text>
+          <Text style={styles.shopItemTitle}>Golden Sting</Text>
+          <Text style={styles.shopItemPrice}>19.99$</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.shopItem}
+          onPress={() => handleUpgrade("hive_essence")}
+        >
+          <Text style={styles.shopItemEmoji}>✨</Text>
+          <Text style={styles.shopItemTitle}>Hive Essence</Text>
+          <Text style={styles.shopItemPrice}>9.99$</Text>
+        </TouchableOpacity>
+      </ScrollView>
 
       <View
         style={[styles.ghostModeBanner, ghostMode && styles.ghostModeActive]}
@@ -164,6 +278,89 @@ export default function ProfileScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  premiumBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.lg,
+    padding: spacing.md,
+    backgroundColor: colors.leather.black,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: colors.gold.hive, // Hive Yellow Border
+    ...shadows.premium,
+  },
+  premiumIconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 15,
+    backgroundColor: colors.gold.hive,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: spacing.md,
+  },
+  premiumIcon: {
+    fontSize: 24,
+  },
+  premiumInfo: {
+    flex: 1,
+  },
+  premiumTitle: {
+    color: colors.gold.hive,
+    fontSize: 14,
+    fontWeight: "900",
+    letterSpacing: 1,
+  },
+  premiumSubtitle: {
+    color: colors.text.secondary,
+    fontSize: 12,
+  },
+  premiumChevron: {
+    color: colors.gold.hive,
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  sectionHeader: {
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.xl,
+    marginBottom: spacing.sm,
+  },
+  sectionTitle: {
+    color: colors.gold.hive,
+    fontSize: 10,
+    fontWeight: "900",
+    letterSpacing: 3,
+  },
+  shopScroll: {
+    paddingHorizontal: spacing.lg - 4,
+    paddingBottom: spacing.md,
+  },
+  shopItem: {
+    width: 120,
+    height: 140,
+    backgroundColor: colors.surface,
+    borderColor: "rgba(252, 209, 22, 0.2)",
+    borderWidth: 1,
+    borderRadius: 20,
+    marginHorizontal: 4,
+    justifyContent: "center",
+    alignItems: "center",
+    ...shadows.card,
+  },
+  shopItemEmoji: {
+    fontSize: 32,
+    marginBottom: spacing.xs,
+  },
+  shopItemTitle: {
+    color: colors.text.primary,
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  shopItemPrice: {
+    color: colors.gold.hive,
+    fontSize: 10,
+    fontWeight: "900",
+  },
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -367,5 +564,40 @@ const styles = StyleSheet.create({
   ghostModeDesc: {
     color: colors.text.secondary,
     fontSize: typography.sizes.xs,
+  },
+  godModePanel: {
+    backgroundColor: colors.leather.black,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.lg,
+    padding: spacing.lg,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.accent.red,
+    ...shadows.premium,
+  },
+  godModeTitle: {
+    color: "#FF3B30",
+    fontSize: 10,
+    fontWeight: "900",
+    letterSpacing: 2,
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  godModeControls: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  godModeBtn: {
+    backgroundColor: colors.gold.DEFAULT,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 12,
+    flex: 0.48,
+    alignItems: "center",
+  },
+  godModeBtnText: {
+    color: colors.leather.black,
+    fontSize: 10,
+    fontWeight: "bold",
   },
 });

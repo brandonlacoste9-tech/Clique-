@@ -53,6 +53,7 @@ export const userAPI = {
   addFriend: (username) => api.post("/users/friends", { username }),
   acceptFriend: (userId) => api.post(`/users/friends/${userId}/accept`),
   removeFriend: (userId) => api.delete(`/users/friends/${userId}`),
+  getWhisper: (username) => api.get(`/users/${username}/whisper`),
 };
 
 // Stories API
@@ -111,6 +112,12 @@ export const notificationsAPI = {
 export const eliteAPI = {
   register: (email) => api.post("/elite/register", { email }),
   getHall: () => api.get("/elite/hall"),
+};
+
+// Payments API
+export const paymentsAPI = {
+  subscribe: () => api.post("/payments/subscribe"),
+  upgrade: (itemId) => api.post("/payments/upgrade", { itemId }),
 };
 
 export default api;
