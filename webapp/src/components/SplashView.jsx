@@ -16,7 +16,7 @@ export default function SplashView({ onComplete }) {
 
   return (
     <div style={{
-        position: 'fixed', inset: 0, z-index: 9999,
+        position: 'fixed', inset: 0, zIndex: 9999,
         background: 'var(--snap-yellow)',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
     }}>
