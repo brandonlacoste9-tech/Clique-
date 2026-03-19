@@ -5,7 +5,7 @@ const TABS = [
   { id: 'chat', icon: '💬', label: 'Chat' },
   { id: 'cliques', icon: '📍', label: 'Cliques' },
   { id: 'stories', icon: '⚡', label: 'Stories' },
-  { id: 'profile', icon: '👑', label: 'Profile' },
+  { id: 'profile', icon: '👤', label: 'Profile' },
 ];
 
 export default function Sidebar() {
@@ -13,7 +13,7 @@ export default function Sidebar() {
 
   return (
     <nav className="sidebar">
-      <div className="sidebar-logo" title="ChatSnap">CS</div>
+      <div className="logo-s" title="ChatSnap">CS</div>
 
       {TABS.map((tab) => (
         <button
@@ -28,10 +28,20 @@ export default function Sidebar() {
 
       <div className="sidebar-spacer" />
 
-      <div className="sidebar-avatar" title="Profile" onClick={() => setActiveTab('profile')}>
-        <span style={{ fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
-          🐝
-        </span>
+      <button 
+        className={`sidebar-btn ${activeTab === 'shop' ? 'active' : ''}`}
+        onClick={() => setActiveTab('shop')}
+        title="Shop"
+      >
+        🍯
+      </button>
+
+      <div 
+        className={`sidebar-btn ${activeTab === 'profile' ? 'active' : ''}`} 
+        onClick={() => setActiveTab('profile')}
+        style={{ borderRadius: '50%', overflow: 'hidden' }}
+      >
+        🐝
       </div>
     </nav>
   );

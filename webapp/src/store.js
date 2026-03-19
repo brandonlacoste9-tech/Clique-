@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 // Auth store
-export const useAuthStore = create((set, get) => ({
+export const useAuthStore = create((set) => ({
   user: {
     id: 'guest-001',
     displayName: 'SOVEREIGN USER',
@@ -12,16 +12,24 @@ export const useAuthStore = create((set, get) => ({
     sovereignTier: 'INITIÉ',
     location: 'Québec',
     bio: 'Living the hive life 🐝',
+    settings: {
+      ghostMode: false,
+      storyVisibility: 'everyone',
+      allowScreenshots: true,
+    },
   },
   token: 'guest-token',
   isAuthenticated: true,
 
   setUser: (user) => set({ user }),
+  updateUserSettings: (settings) => set((state) => ({
+    user: { ...state.user, settings: { ...state.user.settings, ...settings } }
+  })),
   logout: () => set({ user: null, token: null, isAuthenticated: false }),
 }));
 
 // Messages store
-export const useMessagesStore = create((set, get) => ({
+export const useMessagesStore = create((set) => ({
   conversations: [
     {
       id: '1',
@@ -101,7 +109,7 @@ export const useMessagesStore = create((set, get) => ({
 }));
 
 // Cliques store
-export const useCliquesStore = create((set) => ({
+export const useCliquesStore = create(() => ({
   cliques: [
     { id: '1', name: 'Vieux-Québec Squad', emoji: '🏰', members: 24, distance: '0.5 km', tag: 'NEARBY' },
     { id: '2', name: 'MTL Underground', emoji: '🚇', members: 156, distance: '2.1 km', tag: 'TRENDING' },

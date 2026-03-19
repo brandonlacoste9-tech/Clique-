@@ -47,7 +47,10 @@ export default async function userRoutes(fastify, opts) {
   // Update profile
   fastify.patch("/me", async (request, reply) => {
     const userId = request.user.userId;
-    const { displayName, bio, avatarUrl, location, publicKey } = request.body;
+    const { 
+      displayName, bio, avatarUrl, location, publicKey,
+      ghostMode, storyVisibility, allowScreenshots 
+    } = request.body;
 
     const updates = [];
     const values = [];
@@ -72,6 +75,18 @@ export default async function userRoutes(fastify, opts) {
     if (publicKey !== undefined) {
       updates.push(`public_key = $${paramIndex++}`);
       values.push(publicKey);
+    }
+    if (ghostMode !== undefined) {
+      updates.push(`ghost_mode = $${paramIndex++}`);
+      values.push(ghostMode);
+    }
+    if (storyVisibility !== undefined) {
+      updates.push(`story_visibility = $${paramIndex++}`);
+      values.push(storyVisibility);
+    }
+    if (allowScreenshots !== undefined) {
+      updates.push(`allow_screenshots = $${paramIndex++}`);
+      values.push(allowScreenshots);
     }
 
     if (updates.length === 0) {

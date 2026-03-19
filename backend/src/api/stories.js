@@ -159,13 +159,20 @@ export default async function storyRoutes(fastify, opts) {
         return { message: "Self view ignored" };
       }
 
+      // Check viewer ghost mode status (requires premium)
+      const viewerRes = await query('SELECT ghost_mode, sovereign_tier, username FROM users WHERE id = $1', [viewerId]);
+      const viewer = viewerRes.rows[0];
+      const isGhost = viewer?.ghost_mode && (viewer?.sovereign_tier === 'CLIQUE+' || viewer?.sovereign_tier === 'SOVEREIGN');
+
       // Record view (upsert)
       await query(
-        `INSERT INTO story_views (story_id, viewer_id, viewed_at, screenshot_detected)
-         VALUES ($1, $2, NOW(), $3)
+        `INSERT INTO story_views (story_id, viewer_id, viewed_at, screenshot_detected, is_ghost)
+         VALUES ($1, $2, NOW(), $3, $4)
          ON CONFLICT (story_id, viewer_id) 
-         DO UPDATE SET screenshot_detected = EXCLUDED.screenshot_detected OR story_views.screenshot_detected`,
-        [id, viewerId, screenshotDetected],
+         DO UPDATE SET 
+           screenshot_detected = EXCLUDED.screenshot_detected OR story_views.screenshot_detected,
+           is_ghost = EXCLUDED.is_ghost`,
+        [id, viewerId, screenshotDetected, isGhost],
       );
 
       // Increment view count
@@ -178,15 +185,16 @@ export default async function storyRoutes(fastify, opts) {
       if (screenshotDetected) {
         await prestigeService.onScreenshotDetected(story.user_id);
         
-        // --- AURUM ALERT: Identify the offender ---
-        const viewerRes = await query('SELECT username FROM users WHERE id = $1', [viewerId]);
-        const viewerName = viewerRes.rows[0]?.username || "Un inconnu / Unknown";
-        await aurumService.sendAlert(story.user_id, `${viewerName} a pris une capture d'écran de votre story. 🔱 / ${viewerName} captured your story.`);
+        // --- AURUM ALERT: Identify the offender (unless they are a Ghost) ---
+        if (!isGhost) {
+          const viewerName = viewer?.username || "A Sovereign";
+          await aurumService.sendAlert(story.user_id, `${viewerName} a pris une capture d'écran de votre story. 🔱 / ${viewerName} captured your story.`);
+        }
       } else {
         await prestigeService.onStoryViewed(story.user_id);
       }
 
-      return { message: "View recorded" };
+      return { message: "View recorded", isGhost };
     } catch (err) {
       console.error("CRITICAL VIEW ERROR:", err);
       fastify.log.error("View error:", err.message, err.stack);
@@ -279,7 +287,7 @@ export default async function storyRoutes(fastify, opts) {
        FROM story_views sv
        JOIN users u ON sv.viewer_id = u.id
        JOIN stories s ON sv.story_id = s.id
-       WHERE s.id = $1 AND s.user_id = $2
+       WHERE s.id = $1 AND s.user_id = $2 AND sv.is_ghost = false
        ORDER BY sv.viewed_at DESC`,
       [id, userId],
     );
