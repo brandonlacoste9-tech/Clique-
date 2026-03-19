@@ -45,7 +45,7 @@ export default function ProfileView() {
           border: '4px solid #000',
           marginBottom: 16
         }}>
-          {user.avatar_emoji || '👤'}
+          🐝
         </div>
         <h1 style={{ fontSize: 28, fontWeight: 800, color: '#000', marginBottom: 4 }}>{user.full_name}</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'rgba(0,0,0,0.6)', fontWeight: 600 }}>

@@ -92,7 +92,7 @@ export default function ChatView() {
         <div className="panel-list">
           {filtered.length === 0 ? (
             <div style={{ padding: 40, textAlign: 'center', color: 'var(--text3)' }}>
-              <div style={{ fontSize: 32, marginBottom: 12 }}>👻</div>
+              <div style={{ fontSize: 32, marginBottom: 12 }}>🐝</div>
               <p style={{ fontSize: 13 }}>No one here yet.</p>
             </div>
           ) : (
@@ -169,7 +169,7 @@ export default function ChatView() {
         ) : (
           <div className="welcome-screen">
              <div style={{ width: 120, height: 120, background: 'var(--snap-yellow)', borderRadius: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 64, boxShadow: '0 10px 30px rgba(255, 252, 0, 0.3)' }}>
-               👻
+               🐝
              </div>
              <h2 className="welcome-title">Snap to Start</h2>
              <p className="welcome-subtitle">Pick a friend to start chatting or sharing moments.</p>

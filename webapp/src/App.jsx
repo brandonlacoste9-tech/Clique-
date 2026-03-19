@@ -8,6 +8,7 @@ import CliquesView from './components/CliquesView';
 import ProfileView from './components/ProfileView';
 import StoriesView from './components/StoriesView';
 import ShopView from './components/ShopView';
+import CameraView from './components/CameraView';
 import SuccessView from './components/SuccessView';
 import SplashView from './components/SplashView';
 import { useUIStore, useAuthStore } from './store';
@@ -24,7 +25,7 @@ function App() {
 
   useEffect(() => {
     const path = location.pathname.substring(1);
-    if (['chat', 'cliques', 'stories', 'profile', 'shop'].includes(path)) {
+    if (['chat', 'cliques', 'stories', 'profile', 'shop', 'camera'].includes(path)) {
       setActiveTab(path);
     }
   }, [location, setActiveTab]);
@@ -36,7 +37,8 @@ function App() {
       case 'stories': return <StoriesView />;
       case 'profile': return <ProfileView />;
       case 'shop': return <ShopView />;
-      default: return <ChatView />;
+      case 'camera': return <CameraView />;
+      default: return <CameraView />;
     }
   };
 

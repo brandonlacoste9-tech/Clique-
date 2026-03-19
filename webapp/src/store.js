@@ -103,6 +103,6 @@ export const useCliquesStore = create((set) => ({
 
 // ── UI Store ──
 export const useUIStore = create((set) => ({
-  activeTab: 'chat',
+  activeTab: 'camera',
   setActiveTab: (tab) => set({ activeTab: tab }),
 }));

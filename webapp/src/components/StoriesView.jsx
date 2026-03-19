@@ -141,7 +141,7 @@ export default function StoriesView() {
         ) : (
           <div className="welcome-screen">
             <div style={{ fontSize: 72, background: 'var(--bg-subtle)', padding: 32, borderRadius: '50px', boxShadow: 'inset 0 4px 10px rgba(0,0,0,0.05)' }}>
-               🟣
+               🐝
             </div>
             <h2 className="welcome-title">Stories</h2>
             <p className="welcome-subtitle">

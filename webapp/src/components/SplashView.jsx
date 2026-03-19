@@ -29,7 +29,7 @@ export default function SplashView({ onComplete }) {
           boxShadow: '0 15px 40px rgba(0,0,0,0.1)',
           border: '4px solid #000'
       }}>
-        👻
+        🐝
       </div>
       <div style={{ 
           marginTop: 24, 
