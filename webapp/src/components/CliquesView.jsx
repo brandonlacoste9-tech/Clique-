@@ -1,45 +1,71 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useCliquesStore } from '../store';
 
+function Avatar({ name, size = 40 }) {
+  const initials = (name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const hue = [...(name || '')].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: 10,
+      background: `hsl(${hue}, 30%, 18%)`,
+      border: `1px solid hsl(${hue}, 35%, 25%)`,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontFamily: 'var(--font-body)', fontWeight: 600,
+      fontSize: size * 0.36, color: `hsl(${hue}, 45%, 65%)`,
+      flexShrink: 0,
+    }}>
+      {initials}
+    </div>
+  );
+}
+
 export default function CliquesView() {
+  const { cliques, fetchCliques, loading } = useCliquesStore();
+
+  useEffect(() => { fetchCliques(); }, [fetchCliques]);
+
   return (
     <>
       <div className="panel">
         <div className="panel-header">
-          <div className="panel-title">DISCOVER</div>
+          <div className="panel-title">Discover</div>
           <div className="panel-search">
-            <input type="text" placeholder="Trouver un Clique..." />
+            <input type="text" placeholder="Find a Clique..." />
           </div>
         </div>
         <div className="panel-list">
-          <div style={{ padding: '0 8px' }}>
-            <SectionHeader title="PLACES" action="See all" />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <DiscoverItem emoji="🏙️" name="Montréal Central" sub="5.2k Actifs" />
-              <DiscoverItem emoji="🎢" name="La Ronde Crew" sub="1.2k Actifs" />
-              <DiscoverItem emoji="🛹" name="Bowl de Québec" sub="842 Actifs" />
-            </div>
+          <div style={{ padding: '0 4px' }}>
+            <SectionHeader title="Trending" action="See all" />
+            {loading && <div style={{ padding: 20, textAlign: 'center', color: 'var(--text3)', fontSize: 13 }}>Loading...</div>}
+            {!loading && cliques.slice(0, 3).map(c => (
+              <DiscoverItem key={c.id} name={c.name} sub={`${c.member_count || c.members || 0} members`} />
+            ))}
+            {!loading && cliques.length === 0 && (
+              <div style={{ padding: 20, textAlign: 'center', color: 'var(--text3)', fontSize: 13 }}>No cliques found nearby</div>
+            )}
           </div>
         </div>
       </div>
 
       <div className="main-content">
-        {/* Stories Bar */}
-        <div className="stories-header">
-          <StoryItem emoji="➕" name="Vous" />
-          <StoryItem emoji="🌹" name="Véro" active />
-          <StoryItem emoji="🏒" name="Fred" active />
-          <StoryItem emoji="🦋" name="Sophie" />
-          <StoryItem emoji="🏙️" name="Marc" />
-          <StoryItem emoji="🎸" name="Julie" />
-        </div>
-
-        <div style={{ padding: '24px 24px 8px' }}>
-          <SectionHeader title="📍 CLIQUES PRÈS DE VOUS" action="Voir tout" />
+        <div style={{ padding: '28px 24px 12px' }}>
+          <SectionHeader title="Cliques Near You" action="View all" />
         </div>
         
         <div className="cliques-grid">
-          <CliquesGrid />
+          {cliques.map((clique) => (
+            <div key={clique.id} className="clique-card fade-in">
+              <Avatar name={clique.name} size={44} />
+              <div className="clique-name" style={{ marginTop: 12 }}>{clique.name}</div>
+              <div className="clique-meta">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)' }} />
+                  <span>{clique.member_count || clique.members || 0} members</span>
+                </div>
+                {clique.distance && <div style={{ marginTop: 4, color: 'var(--text3)' }}>{clique.distance}</div>}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </>
@@ -48,56 +74,23 @@ export default function CliquesView() {
 
 function SectionHeader({ title, action }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-      <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, color: 'var(--text2)', letterSpacing: '0.1em' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+      <span style={{ fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 600, color: 'var(--text2)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
         {title}
       </span>
-      <span style={{ fontSize: 11, color: 'var(--gold)', cursor: 'pointer' }}>{action}</span>
+      <span style={{ fontSize: 12, color: 'var(--gold)', cursor: 'pointer', fontWeight: 500 }}>{action}</span>
     </div>
   );
 }
 
-function StoryItem({ emoji, name, active }) {
+function DiscoverItem({ name, sub }) {
   return (
-    <div className="story-circle">
-      <div className="story-ring" style={{ background: active ? 'linear-gradient(135deg, var(--gold), var(--gold-lt), #FF6B35)' : 'var(--bg4)' }}>
-        <div className="story-ring-inner">{emoji}</div>
-      </div>
-      <span className="story-name">{name}</span>
-    </div>
-  );
-}
-
-function DiscoverItem({ emoji, name, sub }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, background: 'var(--bg3)', borderRadius: 14, cursor: 'pointer' }}>
-      <div style={{ width: 40, height: 40, background: 'var(--bg4)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyCenter: 'center', fontSize: 20 }}>{emoji}</div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, background: 'var(--bg3)', borderRadius: 14, cursor: 'pointer', marginBottom: 6, transition: 'background 0.2s', border: '1px solid var(--border)' }}>
+      <Avatar name={name} size={38} />
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 13, fontWeight: 600 }}>{name}</div>
-        <div style={{ fontSize: 11, color: 'var(--text3)' }}>{sub}</div>
+        <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text)' }}>{name}</div>
+        <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 1 }}>{sub}</div>
       </div>
     </div>
-  );
-}
-
-function CliquesGrid() {
-  const { cliques } = useCliquesStore();
-
-  return (
-    <>
-      {cliques.map((clique) => (
-        <div key={clique.id} className="clique-card fade-in">
-          <span className="clique-emoji">{clique.emoji}</span>
-          <div className="clique-name">{clique.name}</div>
-          <div className="clique-meta">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', boxShadow: '0 0 10px var(--green)' }} />
-              <span>{clique.members} membres</span>
-            </div>
-            <div style={{ marginTop: 2 }}>📍 {clique.distance}</div>
-          </div>
-        </div>
-      ))}
-    </>
   );
 }

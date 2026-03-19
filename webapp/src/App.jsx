@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import { useState } from 'react';
 import './index.css';
 import Sidebar from './components/Sidebar';
 import ChatView from './components/ChatView';
@@ -9,13 +10,17 @@ import StoriesView from './components/StoriesView';
 import ShopView from './components/ShopView';
 import SuccessView from './components/SuccessView';
 import SplashView from './components/SplashView';
-import { useUIStore } from './store';
-import { useState } from 'react';
+import { useUIStore, useAuthStore } from './store';
 
 function App() {
   const { activeTab, setActiveTab } = useUIStore();
+  const { fetchProfile } = useAuthStore();
   const [showSplash, setShowSplash] = useState(true);
   const location = useLocation();
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   useEffect(() => {
     const path = location.pathname.substring(1);

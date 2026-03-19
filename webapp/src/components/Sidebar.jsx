@@ -2,10 +2,10 @@ import React from 'react';
 import { useUIStore } from '../store';
 
 const TABS = [
-  { id: 'chat', icon: '💬', label: 'Chat' },
-  { id: 'cliques', icon: '📍', label: 'Cliques' },
-  { id: 'stories', icon: '⚡', label: 'Stories' },
-  { id: 'profile', icon: '👤', label: 'Profile' },
+  { id: 'chat', icon: '✉', label: 'Messages' },
+  { id: 'cliques', icon: '◎', label: 'Cliques' },
+  { id: 'stories', icon: '◇', label: 'Stories' },
+  { id: 'profile', icon: '○', label: 'Profile' },
 ];
 
 export default function Sidebar() {
@@ -21,6 +21,7 @@ export default function Sidebar() {
           className={`sidebar-btn ${activeTab === tab.id ? 'active' : ''}`}
           onClick={() => setActiveTab(tab.id)}
           title={tab.label}
+          style={{ fontSize: activeTab === tab.id ? '1.1rem' : '1rem' }}
         >
           {tab.icon}
         </button>
@@ -33,16 +34,8 @@ export default function Sidebar() {
         onClick={() => setActiveTab('shop')}
         title="Shop"
       >
-        🍯
+        ◆
       </button>
-
-      <div 
-        className={`sidebar-btn ${activeTab === 'profile' ? 'active' : ''}`} 
-        onClick={() => setActiveTab('profile')}
-        style={{ borderRadius: '50%', overflow: 'hidden' }}
-      >
-        🐝
-      </div>
     </nav>
   );
 }
