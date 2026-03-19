@@ -7,7 +7,7 @@ export default function SplashView({ onComplete }) {
     const timer = setTimeout(() => {
       setShow(false);
       if (onComplete) onComplete();
-    }, 3800); // Cinematic 3.8s
+    }, 2500); // 2.5s snap splash
 
     return () => clearTimeout(timer);
   }, [onComplete]);
@@ -15,31 +15,46 @@ export default function SplashView({ onComplete }) {
   if (!show) return null;
 
   return (
-    <div className="splash-view">
-      <div className="splash-logo">
-        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M50 15L65 40H35L50 15Z" fill="var(--gold)" />
-          <circle cx="50" cy="55" r="25" fill="var(--gold)" fillOpacity="0.8" />
-          <path d="M25 55C25 45 10 40 10 55C10 70 25 65 25 55Z" fill="var(--gold)" fillOpacity="0.4" />
-          <path d="M75 55C75 45 90 40 90 55C90 70 75 65 75 55Z" fill="var(--gold)" fillOpacity="0.4" />
-          <rect x="47" y="10" width="2" height="15" fill="var(--gold)" />
-          <rect x="51" y="10" width="2" height="15" fill="var(--gold)" />
-        </svg>
+    <div style={{
+        position: 'fixed', inset: 0, z-index: 9999,
+        background: 'var(--snap-yellow)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
+    }}>
+      <div style={{
+          width: 140, height: 140,
+          background: '#FFFFFF',
+          borderRadius: '44px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 80,
+          boxShadow: '0 15px 40px rgba(0,0,0,0.1)',
+          border: '4px solid #000'
+      }}>
+        👻
       </div>
-      <div className="splash-text">ChatSnap</div>
-      <div style={{ color: 'var(--text3)', fontSize: 10, letterSpacing: 6, marginTop: 12, opacity: 0.6 }}>
-        The Hive Awaits
+      <div style={{ 
+          marginTop: 24, 
+          fontFamily: 'var(--font-display)',
+          fontSize: 32,
+          fontWeight: 800,
+          color: '#000',
+          letterSpacing: '-0.02em',
+          animation: 'snap-bounce 1s infinite var(--spring)'
+      }}>
+        ChatSnap
       </div>
       
-      <div style={{ position: 'absolute', bottom: 60, width: 200, height: 2, background: 'rgba(255,255,255,0.05)', borderRadius: 1 }}>
-        <div style={{ width: '100%', height: '100%', background: 'var(--gold)', animation: 'loader 3s forwards cubic-bezier(0.1, 0.5, 0.5, 1)' }} />
+      <div style={{ position: 'absolute', bottom: 80, width: 180, height: 4, background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
+        <div style={{ width: '100%', height: '100%', background: '#000', animation: 'snap-loader 2s forwards linear' }} />
       </div>
 
       <style>{`
-        @keyframes loader {
-          0% { width: 0%; filter: blur(2px); }
-          50% { width: 70%; filter: blur(0px); }
-          100% { width: 100%; filter: blur(0px); }
+        @keyframes snap-bounce {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        @keyframes snap-loader {
+          0% { width: 0%; }
+          100% { width: 100%; }
         }
       `}</style>
     </div>

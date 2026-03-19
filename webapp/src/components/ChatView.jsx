@@ -3,20 +3,30 @@ import { useMessagesStore } from '../store';
 
 function Avatar({ name, size = 48, online }) {
   const initials = (name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-  const hue = [...(name || '')].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
+  // SNAP COLORS: Use vibrant snap colors for backgrounds
+  const snapColors = ['#00B1FF', '#9B51E0', '#FF4BBD', '#2ECC71', '#FF9500'];
+  const colorIndex = [...(name || '')].reduce((a, c) => a + c.charCodeAt(0), 0) % snapColors.length;
+  const bgColor = snapColors[colorIndex];
+  
   return (
-    <div style={{
-      width: size, height: size, borderRadius: '50%',
-      background: `hsl(${hue}, 35%, 22%)`,
-      border: `1px solid hsl(${hue}, 40%, 30%)`,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontFamily: 'var(--font-body)', fontWeight: 600,
-      fontSize: size * 0.36, color: `hsl(${hue}, 50%, 72%)`,
-      flexShrink: 0, position: 'relative',
-      letterSpacing: '0.03em',
-    }}>
-      {initials}
-      {online && <div className="convo-online" />}
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+      <div style={{
+        width: '100%', height: '100%', borderRadius: '18px',
+        background: bgColor,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: 'var(--font-body)', fontWeight: 700,
+        fontSize: size * 0.4, color: '#fff',
+        boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+      }}>
+        {initials}
+      </div>
+      {online && (
+        <div style={{
+          position: 'absolute', bottom: -2, right: -2,
+          width: 14, height: 14, borderRadius: '50%',
+          background: 'var(--snap-green)', border: '2px solid #fff'
+        }} />
+      )}
     </div>
   );
 }
@@ -27,149 +37,142 @@ export default function ChatView() {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef(null);
 
-  useEffect(() => { fetchConversations(); }, [fetchConversations]);
+  useEffect(() => {
+    fetchConversations();
+  }, [fetchConversations]);
 
-  const filtered = conversations.filter((c) => {
-    const name = c.name || c.display_name || '';
-    return name.toLowerCase().includes(search.toLowerCase());
-  });
-
-  const activeMessages = activeConversation ? (messages[activeConversation.id] || []) : [];
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeMessages.length]);
+    scrollToBottom();
+  }, [messages, activeConversation]);
 
-  const handleSend = () => {
+  const handleSend = (e) => {
+    e.preventDefault();
     if (!input.trim() || !activeConversation) return;
     addMessage(activeConversation.id, {
-      id: `m${Date.now()}`,
+      id: Date.now().toString(),
       text: input,
       sender: 'me',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     });
     setInput('');
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  const getConvoName = (c) => c.name || c.display_name || 'Unknown';
+  const filtered = conversations.filter(c => 
+    c.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <>
-      {/* Conversations Panel */}
-      <div className="panel">
-        <div className="panel-header">
-          <div className="panel-title">Messages</div>
-          <div className="panel-search">
-            <input
-              type="text"
-              placeholder="Search conversations..."
+      <div className="panel fade-in">
+        <div className="panel-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="panel-title">Chat</div>
+          <button style={{ background: 'var(--bg-subtle)', border: 'none', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', fontSize: 18 }}>＋</button>
+        </div>
+        
+        <div style={{ padding: '0 16px 12px' }}>
+          <div style={{ position: 'relative' }}>
+            <input 
+              type="text" 
+              placeholder="Search friends..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              style={{
+                width: '100%', padding: '10px 16px', borderRadius: '12px',
+                background: 'var(--bg-subtle)', border: 'none', fontSize: 14,
+                color: 'var(--text)'
+              }}
             />
           </div>
         </div>
 
         <div className="panel-list">
-          {filtered.length === 0 && (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text3)', fontSize: 13 }}>
-              {conversations.length === 0 ? 'No conversations yet' : 'No results found'}
+          {filtered.length === 0 ? (
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text3)' }}>
+              <div style={{ fontSize: 32, marginBottom: 12 }}>👻</div>
+              <p style={{ fontSize: 13 }}>No one here yet.</p>
             </div>
-          )}
-          {filtered.map((convo) => (
-            <div
-              key={convo.id}
-              className={`convo-item ${activeConversation?.id === convo.id ? 'active' : ''}`}
-              onClick={() => setActiveConversation(convo)}
-            >
-              <Avatar name={getConvoName(convo)} size={48} online={convo.online} />
-              <div className="convo-info">
-                <div className="convo-name">{getConvoName(convo)}</div>
-                <div className={`convo-preview ${convo.unread > 0 ? 'unread' : ''}`}>
-                  {convo.lastMessage || convo.last_message || 'Start a conversation'}
+          ) : (
+            filtered.map((convo) => (
+              <div 
+                key={convo.id} 
+                className={`convo-item ${activeConversation?.id === convo.id ? 'active' : ''}`}
+                onClick={() => setActiveConversation(convo)}
+              >
+                <Avatar name={convo.name} online={convo.online} />
+                <div className="convo-info">
+                  <div className="convo-name">{convo.name}</div>
+                  <div className="convo-preview" style={{ color: convo.unread ? 'var(--snap-blue)' : 'var(--text3)', fontWeight: convo.unread ? 700 : 400 }}>
+                    {convo.unread ? 'New Snap ✦' : convo.lastMessage || 'Tap to chat'}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                   <span style={{ fontSize: 11, color: 'var(--text3)' }}>{convo.time}</span>
+                   {convo.unread && <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--snap-blue)' }} />}
                 </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
-                <span className="convo-time">{convo.time || ''}</span>
-                {convo.unread > 0 && <span className="unread-badge">{convo.unread}</span>}
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
-      {/* Chat Area */}
-      <div className="main-content">
+      <div className={`main-content ${activeConversation ? 'active' : ''} fade-in`}>
         {activeConversation ? (
           <>
-            <div className="chat-header">
-              <Avatar name={getConvoName(activeConversation)} size={42} />
+            <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <button className="sidebar-btn" onClick={() => setActiveConversation(null)} style={{ width: 32, height: 32, fontSize: 16 }}>←</button>
+              <Avatar name={activeConversation.name} size={36} />
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: 16, fontFamily: 'var(--font-body)' }}>{getConvoName(activeConversation)}</div>
-                <div style={{ fontSize: 11, color: activeConversation.online ? 'var(--green)' : 'var(--text3)' }}>
-                  {activeConversation.online ? 'Online' : 'Offline'}
-                </div>
+                <div style={{ fontWeight: 700, fontSize: 15 }}>{activeConversation.name}</div>
+                <div style={{ fontSize: 11, color: 'var(--snap-green)', fontWeight: 600 }}>Active Now</div>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button className="sidebar-btn" style={{ width: 36, height: 36, borderRadius: 10 }}>📹</button>
-                <button className="sidebar-btn" style={{ width: 36, height: 36, borderRadius: 10 }}>⋯</button>
+                 <button style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer' }}>📞</button>
+                 <button style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer' }}>📹</button>
               </div>
             </div>
 
             <div className="chat-messages">
-              {activeMessages.map((msg) => (
-                <div key={msg.id} className={`msg ${msg.sender === 'me' ? 'sent' : 'received'}`}>
-                  {msg.sender !== 'me' && (
-                    <Avatar name={getConvoName(activeConversation)} size={28} />
-                  )}
-                  <div>
-                    <div className="msg-bubble">{msg.text}</div>
-                    <div style={{ fontSize: 9, color: 'var(--text3)', marginTop: 3, textAlign: msg.sender === 'me' ? 'right' : 'left' }}>
-                      {msg.time} {msg.sender === 'me' && <span style={{ color: 'var(--gold)', opacity: 0.6 }}>✓✓</span>}
-                    </div>
-                  </div>
+              {messages[activeConversation.id]?.map((msg) => (
+                <div key={msg.id} className={`message-bubble ${msg.sender === 'me' ? 'message-mine' : 'message-theirs'}`}>
+                  {msg.text}
+                  <div style={{ fontSize: 10, opacity: 0.7, marginTop: 4, textAlign: 'right' }}>{msg.timestamp}</div>
                 </div>
               ))}
               <div ref={messagesEndRef} />
             </div>
 
-            <div className="chat-input-bar">
-              <input
-                className="chat-input"
-                type="text"
-                placeholder="Type a message..."
+            <form className="chat-input-area" onSubmit={handleSend}>
+              <button type="button" style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer' }}>📸</button>
+              <input 
+                type="text" 
+                className="chat-input" 
+                placeholder="Send a Chat" 
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
               />
-              <button className="send-btn" onClick={handleSend}>➤</button>
-            </div>
+              {input.trim() ? (
+                <button type="submit" style={{ background: 'var(--snap-blue)', color: '#fff', border: 'none', width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  ➤
+                </button>
+              ) : (
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button type="button" style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer' }}>🎙️</button>
+                  <button type="button" style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer' }}>☺</button>
+                </div>
+              )}
+            </form>
           </>
         ) : (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24, padding: 40, textAlign: 'center' }}>
-            <div style={{ 
-              padding: '14px 28px', 
-              background: 'rgba(201,151,58,0.08)', 
-              border: '1px solid var(--border-gold)', 
-              borderRadius: 14, 
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700, 
-              color: 'var(--gold)', 
-              letterSpacing: '0.15em',
-              fontSize: 20,
-            }}>
-              CHATSNAP
-            </div>
-            <div style={{ fontSize: 26, fontWeight: 700, fontFamily: 'var(--font-display)' }}>Welcome</div>
-            <div style={{ fontSize: 14, color: 'var(--text3)', maxWidth: 320, lineHeight: 1.7 }}>
-              Select a conversation to start messaging, or explore nearby Cliques to find your people.
-            </div>
+          <div className="welcome-screen">
+             <div style={{ width: 120, height: 120, background: 'var(--snap-yellow)', borderRadius: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 64, boxShadow: '0 10px 30px rgba(255, 252, 0, 0.3)' }}>
+               👻
+             </div>
+             <h2 className="welcome-title">Snap to Start</h2>
+             <p className="welcome-subtitle">Pick a friend to start chatting or sharing moments.</p>
           </div>
         )}
       </div>
