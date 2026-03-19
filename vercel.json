@@ -1,17 +1,12 @@
 {
-    "version": 2,
-    "public": false,
-    "rewrites": [
-        {
-            "source": "/(.*)",
-            "destination": "/frontend/marketing/$1"
-        }
-    ],
-    "redirects": [
-        {
-            "source": "/",
-            "destination": "/frontend/marketing/index.html",
-            "permanent": true
-        }
-    ]
+  "version": 2,
+  "buildCommand": "cd webapp && npm install && npm run build",
+  "outputDirectory": "webapp/dist",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
