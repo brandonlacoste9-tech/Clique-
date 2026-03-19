@@ -1,22 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useMessagesStore } from '../store';
 
-function Avatar({ name, size = 48, online }) {
+function Avatar({ name, size = 48, online, isElite }) {
   const initials = (name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-  // SNAP COLORS: Use vibrant snap colors for backgrounds
   const snapColors = ['#00B1FF', '#9B51E0', '#FF4BBD', '#2ECC71', '#FF9500'];
   const colorIndex = [...(name || '')].reduce((a, c) => a + c.charCodeAt(0), 0) % snapColors.length;
   const bgColor = snapColors[colorIndex];
   
   return (
     <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+      {isElite && (
+        <div className="elite-aura" style={{ position: 'absolute', inset: -3, borderRadius: '20px', background: 'linear-gradient(45deg, var(--snap-yellow), transparent)', border: '1px solid gold', opacity: 0.6, zIndex: 0 }} />
+      )}
       <div style={{
         width: '100%', height: '100%', borderRadius: '18px',
         background: bgColor,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontFamily: 'var(--font-body)', fontWeight: 700,
         fontSize: size * 0.4, color: '#fff',
-        boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+        boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+        position: 'relative', zIndex: 1
       }}>
         {initials}
       </div>
@@ -24,8 +27,15 @@ function Avatar({ name, size = 48, online }) {
         <div style={{
           position: 'absolute', bottom: -2, right: -2,
           width: 14, height: 14, borderRadius: '50%',
-          background: 'var(--snap-green)', border: '2px solid #fff'
+          background: 'var(--snap-green)', border: '2px solid #fff',
+          zIndex: 2
         }} />
+      )}
+      {isElite && (
+        <div style={{
+          position: 'absolute', top: -6, right: -6,
+          fontSize: 16, zIndex: 2
+        }}>🔱</div>
       )}
     </div>
   );
@@ -99,14 +109,16 @@ export default function ChatView() {
             filtered.map((convo) => (
               <div 
                 key={convo.id} 
-                className={`convo-item ${activeConversation?.id === convo.id ? 'active' : ''}`}
+                className={`convo-item ${activeConversation?.id === convo.id ? 'active' : ''} ${convo.isElite ? 'elite-member' : ''}`}
                 onClick={() => setActiveConversation(convo)}
               >
-                <Avatar name={convo.name} online={convo.online} />
+                <Avatar name={convo.name} online={convo.online} isElite={convo.isElite} />
                 <div className="convo-info">
-                  <div className="convo-name">{convo.name}</div>
-                  <div className="convo-preview" style={{ color: convo.unread ? 'var(--snap-blue)' : 'var(--text3)', fontWeight: convo.unread ? 700 : 400 }}>
-                    {convo.unread ? 'New Snap ✦' : convo.lastMessage || 'Tap to chat'}
+                  <div className="convo-name" style={{ color: convo.isElite ? 'var(--snap-yellow)' : 'inherit', fontWeight: 800 }}>
+                    {convo.name} {convo.isElite && '🔱'}
+                  </div>
+                  <div className="convo-preview" style={{ color: convo.isElite ? 'rgba(255,252,0,0.6)' : (convo.unread ? 'var(--snap-blue)' : 'var(--text3)'), fontWeight: convo.unread ? 700 : 400 }}>
+                    {convo.unread ? 'New Snap ✦' : convo.lastMessage || 'Send a Buzz 🐝'}
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>

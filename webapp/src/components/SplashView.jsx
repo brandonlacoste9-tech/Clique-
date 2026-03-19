@@ -40,8 +40,11 @@ export default function SplashView({ onComplete }) {
           letterSpacing: '-0.02em',
           animation: 'snap-bounce 1s infinite var(--spring)'
       }}>
-        ChatSnap
+        The Hive
       </div>
+      <p style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: 'rgba(0,0,0,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+         Elite has Arrived 🔱
+      </p>
       
       <div style={{ position: 'absolute', bottom: 80, width: 180, height: 4, background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
         <div style={{ width: '100%', height: '100%', background: '#000', animation: 'snap-loader 2s forwards linear' }} />

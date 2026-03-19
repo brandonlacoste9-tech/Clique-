@@ -37,24 +37,25 @@ export default function ShopView() {
       <div style={{ padding: '48px 24px', maxWidth: 800, margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
           <button className="sidebar-btn" onClick={() => setActiveTab('profile')} style={{ borderRadius: 14 }}>←</button>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 36, letterSpacing: '-0.02em' }}>Honey Shop</h1>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 36, letterSpacing: '-0.02em' }}>The Honey Shop</h1>
         </div>
-        <p style={{ fontSize: 14, color: 'var(--text2)', marginBottom: 32, fontWeight: 500 }}>Amplify your influence across the hive 🔱</p>
+        <p style={{ fontSize: 14, color: 'var(--text2)', marginBottom: 32, fontWeight: 500 }}>Amplify your influence across The Hive 🔱</p>
 
         {/* Premium Card - Snap Yellow Style */}
         <div className="premium-card" style={{ maxWidth: 'none', marginBottom: 40, opacity: loading ? 0.7 : 1, boxShadow: '0 10px 40px rgba(255, 252, 0, 0.4)' }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 800 }}>CHATSNAP<span style={{ color: '#000', opacity: 0.5 }}>+</span></div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 800 }}>THE HIVE<span style={{ color: '#000', opacity: 0.5 }}>+</span></div>
+          <p style={{ fontSize: 13, fontWeight: 700, opacity: 0.6, marginTop: 4 }}>Elite has Arrived 🔱</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, margin: '24px 0' }}>
             <Feature text="Ghost Mode — browse invisibly" />
-            <Feature text="Story Vision — see who views your content" />
+            <Feature text="Royal Vision — see who views your content" />
             <Feature text="Accelerated Prestige — climb tiers faster" />
-            <Feature text="Sovereign Badge — exclusive elite status" />
+            <Feature text="Elite Badge — exclusive status" />
           </div>
           <div style={{ fontSize: 32, fontWeight: 800, color: '#000', marginBottom: 20 }}>
             $4.99 <span style={{ fontSize: 13, opacity: 0.6, fontWeight: 600 }}>/ month</span>
           </div>
           <button className="buy-btn" onClick={handleSubscribe} disabled={loading} style={{ width: '100%', padding: '18px', fontSize: 16 }}>
-            {loading ? 'Processing...' : 'Activate Now 🔱'}
+            {loading ? 'Processing...' : 'Activate Elite Status 🔱'}
           </button>
         </div>
 
@@ -74,7 +75,7 @@ export default function ShopView() {
           <ShopItem 
             symbol="◎" 
             name="Royal Jelly" 
-            desc="Massive influence boost + permanent sovereign glow" 
+            desc="Massive influence boost + permanent elite glow" 
             price="$49.99" 
             color="var(--snap-yellow)"
             onClick={() => handleBuyUpgrade('royal_jelly')}

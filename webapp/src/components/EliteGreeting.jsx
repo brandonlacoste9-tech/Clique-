@@ -7,7 +7,7 @@ export default function EliteGreeting({ user, onComplete }) {
     const timer = setTimeout(() => {
       setVisible(false);
       if (onComplete) onComplete();
-    }, 4500); // 4.5 seconds of glory
+    }, 4500); // 4.5 seconds of buzz
 
     return () => clearTimeout(timer);
   }, [onComplete]);
@@ -15,22 +15,22 @@ export default function EliteGreeting({ user, onComplete }) {
   if (!visible) return null;
 
   return (
-    <div className="sovereign-banner fade-in">
+    <div className="hive-banner fade-in">
        <div style={{
-         width: 32, height: 32, borderRadius: 8, background: 'var(--gold)',
+         width: 36, height: 36, borderRadius: 10, background: 'var(--snap-yellow)',
          display: 'flex', alignItems: 'center', justifyContent: 'center',
-         fontSize: 18, color: 'var(--bg2)', fontWeight: 800,
-         boxShadow: '0 0 15px var(--gold-glow)'
+         fontSize: 20, color: '#000', fontWeight: 800,
+         boxShadow: '0 0 20px rgba(255, 252, 0, 0.5)'
        }}>
-         👑
+         🐝
        </div>
        <div style={{ flex: 1 }}>
-         <div className="sovereign-text">L'IMPERIAL <span style={{ textTransform: 'uppercase' }}>{user.displayName}</span> ARRIVE</div>
-         <div style={{ fontSize: 11, color: 'var(--text3)' }}>
-            "{user.entranceMessage || 'La ruche s\'incline ⚜️'}"
+         <div className="hive-text">ELITE <span style={{ textTransform: 'uppercase' }}>{user.displayName}</span> HAS ARRIVED</div>
+         <div style={{ fontSize: 11, color: 'var(--text3)', fontWeight: 600 }}>
+            "{user.entranceMessage || 'The Hive bows 🔱'}"
          </div>
        </div>
-       <div className="shimmer-gold" style={{ width: 40, height: 2, background: 'var(--gold)' }}></div>
+       <div className="shimmer-honey" style={{ width: 44, height: 3, background: 'var(--snap-yellow)', borderRadius: 2 }}></div>
     </div>
   );
 }

@@ -47,11 +47,11 @@ export default function ProfileView() {
         }}>
           🐝
         </div>
-        <h1 style={{ fontSize: 28, fontWeight: 800, color: '#000', marginBottom: 4 }}>{user.full_name}</h1>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: '#000', marginBottom: 4 }}>{user.displayName || 'King Bee'}</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'rgba(0,0,0,0.6)', fontWeight: 600 }}>
-          <span>@{user.username}</span>
+          <span>Member of The Hive 🔱</span>
           <span style={{ opacity: 0.3 }}>|</span>
-          <span>{user.prestige_score || 0} Points</span>
+          <span>{user.prestige_score || 'Royal'} Points</span>
         </div>
       </div>
 
@@ -60,15 +60,18 @@ export default function ProfileView() {
         <div style={{ 
             background: '#fff', 
             borderRadius: '24px', 
-            padding: '20px', 
+            padding: '24px', 
             border: '1px solid var(--border)',
             display: 'flex', 
             justifyContent: 'space-around',
             marginBottom: 20,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+            boxShadow: '0 8px 32px rgba(0,0,0,0.06)',
+            position: 'relative',
+            overflow: 'hidden'
         }}>
+           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: 'var(--snap-yellow)' }}></div>
           <div className="profile-stat">
-            <span className="profile-stat-val" style={{ color: 'var(--snap-purple)' }}>{user.tier || 'Scout'}</span>
+            <span className="profile-stat-val" style={{ color: 'var(--snap-yellow)', textShadow: '0 0 10px rgba(255,252,0,0.3)' }}>ELITE</span>
             <span className="profile-stat-label">Member Rank</span>
           </div>
           <div style={{ width: 1, height: 24, background: 'var(--border)', alignSelf: 'center' }}></div>
