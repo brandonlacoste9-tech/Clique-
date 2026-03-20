@@ -253,3 +253,30 @@ export const triggerCliqueJoined = async (cliqueName) => {
     console.error("Failed to trigger Clique Joined:", error);
   }
 };
+/**
+ * triggerYoloModeActivated — Called when user selects YOLO lens.
+ */
+export const triggerYoloModeActivated = async () => {
+  const addMessage = useMessagesStore.getState().addMessage;
+
+  try {
+    // 1. Heavy Pulse
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    await new Promise((r) => setTimeout(r, 200));
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+    // 2. Bilingual Message
+    const fr = "👁️ MODE YOLO ACTIVÉ. VISION SOUVERAINE EN TEMPS RÉEL.";
+    const en = "👁️ YOLO MODE ACTIVATED. REAL-TIME SOVEREIGN VISION.";
+
+    addMessage("CHATSNAP", {
+      id: `system_yolo_${Date.now()}`,
+      sender: "CHATSNAP",
+      text: `${fr}\n\n${en}`,
+      timestamp: new Date().toISOString(),
+      isSystem: true,
+    });
+  } catch (error) {
+    console.error("Failed to trigger YOLO Activation:", error);
+  }
+};

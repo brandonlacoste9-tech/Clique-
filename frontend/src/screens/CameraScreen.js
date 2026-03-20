@@ -16,6 +16,7 @@ import * as MediaLibrary from "expo-media-library";
 import { colors, spacing, borderRadius } from "../theme/cliqueTheme";
 import { uploadAPI, storiesAPI } from "../api/cliqueApi";
 import { useStoriesStore } from "../store/cliqueStore";
+import { triggerYoloModeActivated } from "../services/eliteGreetingService";
 
 const { width, height } = Dimensions.get("window");
 
@@ -62,6 +63,12 @@ export default function CameraScreen() {
       pulseAnim.setValue(1);
     }
   }, [isRecording]);
+  
+  useEffect(() => {
+    if (selectedLens?.id === "yolo-scan") {
+      triggerYoloModeActivated();
+    }
+  }, [selectedLens]);
 
   useEffect(() => {
     // YOLO Scanner sweeps up and down

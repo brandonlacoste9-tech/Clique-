@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "ChatSnap",
-    "slug": "chatsnap-app",
-    "scheme": "chatsnap",
+    "name": "Clique",
+    "slug": "clique-app",
+    "scheme": "clique",
     "version": "2026.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

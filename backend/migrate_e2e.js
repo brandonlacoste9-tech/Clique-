@@ -4,7 +4,7 @@ const { Pool } = pg;
 import dotenv from 'dotenv';
 import path from 'path';
 
-dotenv.config({ path: 'c:/Users/north/New folder (5)/Clique-/backend/.env' });
+dotenv.config({ path: path.join(process.cwd(), '.env') });
 
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,

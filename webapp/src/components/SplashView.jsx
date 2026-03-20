@@ -40,7 +40,7 @@ export default function SplashView({ onComplete }) {
           letterSpacing: '-0.02em',
           animation: 'snap-bounce 1s infinite var(--spring)'
       }}>
-        ChatSnap
+        Clique
       </div>
       
       <div style={{ position: 'absolute', bottom: 80, width: 180, height: 4, background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>

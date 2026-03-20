@@ -47,7 +47,7 @@ import LandingVIPScreen from "./src/screens/LandingVIPScreen";
 import StoryViewer from "./src/components/StoryViewer";
 
 const linking = {
-  prefixes: ["chatsnap://", "https://chatsnap.ca"],
+  prefixes: ["clique://", "https://clique.ca"],
   config: {
     screens: {
       Main: {
